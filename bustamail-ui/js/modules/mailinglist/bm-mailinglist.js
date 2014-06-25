@@ -1,0 +1,1 @@
+BMApp.MailingList = angular.module("MailingListModule", ['SecurityModule']);

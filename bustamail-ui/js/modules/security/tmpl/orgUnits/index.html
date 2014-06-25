@@ -1,0 +1,56 @@
+<h3>Organisationseinheiten</h3>
+
+<div class="row">
+	<div class="col-md-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">Organisationsbaum</div>
+			<div class="panel-body">
+				<div
+	    		  data-angular-treeview="true"
+	   			  data-tree-id="tree" 
+	   			  data-tree-model="rootUnits" 
+	   			  data-node-id="id"
+	   			  data-node-label="name"
+	   			  data-node-children="children" >
+	    		</div>
+	    	</div>
+	    </div>
+	</div>
+	
+	<div class="col-md-7">
+		<div class="panel panel-default" data-ng-if="orgUnit">
+			<div class="panel-heading">{{orgUnit.name}}</div>
+			<div class="panel-body">
+				<ul class="nav nav-tabs">
+					<li class="active"> <a data-target="#base" data-toggle="tab" data-ng-click="tab = 'BASE'">Stammdaten</a></li>
+					<li>				<a data-target="#users" data-toggle="tab" data-ng-click="tab = 'USERS'">Benutzer</a></li>
+				</ul>
+			
+				<div class="tab-content">
+					<div class="tab-pane fade in active" id="base">
+						<div data-ng-include data-src="'./js/modules/security/tmpl/orgUnits/form.html'" ></div>
+					</div>
+					
+					<div class="tab-pane fade" id="users">
+						<div data-ng-include data-src="'./js/modules/security/tmpl/orgUnits/userlist.html'"></div>
+					</div>
+				</div>	
+			</div>
+			<div class="panel-footer">
+				<div class="pull-right">
+					<button class="btn btn-success" data-ng-click="saveOrgUnit()" data-ng-show="tab == 'BASE'">Speichern</button>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="col-md-2">
+		<div class="panel panel-default">
+			<div class="panel-heading">Aktionen</div>
+			<div class="panel-body">
+				<a href="#/security/orgUnits/create">Neue Organisations Einheit anlegen</a>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,122 @@
+<div class="col-md-3">
+<form data-role="form">
+	<div class="form-group">
+		<label>Name</label>
+		<input type="text" data-ng-model="template.name" class="form-control">
+	</div>
+	
+	<div class="form-group">
+		<label>Beschreibung</label>
+		<textarea data-ng-model="template.description" class="form-control"></textarea>
+	</div>
+</form>
+</div>
+
+
+<div class="col-md-9">
+	<ul class="nav nav-tabs">
+		<li class="active">	<a data-target="#source" data-toggle="tab">Quellcode</a></li>
+		<li>				<a data-target="#images" data-toggle="tab">Bilder</a></li>
+		<li>				<a data-target="#settings" data-toggle="tab">Einstellungen</a></li>
+	</ul>
+	
+	<div class="tab-content">
+		<div class="tab-pane active" id="source">
+			<form data-role="form">	
+				<div class="form-group">
+					<label>Source Code:</label>
+					<div data-ui-codemirror="{onLoad : setupCodeMirror }"></div>
+				</div>
+			</form>	
+		</div>
+		
+		<div class="tab-pane" id="images">
+			<h4>Bilder</h4>
+			<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>Name</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr data-ng-repeat="i in template.images">
+					<td><img data-ng-src="./img/media/{{i.id}}" width="64"></td>
+					<td>{{i.name}}</td>
+					<td class="tools">
+						<a href="./img/media/{{i.id}}" target="_blank"><span class="fa fa-download"></span></a>
+						<a href="javascript:void('');" data-ng-click="deleteTemplateImage(i.id)"><span class="fa fa-trash-o"></span></a>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			
+				
+			<h5>Weiteres hochladen</h5>
+			<input type="file" data-ng-file-select="onFileSelect($files)" multiple class="form-control">
+			
+			<h5>Markiert zum hochladen</h5>
+			<div data-ng-repeat="f in templateFiles">
+				{{f.name}}
+			</div>
+			<button class="btn btn-primary pull-right" data-ng-click="uploadTemplateImages()" data-ng-disabled="templateFiles.length == 0">
+				{{templateFiles.length}} hochladen
+			</button>
+		</div>
+		
+		
+		<div class="tab-pane" id="settings">
+			<h4>Template Einstellungen</h4>
+			
+				<div class="col-md-6">
+					<h5>Text Eigenschaften</h5>
+					<div class="form-group">
+						<label class="checkbox">
+							<input type="color" data-ng-model="template.settings.defaultFontColor"> Standard Textfarbe
+						</label>
+						
+						<label>Standard Schriftart</label>
+						<select data-ng-model="template.settings.defaultFontFamily" class="form-control">
+							<option value="Arial">Arial</option>
+							<option value="Courier">Courier</option>
+							<option value="Helvetica">Helvetica</option>
+							<option value="Times New Roman">Times new Roman</option>
+						</select>
+						
+						<label>Standard Textgröße</label>
+						<input type="number" min="4" max="72" data-ng-model="template.settings.defaultFontSize" class="form-control">
+					</div>
+					
+					<h5>Sonstige Einstellungen</h5>
+					<div class="form-group">
+						<label class="checkbox">
+							<input type="checkbox" data-ng-model="template.settings.enableCellPaddingOptimization" data-ng-checked="template.settings.enableCellPaddingOptimization == 'true'"> Platzhalter Zellen mit transparenten Bilder füllen
+						</label>
+					</div>
+				</div>
+		
+				<div class="col-md-6">	
+					<h5>Einstellungen für Hyperlinks</h5>
+					<div class="form-group">
+						<label class="checkbox">
+							<input type="color" data-ng-model="template.settings.defaultLinkColor"> Standard Linkfarbe
+						</label>
+					</div>
+					
+					<div class="form-group">
+						<label class="checkbox">
+							<input type="checkbox" data-ng-model="template.settings.linksUnderlined" data-ng-checked="template.settings.linksUnderlined == 'true'"> Links standardmäßig Unterstreichen
+						</label>
+					</div>
+					
+					<div class="form-group">
+						<label class="checkbox">
+							<input type="checkbox" data-ng-model="template.settings.linkTrackingEnabled" data-ng-checked="template.settings.linkTrackingEnabled == 'true'"> Linktracking standardmäßig aktiviert
+						</label>
+					</div>
+				</div>	
+		</div>
+		
+	</div>
+</div>

@@ -1,0 +1,25 @@
+<table class="table table-striped table-condensed">
+<thead>
+	<tr>
+		<th>Name</th>
+		<th>E-Mail</th>
+		<th>Gesperrt</th>
+		<th>&nbsp;</th>
+	</tr>
+</thead>
+<tbody>
+	<tr data-ng-repeat="u in users.content">
+		<td>{{u.firstName}} <strong>{{u.lastName}}</strong></td>
+		<td>{{u.email}}</td>
+		<td>
+			<span data-ng-if="u.locked">Ja</span><span data-ng-if="!u.locked">Nein</span>
+		</td>
+		<td class="tools">
+			<a href="#/security/users/{{u.id}}/edit"><span class="fa fa-pencil"></span></a>
+			<a href="javascript:void('');" data-ng-click="lockUser(u.id)" data-ng-if="!u.locked" title="User sperren"><span class="fa fa-unlock"></span></a>
+			<a href="javascript:void('');" data-ng-click="unlockUser(u.id)" data-ng-if="u.locked" title="User entsperren"><span class="fa fa-lock"></span></a>
+			<a href="javascript:void('');" data-ng-click="deleteUser(u.id)"><span class="fa fa-trash-o"></span></a>
+		</td>
+	</tr>	
+</tbody>
+</table>

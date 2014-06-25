@@ -1,0 +1,148 @@
+<h3></h3>
+<div class="row">
+<div class="col-md-2">
+	<div class="panel-group" id="editor-accordion">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#widgetTab" style="color:#fff;cursor:pointer;">
+					Widgets
+				</a>
+			</div>
+			<div id="widgetTab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div data-ng-repeat="w in widgets">
+						<button class="btn btn-info btn-xs" data-ng-click="appendWidget(w.id)">
+							<span class="fa fa-plus"></span>
+						</button>
+						<button class="btn btn-info btn-xs" data-ng-click="replaceElement(w.id)" data-ng-if="w.nestable && element">
+							<span class="fa fa-refresh"></span>
+						</button>
+						{{w.name}}<br/>
+						<small>{{w.description}}</small>
+						<hr/>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#versionsTab" style="color:#fff;cursor:pointer;">
+					Versionen
+				</a>
+			</div>
+			<div id="versionsTab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div data-ng-repeat="v in contentVersions|orderBy:'dateCreated':true">
+						<small class="pull-left">
+						{{v.dateCreated|date:'dd.MM.yyyy HH:mm:ss'}}<br/>
+						von {{v.userCreated.firstName}} {{v.userCreated.lastName}}<br/>
+						</small>
+						<button class="btn btn-info btn-xs pull-right" data-ng-click="rollBackTo(v.id)" title="Wiederherstellen">
+							<span class="fa fa-refresh"></span>
+						</button>
+						<div class="clearfix"></div><br/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<button class="btn btn-success btn-sm" data-ng-click="saveContents()">Speichern</button>
+	<button class="btn btn-primary btn-sm" data-ng-click="sendPreview()">Vorschau senden</button>
+</div>
+
+
+<div class="col-md-8" id="editor">
+	<div id="slider" data-ng-controller="ImagePickerModalController">
+		<div class="wrapper" data-ng-include data-src="'./js/modules/media/tmpl/image-picker-modal.html'"></div>
+	</div>
+	<div id="editor-content" data-ng-bind-html="html"></div>
+</div>
+
+
+<div class="col-md-2">
+	<div data-ng-show="textSelection">
+		Variablen:<br/>
+		<div class="control-group">
+			<label>Variable einfügen</label>
+			<select data-ng-model="textVar" class="form-control">
+				<option value="sendingDate">Datum des Versands</option>
+				<option value="personalizedGreeter">Pers. Anrede</option>
+				<option value="generalGreeter">Allg. Anrede</option>
+				<option value="subscriberFirstName">Vorname</option>
+				<option value="subscriberLastName">Nachname</option>
+				<option value="staticLink:[link text]">Link zur HTML Version</option>
+			</select><br/>
+			<button class="btn btn-sm btn-success pull-right" data-ng-click="replaceVar()">Einfügen</button>
+			<div class="clearfix"></div>
+		</div>
+	
+		<div data-ng-if="link.id">	
+			Verlinkung:<br/>
+			<small>Den markierten Text verlinken:</small><br/>
+			<label>Link</label>
+			<input type="text" data-ng-model="link.href" class="form-control" placeholder="http://www.example.com" data-ng-blur="checkLinkConnectivity()">
+			<span data-ng-if="link.working" class="help-block"><span class="text-success"><span class="fa fa-check-circle"></span> Der Link funktioniert!</span></span>
+			<span data-ng-if="!link.working" class="help-block"><span class="text-danger"><span class="fa fa-warning"> Seite nicht erreichbar!</span></span></span>
+		
+		
+			<label class="checkbox">
+				<input type="checkbox" data-ng-model="link.enableTracking"> Tracking aktivieren
+			</label>	
+			
+			<label>Farbe</label>
+			<input type="color" data-ng-model="link.color" class="form-control">
+				
+			<label class="checkbox">
+				<input type="checkbox" data-ng-model="link.textUnderline"> Unterstreichen
+			</label>
+			<button class="btn btn-sm btn-success pull-right" data-ng-click="insertHyperlink()" data-ng-disabled="link.href.length == 0">Einfügen</button>
+			<div class="clearfix"></div>
+		</div>
+
+<!-- 	
+		<h5>Text Formatierung</h5>	
+		<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-primary">
+				<input type="checkbox"> <span class="fa fa-bold"></span>
+			</label>
+			<label class="btn btn-primary">
+				<input type="checkbox"><span class="fa fa-italic"></span>
+			</label>
+			<label class="btn btn-primary">
+				<input type="checkbox"><span class="fa fa-underline"></span>
+			</label>
+		</div>
+-->
+	</div>
+	
+	<form data-role="form">
+		<div class="control-group" data-ng-if="element.valign">
+			<label>Vertical Align</label>
+			<select class="form-control input-sm" data-ng-model="element.valign" data-ng-change="applySettings()">
+				<option value="top">Top</option>
+				<option value="bottom">Bottom</option>
+			</select>
+		</div>
+		<div class="control-group" data-ng-if="element.align">
+			<label>Text align</label>
+			<select class="form-control" data-ng-model="element.align" data-ng-change="applySettings()">
+				<option value="left">Left</option>
+				<option value="center">Center</option>
+				<option value="right">Right</option>
+			</select>
+		</div>
+		
+		<div class="control-group" data-ng-if="element.width">
+			<label>Breite</label>
+			<input type="text" class="form-control" data-ng-model="element.width" data-ng-change="applySettings()">
+		</div>
+		
+		<div class="control-group" data-ng-if="element.bgColor">
+			<label>Hintergrundfarbe</label>
+			<input type="text" class="form-control" data-ng-model="element.bgColor" data-ng-change="applySettings()">
+		</div>
+	</form>
+	</div>
+</div>

@@ -1,0 +1,24 @@
+<table class="table">
+<thead>
+	<tr>
+		<th>&nbsp;</th>
+		<th>Name</th>
+		<th>Beschreibung</th>
+		<th>&nbsp;</th>
+	</tr>
+</thead>
+<tbody>
+	<tr data-ng-if="template.widgets.length == 0">
+		<td colspan="4">Bisher sind noch keine Widgets angelegt</td>
+	</tr>
+	<tr data-ng-repeat="w in widgets">
+		<td>&nbsp;</td>
+		<td>{{w.name}}</td>
+		<td>{{w.description}}</td>
+		<td class="tools">
+			<a href="javascript:void('');" data-ng-click="focusWidget(w)" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
+			<a href="javascript:void('');" data-ng-click="deleteWidget(w.id)" title="Entfernen"><span class="fa fa-trash-o"></span></a>
+		</td>
+	</tr>
+</tbody>
+</table>

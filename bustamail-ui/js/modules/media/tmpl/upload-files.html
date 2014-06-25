@@ -1,0 +1,16 @@
+<form data-role="form">
+	<h4>Dateien in <b>{{cwd.name}}</b> hochladen</h4>
+	<input type="file" data-ng-file-select="onFilesSelected($files)" multiple class="form-control">
+	
+	<h4>Zum hochladen markierte Dateien</h4>
+	<div data-ng-if="uFiles.length == 0">
+		Keine Dateien ausgewählt.
+	</div>
+	<div data-ng-repeat="f in uFiles">
+		{{f.name}}
+	</div>
+	
+	<div class="pull-right">
+		<button class="btn btn-primary" data-ng-disabled="uFiles.length == 0 || !cwd" data-ng-click="uploadFiles()">{{uFiles.length}} Hochladen</button>
+	</div>
+</form>

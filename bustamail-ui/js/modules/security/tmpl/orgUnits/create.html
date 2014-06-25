@@ -1,0 +1,44 @@
+<h3>Organisationseinheiten</h3>
+
+<div class="row">
+	<div class="col-md-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">Organisationsbaum</div>	
+			<div class="panel-body">
+				<small>
+					Wählen Sie eine Eltern Organisationseinheit 
+					für die neue Einheit. Falls keine gewählt wird, wird eine neue Elternorganisationsheit angelegt.
+				</small>
+				<br/><br/>	
+				<div
+	    		  data-angular-treeview="true"
+	    		  data-tree-id="tree"
+	   			   data-tree-model="rootUnits"
+	    		  data-node-id="id"
+	    		  data-node-label="name"
+	    		  data-node-children="children" >
+	    		</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="col-md-7">
+		<div class="panel panel-default">
+			<div class="panel-heading">Neue Organisationseinheit anlegen</div>	
+			<div class="panel-body">
+				<strong>Übergeordnete Einheit</strong>: {{parentUnit.name}} 
+					<span class="fa fa-trash-o" style="cursor:pointer;" data-ng-click="removeSelection();" data-ng-if="parentUnit"></span>
+				<br/><br/>
+				
+				<div data-ng-include data-src="'./js/modules/security/tmpl/orgUnits/form.html'"></div>	
+			</div>	
+			<div class="panel-footer">
+				<div class="pull-right">
+					<button class="btn btn-danger" data-ng-click="dismissForm()">Abbrechen</button>				
+					<button class="btn btn-success" data-ng-click="saveOrgUnit()">Speichern</button>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>

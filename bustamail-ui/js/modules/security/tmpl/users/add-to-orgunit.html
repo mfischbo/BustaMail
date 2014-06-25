@@ -1,0 +1,43 @@
+<h4>Benutzer der Organisationseinheit hinzufügen</h4>
+
+<div data-ng-show="orgUnit">
+<form data-role="form">
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" data-ng-click="toggleOrgUnit();" data-ng-checked="isInOrgUnit()"> 
+			<strong>{{user.firstName}} {{user.lastName}}</strong> ist Mitglied der Gruppe
+		</label>
+	</div>
+	
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" data-ng-click="toggleAddToChildren()" data-ng-checked="isAddedToChildren()" 
+			data-ng-disabled="!isInOrgUnit() || !orgUnit.children || orgUnit.children.length == 0">
+			Benutzer ist Mitglied aller Unterorganisationseinheiten von <strong>{{orgUnit.name}}</strong>
+		</label>
+	</div>
+	
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" data-ng-click="toggleAddToFutureChildren()" data-ng-checked="isAddedToFutureChildren()" data-ng-disabled="!isInOrgUnit()">
+			Benutzer zu neuen Unterorganisationseinheiten automatisch hinzufügen
+		</label>
+	</div>
+</form>
+
+<br/><br/>
+<h4>Berechtigungen</h4>
+
+<div data-ng-repeat="g in permissionGroups">
+	<strong>{{g}}</strong><br/>
+	<div class="checkbox" data-ng-repeat="p in getPermissionsByGroup(g)">
+		<label>
+			<input type="checkbox" data-ng-click="togglePermission(p.id)" data-ng-checked="hasPermission(p.id)"> {{p.nicename}}
+		</label>
+	</div>
+</div>
+</div>
+
+<div data-ng-show="!orgUnit">
+	Bitte wählen Sie zunächst links eine der Organisationseinheiten
+</div>

@@ -1,0 +1,23 @@
+<form data-role="form">
+	<div class="form-group">
+		<label>Name</label>
+		<input type="text" data-ng-model="pack.name" class="form-control">
+	</div>
+	
+	<div class="form-group">
+		<label>Beschreibung</label>
+		<textarea data-ng-model="pack.description" class="form-control"></textarea>
+	</div>
+
+
+
+	<div class="form-group">
+		<label>Besitzer</label>
+		<div data-ou-selector data-select-as="$parent.pack.owner"></div>
+	</div>
+	
+	<div class="form-group">
+		<label>Theme Image</label>
+		<input type="file" data-ng-file-select="onThemeFileSelect($files)" class="form-control">
+	</div>
+</form>

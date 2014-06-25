@@ -1,0 +1,50 @@
+<h3>Template Pack bearbeiten</h3>
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">Template Pack</div>
+			<div class="panel-body">
+				
+				<ul class="nav nav-tabs">
+					<li class="active">	<a data-target="#packData" data-toggle="tab" data-ng-click="tab = 'PACK'">Template Pack</a></li>
+					<li>				<a data-target="#templates" data-toggle="tab" data-ng-click="tab = 'TEMPLATES'">Templates</a></li>
+					<li data-ng-class="{disabled : !widgets}">
+										<a data-target="#widgets" data-toggle="tab" data-ng-click="tab = 'WIDGETS'">Widgets</a>
+					</li>
+				</ul>
+			
+				<div class="tab-content">
+					<div class="tab-pane fade in active" id="packData">
+						<div data-ng-include data-src="'./js/modules/templates/tmpl/packs/form.html'"></div>
+					</div>
+					<div class="tab-pane fade" id="templates">
+						<h4>Templates in {{pack.name}}</h4>
+						<div data-ng-include data-src="'./js/modules/templates/tmpl/templates/table.html'" data-ng-if="!template"></div>
+						<div data-ng-include data-src="'./js/modules/templates/tmpl/templates/form.html'" data-ng-if="template"></div>
+						<button class="btn btn-primary pull-right" data-ng-click="template = {}" data-ng-show="!template.id">
+							<span class="fa fa-plus"></span> Template
+						</button>
+					</div>
+					
+					<div class="tab-pane fade" id="widgets">
+						<h4>Widgets für Template {{template.name}}</h4>
+						<div data-ng-include data-src="'./js/modules/templates/tmpl/widgets/table.html'" data-ng-if="!widget"></div>
+						<div data-ng-include data-src="'./js/modules/templates/tmpl/widgets/form.html'" data-ng-if="widget"></div>
+						<button class="btn btn-primary pull-right" data-ng-click="widget = {}" data-ng-show="!widget.id">
+							<span class="fa fa-plus"></span> Widget
+						</button>
+					</div>
+				</div>
+			
+				
+			</div>
+			<div class="panel-footer">
+				<div class="pull-right">
+					<button class="btn btn-danger" data-ng-click="dismissForm()">Abbrechen</button>
+					<button class="btn btn-success" data-ng-click="saveAction()">Speichern</button>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>

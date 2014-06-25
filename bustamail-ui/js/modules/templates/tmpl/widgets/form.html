@@ -1,0 +1,23 @@
+<div class="col-md-3">
+<form data-role="form">
+	<div class="form-group">
+		<label>Name</label>
+		<input type="text" data-ng-model="widget.name" class="form-control">
+	</div>
+	
+	<div class="form-group">
+		<label>Beschreibung</label>
+		<textarea data-ng-model="widget.description" class="form-control"></textarea>
+	</div>
+</form>
+</div>
+
+
+<div class="col-md-9">
+<form data-role="form">	
+	<div class="form-group">
+		<label>Source Code</label>
+		<div data-ui-codemirror="{onLoad : setupCodeMirrorWidget }"></div>
+	</div>
+</form>
+</div>

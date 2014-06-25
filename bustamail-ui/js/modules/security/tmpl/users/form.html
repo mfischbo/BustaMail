@@ -1,0 +1,32 @@
+<form data-role="form">
+	<div class="form-group">
+		<label for="">Vorname</label> <input type="text"
+			data-ng-model="user.firstName" class="form-control" placeholder="Max">
+	</div>
+
+	<div class="form-group">
+		<label for="">Nachname</label> <input type="text"
+			data-ng-model="user.lastName" class="form-control"
+			placeholder="Mustermann">
+	</div>
+
+	<div class="form-group">
+		<label>Geschlecht</label>
+		<select data-ng-model="user.gender" class="form-control">
+			<option value="N" selected>Keine Angabe</option>
+			<option value="F">Weiblich</option>
+			<option value="M">Männlich</option>
+		</select>
+	</div>
+
+	<div class="form-group">
+		<label for="">E-Mail</label> <input type="email"
+			data-ng-model="user.email" class="form-control"
+			placeholder="max@example.com">
+	</div>
+	
+	<div class="form-group">
+		<label>Organisationseinheit</label>
+		<div data-ou-selector data-select-as="$parent.owner"></div>
+	</div>
+</form>

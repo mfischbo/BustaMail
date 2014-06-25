@@ -1,0 +1,52 @@
+<h3>Template Packs</h3>
+
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div data-ou-selector data-select-as="owner" class="pull-right"></div>
+				<div class="clearfix"></div>
+			</div>
+			
+			<div class="panel-body">
+			<table class="table">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>Name</th>
+					<th>Beschreibung</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr data-ng-repeat="p in packs.content">
+					<td>
+						<img data-ng-src="./img/media/{{p.themeImage.id}}" width="64" data-ng-if="p.themeImage">
+						<img src="./img/missing-image.png" width="64" data-ng-if="!p.themeImage">	
+					</td>
+					<td>{{p.name}}</td>
+					<td>{{p.description}}</td>
+					<td class="tools">
+						<a href="#/templates/packs/{{p.id}}/edit" title="Template Pack bearbeiten"><span class="fa fa-pencil"></span></a>
+						<a href="javascript:void('');" data-ng-click="copyPack(p.id)" title="Kopie anlegen"><span class="fa fa-copy"></span></a>
+						<a href="/api/templates/packs/{{p.id}}/download" title="Download als .zip Datei"><span class="fa fa-download"></span></a>
+						<a href="javascript:void('');" data-ng-click="deletePack(p.id)" title="Entfernen"><span class="fa fa-trash-o"></span></a>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+		</div>
+	</div>
+	
+	<div class="col-md-2">
+		<div class="panel panel-default">
+			<div class="panel-heading">Aktionen</div>
+			<div class="panel-body">
+				<a href="#/templates/packs/create">Neues Template Pack anlegen</a>
+			</div>
+		</div>
+	</div>
+	
+</div>
+

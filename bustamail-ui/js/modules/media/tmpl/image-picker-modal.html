@@ -1,0 +1,32 @@
+<div class="row">
+	<div class="col-md-4">
+		<h4>Verzeichnisse</h4>
+		<div
+    		  data-angular-treeview="true"
+    		  data-tree-id="tree"
+   			  data-tree-model="roots"
+    		  data-node-id="id"
+    		  data-node-label="name"
+    		  data-node-children="children">
+    	</div>
+	</div>
+	
+	<div class="col-md-8">
+		<h4>Bilder in {{cwd.name}}</h4>
+		<small>Enthält {{images.length}} Bilder</small>
+		<ul class="media-list">
+			<li class="media" data-ng-repeat="i in images">
+				<a class="pull-left">
+					<img class="media-object" data-ng-src="{{i.thumbnail}}" width="64">
+				</a>
+				<div class="media-body">
+						<h5>{{i.name}}</h5>
+						{{i.description}}
+						<small data-ng-if="i.isAdequateSize" class="text-success">Auflösung OK!</small>
+						<small data-ng-if="!i.isAdequateSize" class="text-danger">Bild ist zu klein!</small>
+						<button class="btn-info btn pull-right" data-ng-click="pickImage(i)"><span class="fa fa-refresh"></span></button>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>

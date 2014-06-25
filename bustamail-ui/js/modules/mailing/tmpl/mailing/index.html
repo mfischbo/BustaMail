@@ -1,0 +1,40 @@
+<h3>Aktuelle Mailings</h3>
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div data-ou-selector data-select-as="owner" class="pull-right"></div>
+				<div class="clearfix"></div>
+			</div>
+			
+			<div class="panel-body">
+			<table class="table">
+			<thead>
+				<tr>
+					<th>Betreff</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr data-ng-if="!mailings.content || mailings.content.length == 0">
+					<td colspan="2">Bisher sind keine Mailings angelegt</td>
+				</tr>
+			
+				<tr data-ng-repeat="m in mailings.content">
+					<td>{{m.subject}}</td>
+					<td class="tools">
+						<a href="#/mailings/{{m.id}}/edit" title="Mailing bearbeiten"><span class="fa fa-pencil"></span></a>
+						<a href="javascript:void('');" data-ng-click="deleteMailing(m.id)" title="Mailing entfernen"><span class="fa fa-trash-o"></span></a>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+			
+			<div class="panel-footer">
+				<a href="#/mailings/create" class="btn btn-primary pull-right"><span class="fa fa-plus"> Neues Mailing</span></a>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>

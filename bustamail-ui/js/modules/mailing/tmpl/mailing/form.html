@@ -1,0 +1,31 @@
+<form data-role="form">
+	<div class="form-group">
+		<label>Betreff</label>
+		<input type="text" data-ng-model="mailing.subject" class="form-control">
+	</div>
+	
+	<div class="form-group">
+		<label>Absender Name</label>
+		<input type="text" data-ng-model="mailing.senderName" class="form-control" placeholder="Max Mustermann">
+	</div>
+	
+	<div class="form-group">
+		<label>Absender Adresse</label>
+		<input type="text" data-ng-model="mailing.senderAddress" class="form-control" placeholder="max@example.com">
+	</div>
+	
+	<div class="form-group">
+		<label>Antwort Adresse</label>
+		<input type="text" data-ng-model="mailing.replyAddress" class="form-control" placeholder="max@example.com">
+	</div>
+	
+	<div class="form-group">
+		<label>Templates von Organisationseinheit</label>
+		<div data-ou-selector data-select-as="$parent.owner" class="pull-right"></div>
+	</div>
+	
+	<div class="form-group">
+		<label>Vorlage</label>
+		<select data-ng-model="mailing.template" class="form-control" data-ng-options="p.id as p.name group by p.pack for p in templates"></select>
+	</div>
+</form>

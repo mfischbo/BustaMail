@@ -1,0 +1,26 @@
+<h4>{{cwd.name}}</h4>
+<small>{{cwd.description}}</small>
+<table class="table">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>Name</th>
+			<th>Beschreibung</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr data-ng-if="!cwd || cwd.files.length == 0">
+			<td colspan="4" align="center">In diesem Verzeichnis befinden sich noch keine Dateien</td>
+		</tr>
+		<tr data-ng-repeat="f in cwd.files">
+			<td>&nbsp;</td>
+			<td>{{f.name}}</td>
+			<td>{{f.description}}</td>
+			<td class="tools">
+				<a href="javascript:void('');" data-ng-click="editFile(f.id)"><span class="fa fa-pencil"></span></a>
+				<a href="javascript:void('');" data-ng-click="deleteFile(f.id)"><span class="fa fa-trash-o"></span></a>
+			</td>
+		</tr>
+	</tbody>
+</table>
