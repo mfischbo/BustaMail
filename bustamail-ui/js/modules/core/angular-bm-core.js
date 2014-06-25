@@ -1,7 +1,6 @@
 var BMApp = angular.module("BMApp", 
 		['ngRoute', 'SecurityModule', 'SubscriberModule', 
-		 'BMEditorModule', 'TemplatesModule', 'MailingModule',
-		 'MediaModule']);
+		 'BMEditorModule', 'TemplatesModule', 'MailingModule', 'MailingListModule', 'MediaModule']);
 
 BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
 	
@@ -119,6 +118,25 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 			controller	:	"EditorIndexController"
 		})
 		
+		// Mailing List Module
+		.when("/subscription-lists", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/index.html",
+			controller	:	"MailingListIndexController"
+		})
+		.when("/subscription-lists/create", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/create.html",
+			controller	:	"MailingListCreateController"
+		})
+		.when("/subscription-lists/:id", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/details.html",
+			controller	:	"MailingListEditController"
+		})
+		.when("/subscription-lists/:id/edit", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/edit.html",
+			controller	:	"MailingListEditController"
+		})
+		
+		// Other stuff
 		.when("/logout", {
 			templateUrl :   "./js/modules/security/tmpl/logout.html",
 			controller	:	"BMAppLogoutController"

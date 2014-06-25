@@ -1,0 +1,10 @@
+<div class="form-group">
+	<label>Name</label>
+	<input type="text" data-ng-model="list.name" class="form-control" placeholder="Name der Verteilerliste">
+	
+	<label>Beschreibung</label>
+	<textarea data-ng-model="list.description" class="form-control" rows="4"></textarea>
+	
+	<label>Besitzer</label>
+	<div data-ou-selector data-select-as="list.owner"></div>
+</div>
