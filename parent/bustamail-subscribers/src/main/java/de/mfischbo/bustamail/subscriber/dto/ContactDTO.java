@@ -1,21 +1,36 @@
 package de.mfischbo.bustamail.subscriber.dto;
 
 import java.util.List;
-import java.util.UUID;
 
-public class ContactDTO {
+import de.mfischbo.bustamail.common.domain.Gender;
+import de.mfischbo.bustamail.common.dto.BaseDTO;
+import de.mfischbo.bustamail.subscriber.domain.Address;
+import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
-	private UUID						id;
+public class ContactDTO extends BaseDTO {
+
+
+	private static final long serialVersionUID = 560150943874391814L;
+
+	private String						title;
+	private Gender						gender;
 	private String 						firstName;
 	private String						lastName;
 	private boolean						formalSalutation;
-	private List<ContactAttributeDTO>	attributes;
+	private List<Address>				addresses;
+	private List<EMailAddress>			emailAddresses;
 	
-	public UUID getId() {
-		return id;
+	public String getTitle() {
+		return title;
 	}
-	public void setId(UUID id) {
-		this.id = id;
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public Gender getGender() {
+		return gender;
+	}
+	public void setGender(Gender gender) {
+		this.gender = gender;
 	}
 	public String getFirstName() {
 		return firstName;
@@ -35,10 +50,18 @@ public class ContactDTO {
 	public void setFormalSalutation(boolean formalSalutation) {
 		this.formalSalutation = formalSalutation;
 	}
-	public List<ContactAttributeDTO> getAttributes() {
-		return attributes;
+	public List<Address> getAddresses() {
+		return addresses;
 	}
-	public void setAttributes(List<ContactAttributeDTO> attributes) {
-		this.attributes = attributes;
+	public void setAddresses(List<Address> addresses) {
+		this.addresses = addresses;
 	}
+	public List<EMailAddress> getEmailAddresses() {
+		return emailAddresses;
+	}
+	public void setEmailAddresses(List<EMailAddress> emailAddresses) {
+		this.emailAddresses = emailAddresses;
+	}
+
+	
 }
