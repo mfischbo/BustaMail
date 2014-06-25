@@ -57,7 +57,7 @@ public class RepositoryConfig {
 		
 		HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
 		adapter.setShowSql(false);
-		adapter.setGenerateDdl(false);
+		adapter.setGenerateDdl(true);
 		adapter.setDatabasePlatform(MySQL5InnoDBDialect.class.getName());
 		
 		LocalContainerEntityManagerFactoryBean lcemfb = new LocalContainerEntityManagerFactoryBean();

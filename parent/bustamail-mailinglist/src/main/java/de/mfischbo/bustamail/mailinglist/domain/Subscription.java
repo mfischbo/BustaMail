@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.joda.time.DateTime;
 
@@ -15,7 +16,9 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
 @Entity
-@Table(name = "SubscriptionList_Subscription")
+@Table(name = "SubscriptionList_Subscription", uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"SubscriptionList_id", "EMailAddress_id"})
+})
 public class Subscription extends BaseDomain {
 
 	public enum SourceType {

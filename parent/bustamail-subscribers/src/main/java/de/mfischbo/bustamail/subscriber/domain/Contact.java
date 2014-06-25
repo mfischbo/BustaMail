@@ -37,7 +37,7 @@ public class Contact extends BaseDomain {
 	@OneToMany(mappedBy = "contact")
 	private Set<Address>		addresses;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "contact", fetch = FetchType.LAZY)
 	private List<EMailAddress>	emailAddresses;
 
 	public String getTitle() {

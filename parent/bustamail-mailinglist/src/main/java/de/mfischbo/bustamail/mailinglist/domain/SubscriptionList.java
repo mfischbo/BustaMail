@@ -25,7 +25,7 @@ public class SubscriptionList extends OwnedBaseDomain {
 	@Column(length = 4095)
 	private String			description;
 	
-	@OneToMany
+	@OneToMany(mappedBy = "subscriptionList")
 	private Set<Subscription>	subscriptions;
 
 	public String getName() {
