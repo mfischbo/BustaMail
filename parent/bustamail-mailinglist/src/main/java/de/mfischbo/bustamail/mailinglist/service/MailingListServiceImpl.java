@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
+import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionListRepository;
+import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.security.service.SecurityService;
@@ -25,6 +27,9 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	
 	@Inject
 	SubscriptionListRepository		sListRepo;
+	
+	@Inject
+	SubscriptionRepository			scRepo;
 	
 	
 	public MailingListServiceImpl() {
@@ -71,5 +76,21 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	@Override
 	public void deleteSubscriptionList(SubscriptionList list) throws EntityNotFoundException {
 		sListRepo.delete(list);
+	}
+
+
+	@Override
+	public Page<Subscription> getSubscriptionsByList(SubscriptionList list,
+			Pageable page) {
+		return scRepo.findAllBySubscriptionList(list, page);
+	}
+
+
+	@Override
+	public Subscription getSubscriptionById(UUID subscriptionId)
+			throws EntityNotFoundException {
+		Subscription sub = scRepo.findOne(subscriptionId);
+		checkOnNull(sub);
+		return sub;
 	}
 }

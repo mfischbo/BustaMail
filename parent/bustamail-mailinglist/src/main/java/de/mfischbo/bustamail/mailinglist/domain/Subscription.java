@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
-import de.mfischbo.bustamail.subscriber.domain.Contact;
+import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
 @Entity
 @Table(name = "SubscriptionList_Subscription")
@@ -24,6 +24,12 @@ public class Subscription extends BaseDomain {
 		FormAction
 	}
 	
+	public enum State {
+		ACTIVE,
+		OPTIN,
+		INACTIVE
+	}
+	
 	@Basic(optional = false)
 	private DateTime				dateCreated;
 
@@ -31,6 +37,9 @@ public class Subscription extends BaseDomain {
 	@Enumerated(EnumType.STRING)
 	private SourceType				sourceType;
 	
+	@Basic
+	@Enumerated(EnumType.STRING)
+	private State					state;
 	
 	@Basic(optional = true)
 	private String					ipAddress;
@@ -39,10 +48,12 @@ public class Subscription extends BaseDomain {
 	@JoinColumn(name = "SubscriptionList_id", referencedColumnName = "id")
 	private	SubscriptionList		subscriptionList;
 
+	
 	@OneToOne(optional = false)
-	@JoinColumn(name = "Contact_id", referencedColumnName = "id")
-	private Contact					contact;
-
+	@JoinColumn(name = "EMailAddress_id", referencedColumnName = "id")
+	private EMailAddress			emailAddress;
+	
+	
 	public DateTime getDateCreated() {
 		return dateCreated;
 	}
@@ -57,6 +68,14 @@ public class Subscription extends BaseDomain {
 
 	public void setSourceType(SourceType sourceType) {
 		this.sourceType = sourceType;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
 	}
 
 	public String getIpAddress() {
@@ -75,62 +94,11 @@ public class Subscription extends BaseDomain {
 		this.subscriptionList = subscriptionList;
 	}
 
-	public Contact getContact() {
-		return contact;
+	public EMailAddress getEmailAddress() {
+		return emailAddress;
 	}
 
-	public void setContact(Contact contact) {
-		this.contact = contact;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((contact == null) ? 0 : contact.hashCode());
-		result = prime * result
-				+ ((dateCreated == null) ? 0 : dateCreated.hashCode());
-		result = prime * result
-				+ ((ipAddress == null) ? 0 : ipAddress.hashCode());
-		result = prime * result
-				+ ((sourceType == null) ? 0 : sourceType.hashCode());
-		result = prime
-				* result
-				+ ((subscriptionList == null) ? 0 : subscriptionList.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Subscription other = (Subscription) obj;
-		if (contact == null) {
-			if (other.contact != null)
-				return false;
-		} else if (!contact.equals(other.contact))
-			return false;
-		if (dateCreated == null) {
-			if (other.dateCreated != null)
-				return false;
-		} else if (!dateCreated.equals(other.dateCreated))
-			return false;
-		if (ipAddress == null) {
-			if (other.ipAddress != null)
-				return false;
-		} else if (!ipAddress.equals(other.ipAddress))
-			return false;
-		if (sourceType != other.sourceType)
-			return false;
-		if (subscriptionList == null) {
-			if (other.subscriptionList != null)
-				return false;
-		} else if (!subscriptionList.equals(other.subscriptionList))
-			return false;
-		return true;
+	public void setEmailAddress(EMailAddress emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 }

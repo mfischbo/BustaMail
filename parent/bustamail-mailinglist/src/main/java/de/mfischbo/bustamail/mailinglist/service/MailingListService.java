@@ -11,12 +11,17 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
+import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 
 public interface MailingListService {
 
+	// -------------------------------/
+	//		Subscription Lists		 /
+	// -----------------------------/
+	
 	@PreAuthorize("hasPermission(#owner, 'Security.IS_ACTOR_OF')")
 	public Page<SubscriptionList> getAllMailingLists(@P("owner") OrgUnit owner, Pageable page);
 
@@ -34,4 +39,15 @@ public interface MailingListService {
 	@Transactional
 	@PreAuthorize("hasPermission(#list.owner, 'MailingList.MANAGE_SUBSCRIPTION_LISTS')")
 	public void						deleteSubscriptionList(SubscriptionList list) throws EntityNotFoundException;
+	
+	
+	// ----------------------------/
+	// 		Subscriptions		  /
+	// --------------------------/
+	
+	@PreAuthorize("hasPermission(#list.owner, 'Security.IS_ACTOR_OF')")
+	public Page<Subscription> getSubscriptionsByList(SubscriptionList list, Pageable page);
+	
+	@PostAuthorize("hasPermission(returnObject.subscriptionList.owner, 'Security.IS_ACTOR_OF')")
+	public Subscription getSubscriptionById(UUID subscriptionId) throws EntityNotFoundException;
 }
