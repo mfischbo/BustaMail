@@ -36,6 +36,11 @@ public class Address extends BaseDomain {
 	@JoinColumn(name = "Contact_id", referencedColumnName = "id")
 	private Contact	contact;
 
+	
+	public Address() {
+		
+	}
+	
 	public String getStreet() {
 		return street;
 	}

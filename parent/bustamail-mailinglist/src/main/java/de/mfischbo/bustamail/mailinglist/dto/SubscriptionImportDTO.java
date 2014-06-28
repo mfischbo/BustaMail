@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.mailinglist.dto;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import de.mfischbo.bustamail.reader.TableDataReader.FileType;
@@ -12,7 +13,7 @@ public class SubscriptionImportDTO {
 	
 	private String			encoding;
 	
-	private boolean			headerLine;
+	private boolean			containsHeader;
 	
 	private String[]		fieldNames;
 	
@@ -23,6 +24,9 @@ public class SubscriptionImportDTO {
 	
 	/* states if subscribers having the same email should be overriden */
 	private boolean			override;
+
+	/* states if issues in the data should be ignored */
+	private boolean			ignoreIssues;
 	
 	public SubscriptionImportDTO() {
 		
@@ -44,12 +48,12 @@ public class SubscriptionImportDTO {
 		this.encoding = encoding;
 	}
 
-	public boolean isHeaderLine() {
-		return headerLine;
+	public boolean isContainsHeader() {
+		return containsHeader;
 	}
 
-	public void setHeaderLine(boolean headerLine) {
-		this.headerLine = headerLine;
+	public void setContainsHeader(boolean headerLine) {
+		this.containsHeader = headerLine;
 	}
 
 	public String[] getFieldNames() {
@@ -90,5 +94,51 @@ public class SubscriptionImportDTO {
 
 	public void setOverride(boolean override) {
 		this.override = override;
+	}
+	
+	public boolean isIgnoreIssues() {
+		return ignoreIssues;
+	}
+
+	public void setIgnoreIssues(boolean ignoreIssues) {
+		this.ignoreIssues = ignoreIssues;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (containsHeader ? 1231 : 1237);
+		result = prime * result + csvDelimiter;
+		result = prime * result + csvQuoteChar;
+		result = prime * result
+				+ ((encoding == null) ? 0 : encoding.hashCode());
+		result = prime * result + Arrays.hashCode(fieldNames);
+		result = prime * result + ((mediaId == null) ? 0 : mediaId.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SubscriptionImportDTO other = (SubscriptionImportDTO) obj;
+		if (containsHeader != other.containsHeader)
+			return false;
+		if (csvDelimiter != other.csvDelimiter)
+			return false;
+		if (csvQuoteChar != other.csvQuoteChar)
+			return false;
+		if (encoding == null) {
+			if (other.encoding != null)
+				return false;
+		} else if (!encoding.equals(other.encoding))
+			return false;
+		return true;
 	}
 }

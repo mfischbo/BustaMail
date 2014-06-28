@@ -27,6 +27,8 @@ public class CSVReader implements ITableReader {
 	
 	private char			estimatedDelimiter = ';';
 	private char			estimatedQuoteChar = '"';
+
+	private Charset			encoding;
 	
 	public CSVReader(InputStream inStream) throws IOException {
 		this.inStream = inStream;
@@ -101,7 +103,7 @@ public class CSVReader implements ITableReader {
 
 	@Override
 	public List<List<String>> getRawTableData() {
-		InputStreamReader reader = new InputStreamReader(this.inStream);
+		InputStreamReader reader = new InputStreamReader(this.inStream, this.encoding);
 		return CSVReader.readFile(getPreferences(), reader);
 	}
 
@@ -176,5 +178,6 @@ public class CSVReader implements ITableReader {
 	
 	@Override
 	public void setCharacterEncoding(Charset encoding) {
+		this.encoding = encoding;
 	}
 }

@@ -1,5 +1,5 @@
 <h3>Abonnenten in Liste &quot;{{list.name}}&quot; importieren</h3>
-<div class="row">
+<div class="row" data-ng-if="!data">
 	<div class="col-md-12">
 		<h5>Datei auswählen und hochladen</h5>
 		<div class="form-group">
@@ -17,10 +17,7 @@
 			</div>
 			
 			<div class="panel-body">
-				<label>
-					<input type="checkbox" data-ng-model="settings.containsHeader"> Spaltenbeschriftung vorhanden
-				</label>	
-				<fieldset data-ng-if="settings.type == 'CSV'">
+				<fieldset data-ng-if="settings.type == 'CSV' && step == 0">
 					<legend>CSV Einstellungen</legend>
 					<label>Trennzeichen</label>
 					<select data-ng-model="settings.csvDelimiter" class="form-control">
@@ -35,79 +32,121 @@
 						<option value="'">'</option>
 					</select>
 					
-					<label>Datei stammt aus</label>
+					<label>Zeichensatz</label>
 					<select data-ng-model="settings.encoding" class="form-control">
-						<option value="CP1252">Windows Excel</option>
-						<option value="UTF8">Windows Open/Libre Office</option>
-						<option value="UTF8">Mac Excel</option>
-						<option value="UTF8">Mac Open/Libre Office</option>
-						<option value="UTF8">Linux Open/Libre Office</option>
-						<option value="UTF8">Weiss nicht</option>
+						<option value="ISO-8859-15">ISO 8859-15</option>
+						<option value="UTF-8">UTF-8</option>
 					</select>
+					<br/><br/>
+				</fieldset>
+				
+				<fieldset data-ng-show="data && step == 0">
+					<button class="btn btn-info" data-ng-click="parse()">Übernehmen</button>
+					<button class="btn btn-success" data-ng-click="step = 1">OK</button>
+					<br/><br/>
 				</fieldset>
 				
 				<fieldset>
 					<legend>Import Einstellungen</legend>
 					<label class="checkbox">
+						<input type="checkbox" data-ng-model="settings.containsHeader"> Spaltenbeschriftung vorhanden
+					</label>	
+					<label class="checkbox">
 						<input type="checkbox" data-ng-model="settings.override"> Abonnentendaten überschreiben 
 					</label>
+					<label class="checkbox">
+						<input type="checkbox" data-ng-model="settings.ignoreIssues"> Fehler ignorieren
+					</label>
 				</fieldset>
-			</div>
-			
-			<div class="panel-footer">
-				<button class="btn btn-info" data-ng-click="parse()">Übernehmen</button>
 			</div>
 		</div>
 	</div>
 	
 	<div class="col-md-10">
-		<div class="span12" data-ng-if="data">
-			<span>Insgesamt <strong>{{data.length}}</strong> Zeilen</span>
-			<div class="pull-right">
-				<button type="button" class="btn btn-sm btn-success" data-ng-click="checkForErrors()">Import testen</button>
+		<div class="row">
+			<div class="col-md-2">
+				<button type="button" class="btn btn-sm btn-success" data-ng-click="checkForErrors()" data-ng-if="data && step == 1">Import testen</button>
+			</div>
+		
+			<div class="col-md-3" data-ng-if="data">
+				<div class="input-inline">
+					<div data-ng-if="status && status.errorLines.length > 0">
+						<span>{{status.errorLines.length}} problematische Zeilen</span>
+						<button class="btn btn-sm" data-ng-click="previousIssue()" data-ng-disabled="currentIssueIndex < 1"><span class="fa fa-step-backward"></span></button>
+							{{currentIssueIndex + 1}} / {{status.errorLines.length}}
+						<button class="btn btn-sm" data-ng-click="nextIssue()" data-ng-disabled="currentIssueIndex+1 == status.errorLines.length"><span class="fa fa-step-forward"></span></button>
+					</div>
+					
+					<div data-ng-if="status && status.errorLines.length == 0">
+						<span class="text-success">Der Test ergab keine Warnungen oder Fehler!</span>
+					</div>
+				</div>
+			</div>
 			
-				<button type="button" class="btn btn-sm" data-ng-click="slice('first')" data-ng-disabled="data.currentPage == 0"><span class="fa fa-fast-backward"></span></button>
-				<button type="button" class="btn btn-sm" data-ng-click="slice('prev')" data-ng-disabled="data.currentPage == 0"><span class="fa fa-step-backward"></span></button>
-					{{data.currentPage + 1}} / {{data.numPages}}
-				<button type="button" class="btn btn-sm" data-ng-click="slice('next')" data-ng-disabled="(data.currentPage+1) == data.numPages"><span class="fa fa-step-forward"></span></button>
-				<button type="button" class="btn btn-sm" data-ng-click="slice('last')" data-ng-disabled="(data.currentPage+1) == data.numPages"><span class="fa fa-fast-forward"></span></button>
+			<div class="col-md-4">
+				<div data-ng-if="currentIssueIndex > -1">
+					<button class="btn btn-warning btn-sm" data-ng-click="editLine()"><span class="fa fa-pencil"></span> Korrektur</button>
+					<button class="btn btn-danger btn-sm" data-ng-click="purgeLine()"><span class="fa fa-trash-o"> Löschen</span></button>
+				</div>	
+			</div>
+			
+			
+			<div class="col-md-3">
+				<div class="pull-right" data-ng-if="data">
+				
+					<button type="button" class="btn btn-sm" data-ng-click="slice('first')" data-ng-disabled="data.currentPage == 0"><span class="fa fa-fast-backward"></span></button>
+					<button type="button" class="btn btn-sm" data-ng-click="slice('prev')" data-ng-disabled="data.currentPage == 0"><span class="fa fa-step-backward"></span></button>
+						{{data.currentPage + 1}} / {{data.numPages}}
+					<button type="button" class="btn btn-sm" data-ng-click="slice('next')" data-ng-disabled="(data.currentPage+1) == data.numPages"><span class="fa fa-step-forward"></span></button>
+					<button type="button" class="btn btn-sm" data-ng-click="slice('last')" data-ng-disabled="(data.currentPage+1) == data.numPages"><span class="fa fa-fast-forward"></span></button>
+				</div>
 			</div>
 		</div>
 		
-		<div class="span12"><br/></div>
+		<div class="row" data-ng-if="line">
+			<div class="col-md-12">
+				<div class="form-inline">
+					<input type="text" data-ng-repeat="c in line track by $index" data-ng-model="line[$index]">
+				</div>
+			</div>
+		</div>
 		
 		
-		<table class="table">
-			<thead>
-				<tr>
-					<td data-ng-repeat="c in page[0] track by $index">
-						<select data-ng-model="settings.fieldNames[$index]" class="form-control input-sm">
-							<option value="">Nicht importieren</option>
-							<optgroup label="Person">
-								<option value="EMAIL">E-Mail</option>
-								<option value="GENDER">Geschlecht</option>
-								<option value="firstName">Vorname</option>
-								<option value="LAST_NAME">Nachname</option>
-							</optgroup>
-							<optgroup label="Adresse">
-								<option value="STREET">Strasse</option>
-								<option value="ZIPCODE">Postleitzahl</option>
-								<option value="CITY">Ort / Stadt</option>
-								<option value="COUNTRY">Land</option>
-							</optgroup>				
-						</select>
-					</td>
-				</tr>
-			</thead>
-			<tbody>
-				<tr data-ng-repeat="row in page">
-					<td data-ng-repeat="cell in row track by $index">
-						<span data-ng-if="cell">{{cell}}</span>
-						<span data-ng-if="!cell" class="text-muted"><i>leer</i></span>	
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	
+		<div class="row">	
+			<div class="col-md-12"><br/></div>
+			<table class="table">
+				<thead>
+					<tr>
+						<td data-ng-repeat="c in page[0] track by $index">
+							<select data-ng-model="settings.fieldNames[$index]" class="form-control input-sm">
+								<option value="">Nicht importieren</option>
+								<optgroup label="Person">
+									<option value="title">Titel</option>
+									<option value="formalSalutation">Formale Anrede</option>
+									<option value="emailAddresses[0]">E-Mail</option>
+									<option value="gender">Geschlecht</option>
+									<option value="firstName">Vorname</option>
+									<option value="lastName">Nachname</option>
+								</optgroup>
+								<optgroup label="Adresse">
+									<option value="addresses[0].street">Strasse</option>
+									<option value="addresses[0].zipcode">Postleitzahl</option>
+									<option value="addresses[0].city">Ort / Stadt</option>
+									<option value="addresses[0].country">Land</option>
+								</optgroup>				
+							</select>
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-ng-repeat="row in page" data-ng-class="{warning : status.errorLines[currentIssueIndex] == ($index + (data.currentPage * psize))}">
+						<td data-ng-repeat="cell in row track by $index">
+							<span data-ng-if="cell" data-ng-class="{'text-danger': status.parsingResults[data.currentPage * psize + $parent.$parent.$index][$index] != 'SUCCESS' && status}">{{cell}}</span>
+							<span data-ng-if="!cell" class="text-muted"><i>leer</i></span>	
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>	
 </div>

@@ -1,7 +1,6 @@
 package de.mfischbo.bustamail.subscriber.domain;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -35,7 +34,7 @@ public class Contact extends BaseDomain {
 	private boolean formalSalutation;
 
 	@OneToMany(mappedBy = "contact")
-	private Set<Address>		addresses;
+	private List<Address>		addresses;
 
 	@OneToMany(mappedBy = "contact", fetch = FetchType.LAZY)
 	private List<EMailAddress>	emailAddresses;
@@ -80,11 +79,11 @@ public class Contact extends BaseDomain {
 		this.formalSalutation = formalSalutation;
 	}
 
-	public Set<Address> getAddresses() {
+	public List<Address> getAddresses() {
 		return addresses;
 	}
 
-	public void setAddresses(Set<Address> addresses) {
+	public void setAddresses(List<Address> addresses) {
 		this.addresses = addresses;
 	}
 

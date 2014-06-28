@@ -1,6 +1,9 @@
 package de.mfischbo.bustamail.mailinglist.dto;
 
+import java.util.LinkedList;
 import java.util.List;
+
+import de.mfischbo.bustamail.mailinglist.validation.Validator.ResultType;
 
 /**
  * DTO containing the data after a file got parsed for import.
@@ -10,12 +13,12 @@ import java.util.List;
 public class ParsingResultDTO {
 	
 	/* Contains the sample data of the parsing process */
-	private List<List<String>>		data;
+	private List<List<String>>			data;
 
-	private int[]					errorLineNumbers;
+	private List<List<ResultType>>		parsingResults;
+
+	private List<Integer>				errorLines = new LinkedList<>();
 	
-	private String[]				errorLines;
-
 	public List<List<String>> getData() {
 		return data;
 	}
@@ -24,19 +27,19 @@ public class ParsingResultDTO {
 		this.data = data;
 	}
 
-	public int[] getErrorLineNumbers() {
-		return errorLineNumbers;
+	public List<List<ResultType>> getParsingResults() {
+		return parsingResults;
 	}
 
-	public void setErrorLineNumbers(int[] errorLineNumbers) {
-		this.errorLineNumbers = errorLineNumbers;
+	public void setParsingResults(List<List<ResultType>> parsingResults) {
+		this.parsingResults = parsingResults;
 	}
 
-	public String[] getErrorLines() {
+	public List<Integer> getErrorLines() {
 		return errorLines;
 	}
 
-	public void setErrorLines(String[] errorLines) {
+	public void setErrorLines(List<Integer> errorLines) {
 		this.errorLines = errorLines;
 	}
 }
