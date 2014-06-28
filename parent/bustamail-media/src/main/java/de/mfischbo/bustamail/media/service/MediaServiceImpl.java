@@ -81,7 +81,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 
 	@Override
 	public Media getMediaById(UUID id) throws EntityNotFoundException {
-		return null;
+		Media m = mRepo.findOne(id);
+		checkOnNull(m);
+		return m;
 	}
 	
 	

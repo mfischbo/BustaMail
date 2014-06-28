@@ -1,5 +1,8 @@
 package de.mfischbo.bustamail.media.domain;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -76,5 +80,10 @@ public class Media extends OwnedBaseDomain {
 
 	public void setDirectory(Directory directory) {
 		this.directory = directory;
+	}
+	
+	@Transient
+	public InputStream getDataStream() {
+		return new ByteArrayInputStream(this.data);
 	}
 }

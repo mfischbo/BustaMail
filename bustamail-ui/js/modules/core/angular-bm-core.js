@@ -1,6 +1,7 @@
 var BMApp = angular.module("BMApp", 
 		['ngRoute', 'SecurityModule', 'SubscriberModule', 
-		 'BMEditorModule', 'TemplatesModule', 'MailingModule', 'MailingListModule', 'MediaModule']);
+		 'BMEditorModule', 'TemplatesModule', 'MailingModule', 'MailingListModule', 'MediaModule',
+		 'ui.bootstrap']);
 
 BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
 	
@@ -134,6 +135,10 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 		.when("/subscription-lists/:id/edit", {
 			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/edit.html",
 			controller	:	"MailingListEditController"
+		}).
+		when("/subscription-lists/:id/import", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/import.html",
+			controller	:	"MailingListImportController"
 		})
 		
 		// Other stuff
@@ -159,7 +164,11 @@ BMApp.controller("BMAppLogoutController", ['$scope', '$http', function($scope, $
 
 
 BMApp.uiConfig = {
+		
+		// timeout in milliseconds before a search triggers
 		searchDelay : 600,
+		
+		// configuration options for code mirror instances
 		codeMirrorOpts : {
 			lineNumbers : true,
 			mode		: "htmlmixed"
@@ -177,6 +186,9 @@ BMApp.hideSpinner = function() {
 
 
 BMApp.confirm = function(txt, callback) {
+	
+	var $modal = angular.injector().get("$modal");
+	
 	var retval = window.confirm(txt);
 	if (retval)
 		callback();

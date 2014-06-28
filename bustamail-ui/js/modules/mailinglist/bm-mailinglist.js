@@ -1,5 +1,9 @@
-BMApp.MailingList = angular.module("MailingListModule", ['SecurityModule']);
+BMApp.MailingList = angular.module("MailingListModule", ['SecurityModule', 'angularFileUpload']);
 
+
+/**
+ * Controller to show the index page of mailing lists
+ */
 BMApp.MailingList.controller("MailingListIndexController", 
 		['$scope', '$http', function($scope, $http) {
 
@@ -29,7 +33,9 @@ BMApp.MailingList.controller("MailingListIndexController",
 	};
 }]);
 
-
+/**
+ * Controller to create a new MailingList
+ */
 BMApp.MailingList.controller("MailingListCreateController", ['$scope', '$http', '$location', function($scope, $http, $location) {
 
 	$scope.list = {};
@@ -44,6 +50,9 @@ BMApp.MailingList.controller("MailingListCreateController", ['$scope', '$http', 
 }]);
 
 
+/**
+ * Controller to edit a mailing lists base data
+ */
 BMApp.MailingList.controller("MailingListEditController", 
 		['$scope', '$http', '$routeParams', '$location', function($scope, $http, $routeParams, $location) {
 
@@ -64,4 +73,90 @@ BMApp.MailingList.controller("MailingListEditController",
 			$location.path("/subscription-lists/" + $routeParams.id);
 		});
 	};
+}]);
+
+
+/**
+ * Controller to import data from xlsx / csv into a mailing list as subscribers
+ */
+BMApp.MailingList.controller("MailingListImportController", 
+		['$scope', '$http', '$routeParams', '$upload', function($scope, $http, $routeParams, $upload) {
+
+	$scope.list = undefined;
+	$scope.settings = {fieldNames : []};		// settings for the import
+	
+	$scope.page = undefined;
+	$scope.data = undefined;
+	
+	$scope.psize = 15;
+	
+	$http.get("/api/subscription-lists/"+$routeParams.id).success(function(data) {
+		$scope.list = data;
+	});
+	
+	/**
+	 * Uploads the selected file and returns the mediaDTO stored in $scope.file
+	 */
+	$scope.onImportFileSelect = function($files) {
+		BMApp.showSpinner();
+		$scope.upload = $upload.upload({
+			url		:	"/api/subscription-lists/" + $routeParams.id + "/subscriptions/upload",
+			method	:	"POST",
+			file	:	$files[0]
+		}).success(function(data) {
+			$scope.settings = data;
+			$scope.settings.fieldNames = [];
+			$scope.settings.encoding = "UTF8";
+			BMApp.hideSpinner();
+			BMApp.alert("Datei wurde erfolgreich hochgeladen");
+			$scope.parse();
+		});
+	};
+	
+	$scope.parse = function() {
+		$http.post("/api/subscription-lists/" + $routeParams.id + "/subscriptions/parse", $scope.settings).success(function(data) {
+			$scope.data = data.data;
+			$scope.page = data.data.slice(0, $scope.psize);
+			
+			// calculate page counts
+			$scope.data.totalElements = $scope.data.length;
+			$scope.data.numPages      = Math.ceil($scope.data.totalElements / $scope.psize);
+			$scope.data.currentPage   = 0;
+		});
+	};
+	
+	$scope.checkForErrors = function() {
+		$http.post("/api/subscription-lists/" + $routeParams.id + "/subscriptions/status", $scope.settings).success(function(data) {
+			$scope.status = data;
+		});
+	};
+	
+	
+	/**
+	 * Jumps to certain positions in the data set
+	 */
+	$scope.slice = function(num) {
+		if (num == 'first') {
+			$scope.page = $scope.data.slice(0, $scope.psize);
+			$scope.data.currentPage = 0;
+		}
+		
+		if (num == 'next') {
+			$scope.data.currentPage++;
+			var s = $scope.data.currentPage * $scope.psize;
+			$scope.page = $scope.data.slice(s, s + $scope.psize);
+		}
+		
+		if (num == 'prev') {
+			$scope.data.currentPage--;
+			var s = $scope.data.currentPage * $scope.psize;
+			$scope.page = $scope.data.slice(s, s + $scope.psize);
+		}
+		
+		if (num == 'last') {
+			$scope.data.currentPage = ($scope.data.numPages -1);
+			$scope.page = $scope.data.slice($scope.data.currentPage * $scope.psize);
+		}
+	};
+	
 }]);

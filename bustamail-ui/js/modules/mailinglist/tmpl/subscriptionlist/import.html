@@ -1,0 +1,113 @@
+<h3>Abonnenten in Liste &quot;{{list.name}}&quot; importieren</h3>
+<div class="row">
+	<div class="col-md-12">
+		<h5>Datei auswählen und hochladen</h5>
+		<div class="form-group">
+			<label>.xlsx / .xls / .csv / .ods</label>
+			<input type="file" data-ng-file-select="onImportFileSelect($files)" class="form-control">
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-2">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span class="fa fa-cogs"> Einstellungen</span>
+			</div>
+			
+			<div class="panel-body">
+				<label>
+					<input type="checkbox" data-ng-model="settings.containsHeader"> Spaltenbeschriftung vorhanden
+				</label>	
+				<fieldset data-ng-if="settings.type == 'CSV'">
+					<legend>CSV Einstellungen</legend>
+					<label>Trennzeichen</label>
+					<select data-ng-model="settings.csvDelimiter" class="form-control">
+						<option value=";" selected>;</option>
+						<option value=",">,</option>
+						<option value="\t">Tabstop</option>
+					</select>
+					
+					<label>Quote Character</label>
+					<select data-ng-model="settings.csvQuoteChar" class="form-control">
+						<option value='"'>"</option>
+						<option value="'">'</option>
+					</select>
+					
+					<label>Datei stammt aus</label>
+					<select data-ng-model="settings.encoding" class="form-control">
+						<option value="CP1252">Windows Excel</option>
+						<option value="UTF8">Windows Open/Libre Office</option>
+						<option value="UTF8">Mac Excel</option>
+						<option value="UTF8">Mac Open/Libre Office</option>
+						<option value="UTF8">Linux Open/Libre Office</option>
+						<option value="UTF8">Weiss nicht</option>
+					</select>
+				</fieldset>
+				
+				<fieldset>
+					<legend>Import Einstellungen</legend>
+					<label class="checkbox">
+						<input type="checkbox" data-ng-model="settings.override"> Abonnentendaten überschreiben 
+					</label>
+				</fieldset>
+			</div>
+			
+			<div class="panel-footer">
+				<button class="btn btn-info" data-ng-click="parse()">Übernehmen</button>
+			</div>
+		</div>
+	</div>
+	
+	<div class="col-md-10">
+		<div class="span12" data-ng-if="data">
+			<span>Insgesamt <strong>{{data.length}}</strong> Zeilen</span>
+			<div class="pull-right">
+				<button type="button" class="btn btn-sm btn-success" data-ng-click="checkForErrors()">Import testen</button>
+			
+				<button type="button" class="btn btn-sm" data-ng-click="slice('first')" data-ng-disabled="data.currentPage == 0"><span class="fa fa-fast-backward"></span></button>
+				<button type="button" class="btn btn-sm" data-ng-click="slice('prev')" data-ng-disabled="data.currentPage == 0"><span class="fa fa-step-backward"></span></button>
+					{{data.currentPage + 1}} / {{data.numPages}}
+				<button type="button" class="btn btn-sm" data-ng-click="slice('next')" data-ng-disabled="(data.currentPage+1) == data.numPages"><span class="fa fa-step-forward"></span></button>
+				<button type="button" class="btn btn-sm" data-ng-click="slice('last')" data-ng-disabled="(data.currentPage+1) == data.numPages"><span class="fa fa-fast-forward"></span></button>
+			</div>
+		</div>
+		
+		<div class="span12"><br/></div>
+		
+		
+		<table class="table">
+			<thead>
+				<tr>
+					<td data-ng-repeat="c in page[0] track by $index">
+						<select data-ng-model="settings.fieldNames[$index]" class="form-control input-sm">
+							<option value="">Nicht importieren</option>
+							<optgroup label="Person">
+								<option value="EMAIL">E-Mail</option>
+								<option value="GENDER">Geschlecht</option>
+								<option value="firstName">Vorname</option>
+								<option value="LAST_NAME">Nachname</option>
+							</optgroup>
+							<optgroup label="Adresse">
+								<option value="STREET">Strasse</option>
+								<option value="ZIPCODE">Postleitzahl</option>
+								<option value="CITY">Ort / Stadt</option>
+								<option value="COUNTRY">Land</option>
+							</optgroup>				
+						</select>
+					</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr data-ng-repeat="row in page">
+					<td data-ng-repeat="cell in row track by $index">
+						<span data-ng-if="cell">{{cell}}</span>
+						<span data-ng-if="!cell" class="text-muted"><i>leer</i></span>	
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+</div>
