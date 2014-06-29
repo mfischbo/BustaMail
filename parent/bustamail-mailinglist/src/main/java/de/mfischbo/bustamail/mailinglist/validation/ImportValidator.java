@@ -46,8 +46,9 @@ public class ImportValidator {
 					public ResultType validate(String value) {
 						if (value.toLowerCase().equals("true") || value.equals("1"))
 							return ResultType.SUCCESS;
-						else
-							return ResultType.INVALID_BOOLEAN_EXPRESSION;
+						else if (value.toLowerCase().equals("false") || value.equals("0"))
+							return ResultType.SUCCESS;
+						return ResultType.INVALID_BOOLEAN_EXPRESSION;
 					}
 				});
 			}

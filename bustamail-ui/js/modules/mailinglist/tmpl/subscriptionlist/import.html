@@ -144,8 +144,8 @@
 				<tbody>
 					<tr data-ng-repeat="row in page" data-ng-class="{warning : status.errorLines[currentIssueIndex] == ($index + (data.currentPage * psize))}">
 						<td data-ng-repeat="cell in row track by $index">
-							<span data-ng-if="cell" data-ng-class="{'text-danger': status.parsingResults[data.currentPage * psize + $parent.$parent.$index][$index] != 'SUCCESS' && status}">{{cell}}</span>
-							<span data-ng-if="!cell" class="text-muted"><i>leer</i></span>	
+							<span data-ng-if="cell.length > 0" data-ng-class="{'text-danger': status.parsingResults[data.currentPage * psize + $parent.$parent.$index][$index] != 'SUCCESS' && status}">{{cell}}</span>
+							<span data-ng-if="cell.length == 0" class="text-muted"><i>leer</i></span>	
 						</td>
 					</tr>
 				</tbody>
