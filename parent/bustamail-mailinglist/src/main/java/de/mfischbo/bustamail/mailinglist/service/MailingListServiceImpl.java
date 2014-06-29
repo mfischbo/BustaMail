@@ -10,32 +10,48 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
+import org.dozer.DozerBeanMapper;
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
+import de.mfischbo.bustamail.mailinglist.domain.Subscription.SourceType;
+import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
+import de.mfischbo.bustamail.mailinglist.dto.ImportResultDTO;
 import de.mfischbo.bustamail.mailinglist.dto.ParsingResultDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionImportDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionListRepository;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
+import de.mfischbo.bustamail.mailinglist.repository.SubscriptionSpecs;
 import de.mfischbo.bustamail.mailinglist.validation.ImportValidator;
 import de.mfischbo.bustamail.mailinglist.validation.Validator.ResultType;
 import de.mfischbo.bustamail.media.domain.Media;
+import de.mfischbo.bustamail.reader.IndexedPropertyHolder;
 import de.mfischbo.bustamail.reader.TableDataReader;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.security.service.SecurityService;
+import de.mfischbo.bustamail.subscriber.domain.Address;
+import de.mfischbo.bustamail.subscriber.domain.Contact;
+import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
+import de.mfischbo.bustamail.subscriber.service.SubscriberService;
 
 @Service
 public class MailingListServiceImpl extends BaseService implements MailingListService {
 
 	@Inject
 	SecurityService					secService;
+	
+	@Inject
+	SubscriberService				subService;
 	
 	@Inject
 	SubscriptionListRepository		sListRepo;
@@ -156,54 +172,19 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	@Override
 	public ParsingResultDTO parseImportFile(SubscriptionList list, Media media, SubscriptionImportDTO settings)
 			throws Exception {
-		
-		List<List<String>> data = null;
-		
-		// check cache for the data
-		if (importCache.containsKey(media.getId())) {
-			ParsedImport pi = importCache.get(media.getId());
-			if (pi.settings.equals(settings))
-				data = pi.data;
-		}
-	
-		// if cache results in null reparse
-		if (data == null) {
-			TableDataReader reader = new TableDataReader(media.getDataStream(), media.getMimetype(), media.getName());
-			reader.setCsvDelimiterChar(settings.getCsvDelimiter());
-			reader.setCsvQuoteChar(settings.getCsvQuoteChar());
-			reader.setReaderEncoding(Charset.forName(settings.getEncoding().toString()));
-			data = reader.getRawTableData();
-			
-			ParsedImport pi = new ParsedImport();
-			pi.data = data;
-			pi.settings = settings;
-			importCache.put(media.getId(), pi);
-		}
-		
+		List<List<String>> data = getImportDataSecure(media, settings);
 		ParsingResultDTO retval = new ParsingResultDTO();
 		retval.setData(data);
 		return retval;
 	}
 
+	
 	@Override
 	public ParsingResultDTO parseForErrors(SubscriptionList list, Media m,
 			SubscriptionImportDTO dto) throws Exception {
 	
-		List<List<String>> data = null;
-		if (importCache.containsKey(m.getId())) {
-			ParsedImport pi = importCache.get(m.getId());
-			if (pi.settings.equals(dto)) 
-				data = pi.data;
-		}
-		
-		if (data == null) {
-			TableDataReader reader = new TableDataReader(m.getDataStream(), m.getMimetype(), m.getName());
-			reader.setCsvDelimiterChar(dto.getCsvDelimiter());
-			reader.setCsvQuoteChar(dto.getCsvQuoteChar());
-			reader.setReaderEncoding(Charset.forName(dto.getEncoding()));
-			data = reader.getRawTableData();
-		}
-		
+		List<List<String>> data = getImportDataSecure(m, dto);//null;
+	
 		List<List<ResultType>> validationResults = new ArrayList<>(data.size());
 		ImportValidator ival = new ImportValidator(dto.getFieldNames());
 		data.stream().forEach(new Consumer<List<String>>() {
@@ -224,29 +205,19 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 					result.getErrorLines().add(i);
 			}
 		}
-		
 		return result;
-		/*
-		BeanMappingBuilder b = new BeanMappingBuilder() {
-		
-			@Override
-			protected void configure() {
-				final TypeMappingBuilder tmb = mapping(IndexedPropertyHolder.class, Contact.class, oneWay(), wildcard(false), mapNull(true));
-				for (int i=0; i < dto.getFieldNames().length; i++) {
-					
-					String field = dto.getFieldNames()[i];
-					if (field.trim().length() == 0)
-						continue;
-					
-					tmb.fields("columns[" + i + "]", field);
-				}
-			}
-		};
-		
-		DozerBeanMapper dm = new DozerBeanMapper();
-		dm.addMapping(b);
+	}
+
+	@Override
+	public ImportResultDTO importSubscriptions(SubscriptionList list,
+			Media media, SubscriptionImportDTO settings) throws Exception {
 	
-	
+		List<List<String>> data = getImportDataSecure(media, settings);
+		if (settings.isContainsHeader())
+			data.remove(0);
+			
+		log.debug("Mapping all data rows to contacts...");
+		DozerBeanMapper dm = DozerImportFactory.createInstance(Contact.class, settings);
 		List<Contact> contacts = new ArrayList<>();
 		for (List<String> l : data) {
 			IndexedPropertyHolder holder = new IndexedPropertyHolder();
@@ -255,6 +226,114 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 			dm.map(holder, c);
 			contacts.add(c);
 		}
-		*/
+		log.debug("Mapped ["+contacts.size()+"] rows to contacts.");
+		
+		// stats to be returned
+		ImportResultDTO	retval = new ImportResultDTO();
+		int updates = 0;
+		int creates = 0;
+		int imports = 0;
+		
+	
+		for (Contact c : contacts) {
+			EMailAddress lookup = c.getEmailAddresses().iterator().next();
+			Contact pers = subService.getContactByEMailAddress(lookup);
+			
+			// case: contact found and update flag is set
+			if (pers != null) {
+				if (settings.isOverride()) {
+					pers.setFirstName(ImportUtility.bestMatchingResult(pers.getFirstName(), c.getFirstName()));
+					pers.setFormalSalutation(c.isFormalSalutation());
+					pers.setGender(ImportUtility.bestMatchingResult(pers.getGender(), c.getGender()));
+					pers.setLastName(ImportUtility.bestMatchingResult(pers.getFirstName(), c.getFirstName()));
+					pers.setTitle(ImportUtility.bestMatchingResult(pers.getTitle(), c.getTitle()));
+				
+					// add the new address if not available yet. Comparisson based on Address#equals() implementation!
+					if (c.getAddresses() != null && c.getAddresses().size() > 0) {
+						Address impAddr = c.getAddresses().get(0);
+						if (impAddr != null) {
+							if (!pers.getAddresses().contains(impAddr)) {
+								pers.getAddresses().add(impAddr);
+								impAddr.setContact(pers);
+							}
+						}
+					}
+					
+					// add the new email address if not available yet. Comparisson based on EMailAddress#equals() implementation!
+					if (!pers.getEmailAddresses().contains(lookup)) {
+						pers.getEmailAddresses().add(lookup);
+						lookup.setContact(pers);
+					}
+					c = subService.updateContact(pers);
+					updates++;
+				} else {
+					c = pers;
+				}
+			}
+		
+			if (pers == null) {
+				lookup.setContact(c);
+				
+				if (c.getAddresses() != null && c.getAddresses().size() > 0)
+					c.getAddresses().get(0).setContact(c);
+				
+				c = subService.createContact(c);
+				creates++;
+			}
+
+			// Specification for a contact being on this subscription list
+			Specifications<Subscription> specs = Specifications.where(SubscriptionSpecs.onList(list))
+				.and(SubscriptionSpecs.withAnyOfContactsEmails(c));
+			
+			Subscription s = scRepo.findOne(specs);
+			if (s == null) {
+				s = new Subscription();
+				s.setDateCreated(DateTime.now());
+				s.setEmailAddress(lookup);
+				s.setIpAddress("127.0.0.1");
+				s.setSourceType(SourceType.ImportAction);
+				s.setState(State.ACTIVE);
+				s.setSubscriptionList(list);
+				scRepo.save(s);
+				imports++;
+			}
+		}
+		retval.setContactsCreated(creates);
+		retval.setContactsUpdated(updates);
+		retval.setLinesImported(imports);
+		return retval;
+	}
+	
+	
+	
+	private List<List<String>> getImportDataSecure(Media media, SubscriptionImportDTO settings) {
+		List<List<String>> data = null;
+		
+		// check cache for the data
+		if (importCache.containsKey(media.getId())) {
+			ParsedImport pi = importCache.get(media.getId());
+			if (pi.settings.equals(settings))
+				data = pi.data;
+		}
+	
+		// if cache results in null reparse
+		if (data == null) {
+			try {
+				TableDataReader reader = new TableDataReader(media.getDataStream(), media.getMimetype(), media.getName());
+				reader.setCsvDelimiterChar(settings.getCsvDelimiter());
+				reader.setCsvQuoteChar(settings.getCsvQuoteChar());
+				reader.setReaderEncoding(Charset.forName(settings.getEncoding().toString()));
+				data = reader.getRawTableData();
+				
+				ParsedImport pi = new ParsedImport();
+				pi.data = data;
+				pi.settings = settings;
+				importCache.put(media.getId(), pi);
+			} catch (Exception ex) {
+				throw new RuntimeException("Could not retrieve data from media file : " + media.getId());
+			}
+		}
+		Assert.notNull(data, "Could not retrieve import data. No readable data in cache nor in file.");
+		return data;
 	}
 }

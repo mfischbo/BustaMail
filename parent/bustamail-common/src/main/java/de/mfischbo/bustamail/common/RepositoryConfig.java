@@ -56,7 +56,7 @@ public class RepositoryConfig {
 	public EntityManagerFactory getEntityManagerFactory() {
 		
 		HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
-		adapter.setShowSql(false);
+		adapter.setShowSql(true);
 		adapter.setGenerateDdl(true);
 		adapter.setDatabasePlatform(MySQL5InnoDBDialect.class.getName());
 		

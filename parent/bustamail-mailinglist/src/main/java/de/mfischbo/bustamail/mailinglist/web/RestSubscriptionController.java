@@ -76,7 +76,9 @@ public class RestSubscriptionController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/import", method = RequestMethod.POST)
-	public ImportResultDTO importFile(@RequestBody SubscriptionImportDTO dto) throws Exception {
-		return null;
+	public ImportResultDTO importCurrent(@PathVariable("slid") UUID listId, @RequestBody SubscriptionImportDTO dto) throws Exception {
+		Media m = mediaService.getMediaById(dto.getMediaId());
+		SubscriptionList list = service.getSubscriptionListById(listId);
+		return service.importSubscriptions(list, m, dto);
 	}
 }

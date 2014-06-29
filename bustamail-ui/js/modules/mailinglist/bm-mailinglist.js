@@ -138,6 +138,12 @@ BMApp.MailingList.controller("MailingListImportController",
 		});
 	};
 	
+	$scope.import = function() {
+		$http.post("/api/subscription-lists/" + $routeParams.id + "/subscriptions/import", $scope.settings).success(function(data) {
+			
+		});
+	};
+	
 	
 	/**
 	 * Jumps to certain positions in the data set

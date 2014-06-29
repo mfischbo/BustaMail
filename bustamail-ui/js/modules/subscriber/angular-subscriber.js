@@ -16,9 +16,10 @@ BMApp.Subscriber.service("Subscriber", ['$http', function($http) {
 BMApp.Subscriber.controller("SubscriberIndexController", ['$scope', 'Subscriber', function($scope, Service) {
 
 	$scope.contacts = {};
+	/*
 	Service.getAllContacts(function(state, data) {
 		console.log(data);
 		$scope.contacts = data;
 	});
-	
+	*/
 }]);

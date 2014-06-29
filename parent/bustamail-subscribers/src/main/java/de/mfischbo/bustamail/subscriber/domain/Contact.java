@@ -1,8 +1,10 @@
 package de.mfischbo.bustamail.subscriber.domain;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -33,11 +35,11 @@ public class Contact extends BaseDomain {
 	@Basic(fetch = FetchType.EAGER)
 	private boolean formalSalutation;
 
-	@OneToMany(mappedBy = "contact")
+	@OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Address>		addresses;
 
-	@OneToMany(mappedBy = "contact", fetch = FetchType.LAZY)
-	private List<EMailAddress>	emailAddresses;
+	@OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private Set<EMailAddress>	emailAddresses;
 
 	public String getTitle() {
 		return title;
@@ -87,11 +89,11 @@ public class Contact extends BaseDomain {
 		this.addresses = addresses;
 	}
 
-	public List<EMailAddress> getEmailAddresses() {
+	public Set<EMailAddress> getEmailAddresses() {
 		return emailAddresses;
 	}
 
-	public void setEmailAddresses(List<EMailAddress> emailAddresses) {
+	public void setEmailAddresses(Set<EMailAddress> emailAddresses) {
 		this.emailAddresses = emailAddresses;
 	}
 }

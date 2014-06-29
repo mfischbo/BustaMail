@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
+import de.mfischbo.bustamail.mailinglist.dto.ImportResultDTO;
 import de.mfischbo.bustamail.mailinglist.dto.ParsingResultDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionImportDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
@@ -62,4 +63,8 @@ public interface MailingListService {
 	
 	@PostAuthorize("hasPermission(#list.owner, 'Security.IS_ACTOR_OF')")
 	public ParsingResultDTO parseImportFile(SubscriptionList list, Media media, SubscriptionImportDTO settings) throws Exception;
+
+	@Transactional
+	@PostAuthorize("hasPermission(#list.owner, 'Security.IS_ACTOR_OF')")
+	public ImportResultDTO importSubscriptions(SubscriptionList list, Media media, SubscriptionImportDTO settings) throws Exception;
 }

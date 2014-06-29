@@ -2,42 +2,27 @@ package de.mfischbo.bustamail.mailinglist.dto;
 
 public class ImportResultDTO {
 
-	private int		linesRecognized;
-	private int		errorLines;
-	private int		successLines;
+	private int 		linesImported;
+	private int			contactsUpdated;
+	private int			contactsCreated;
 	
-
-	public ImportResultDTO() {
-		
+	
+	public int getLinesImported() {
+		return linesImported;
 	}
-
-
-	public int getLinesRecognized() {
-		return linesRecognized;
+	public void setLinesImported(int linesImported) {
+		this.linesImported = linesImported;
 	}
-
-
-	public void setLinesRecognized(int linesRecognized) {
-		this.linesRecognized = linesRecognized;
+	public int getContactsUpdated() {
+		return contactsUpdated;
 	}
-
-
-	public int getErrorLines() {
-		return errorLines;
+	public void setContactsUpdated(int contactsUpdated) {
+		this.contactsUpdated = contactsUpdated;
 	}
-
-
-	public void setErrorLines(int errorLines) {
-		this.errorLines = errorLines;
+	public int getContactsCreated() {
+		return contactsCreated;
 	}
-
-
-	public int getSuccessLines() {
-		return successLines;
-	}
-
-
-	public void setSuccessLines(int successLines) {
-		this.successLines = successLines;
+	public void setContactsCreated(int contactsCreated) {
+		this.contactsCreated = contactsCreated;
 	}
 }
