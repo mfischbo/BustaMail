@@ -211,74 +211,24 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	@Override
 	public ImportResultDTO importSubscriptions(SubscriptionList list,
 			Media media, SubscriptionImportDTO settings) throws Exception {
-	
-		List<List<String>> data = getImportDataSecure(media, settings);
-		if (settings.isContainsHeader())
-			data.remove(0);
-			
-		log.debug("Mapping all data rows to contacts...");
-		DozerBeanMapper dm = DozerImportFactory.createInstance(Contact.class, settings);
-		List<Contact> contacts = new ArrayList<>();
-		for (List<String> l : data) {
-			IndexedPropertyHolder holder = new IndexedPropertyHolder();
-			holder.getColumns().addAll(l);
-			Contact c = new Contact();
-			dm.map(holder, c);
-			contacts.add(c);
-		}
-		log.debug("Mapped ["+contacts.size()+"] rows to contacts.");
+
+		List<Contact> contacts = mapDataToContacts(media, settings);
 		
 		// stats to be returned
 		ImportResultDTO	retval = new ImportResultDTO();
-		int updates = 0;
-		int creates = 0;
 		int imports = 0;
 		
 	
 		for (Contact c : contacts) {
 			EMailAddress lookup = c.getEmailAddresses().iterator().next();
-			Contact pers = subService.getContactByEMailAddress(lookup);
+			c = getPersistedContact(c, settings, retval);
 			
-			// case: contact found and update flag is set
-			if (pers != null) {
-				if (settings.isOverride()) {
-					pers.setFirstName(ImportUtility.bestMatchingResult(pers.getFirstName(), c.getFirstName()));
-					pers.setFormalSalutation(c.isFormalSalutation());
-					pers.setGender(ImportUtility.bestMatchingResult(pers.getGender(), c.getGender()));
-					pers.setLastName(ImportUtility.bestMatchingResult(pers.getFirstName(), c.getFirstName()));
-					pers.setTitle(ImportUtility.bestMatchingResult(pers.getTitle(), c.getTitle()));
-				
-					// add the new address if not available yet. Comparisson based on Address#equals() implementation!
-					if (c.getAddresses() != null && c.getAddresses().size() > 0) {
-						Address impAddr = c.getAddresses().get(0);
-						if (impAddr != null) {
-							if (!pers.getAddresses().contains(impAddr)) {
-								pers.getAddresses().add(impAddr);
-								impAddr.setContact(pers);
-							}
-						}
-					}
-					
-					// add the new email address if not available yet. Comparisson based on EMailAddress#equals() implementation!
-					if (!pers.getEmailAddresses().contains(lookup)) {
-						pers.getEmailAddresses().add(lookup);
-						lookup.setContact(pers);
-					}
-					c = subService.updateContact(pers);
-					updates++;
-				} else {
-					c = pers;
+			// contact is now persisted and stored in c. Find the persisted email address to use for lookup
+			for (EMailAddress e : c.getEmailAddresses()) {
+				if (e.equals(lookup)) {
+					lookup = e;
+					break;
 				}
-			}
-		
-			if (pers == null) {
-				lookup.setContact(c);
-				
-				if (c.getAddresses() != null && c.getAddresses().size() > 0)
-					c.getAddresses().get(0).setContact(c);
-				
-				c = subService.createContact(c);
-				creates++;
 			}
 
 			// Specification for a contact being on this subscription list
@@ -298,12 +248,92 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 				imports++;
 			}
 		}
-		retval.setContactsCreated(creates);
-		retval.setContactsUpdated(updates);
 		retval.setLinesImported(imports);
 		return retval;
 	}
+
+	/**
+	 * Maps raw table data to a list of contacts using a dozer mapper
+	 * @param media The import file used for reading data either from the file itself or from cache
+	 * @param settings The import settings
+	 * @return A list of contacts
+	 */
+	private List<Contact> mapDataToContacts(Media media, SubscriptionImportDTO settings) {
+
+		List<List<String>> data = getImportDataSecure(media, settings);
+		if (settings.isContainsHeader())
+			data.remove(0);
+			
+		log.debug("Mapping all data rows to contacts...");
+		DozerBeanMapper dm = DozerImportFactory.createInstance(Contact.class, settings);
+		List<Contact> contacts = new ArrayList<>();
+		for (List<String> l : data) {
+			IndexedPropertyHolder holder = new IndexedPropertyHolder();
+			holder.getColumns().addAll(l);
+			Contact c = new Contact();
+			dm.map(holder, c);
+			contacts.add(c);
+		}
+		log.debug("Mapped ["+contacts.size()+"] rows to contacts.");
+		return contacts;
+	}
+
+
+	/**
+	 * Returns a persisted entity of the contact. The method ensures that all related entities are persisted as well.
+	 * If the override flag is set in the settings, the contact will be updated.
+	 * @param c The contact to be persisted
+	 * @param settings The settings
+	 * @return The persisted contact
+	 */
+	private Contact getPersistedContact(Contact c, SubscriptionImportDTO settings, ImportResultDTO result) {
 	
+		EMailAddress lookup = c.getEmailAddresses().iterator().next();
+		Contact pers = subService.getContactByEMailAddress(lookup);
+		
+		if (pers != null) {
+			if (settings.isOverride()) {
+				pers.setFirstName(ImportUtility.bestMatchingResult(pers.getFirstName(), c.getFirstName()));
+				pers.setFormalSalutation(c.isFormalSalutation());
+				pers.setGender(ImportUtility.bestMatchingResult(pers.getGender(), c.getGender()));
+				pers.setLastName(ImportUtility.bestMatchingResult(pers.getFirstName(), c.getFirstName()));
+				pers.setTitle(ImportUtility.bestMatchingResult(pers.getTitle(), c.getTitle()));
+			
+				// add the new address if not available yet. Comparisson based on Address#equals() implementation!
+				if (c.getAddresses() != null && c.getAddresses().size() > 0) {
+					Address impAddr = c.getAddresses().get(0);
+					if (impAddr != null) {
+						if (!pers.getAddresses().contains(impAddr)) {
+							pers.getAddresses().add(impAddr);
+							impAddr.setContact(pers);
+						}
+					}
+				}
+				
+				// add the new email address if not available yet. Comparisson based on EMailAddress#equals() implementation!
+				if (!pers.getEmailAddresses().contains(lookup)) {
+					pers.getEmailAddresses().add(lookup);
+					lookup.setContact(pers);
+				} 
+				c = subService.updateContact(pers);
+				result.setContactsUpdated(result.getContactsUpdated() + 1);
+			} else {
+				c = pers;
+			}
+		}
+	
+		// case contact not found -> create a new one
+		if (pers == null) {
+			lookup.setContact(c);
+			
+			if (c.getAddresses() != null && c.getAddresses().size() > 0)
+				c.getAddresses().get(0).setContact(c);
+			
+			c = subService.createContact(c);
+			result.setContactsCreated(result.getContactsCreated() + 1);
+		}
+		return c;
+	}
 	
 	
 	private List<List<String>> getImportDataSecure(Media media, SubscriptionImportDTO settings) {

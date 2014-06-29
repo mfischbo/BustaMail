@@ -17,7 +17,7 @@ import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
 @Entity
 @Table(name = "SubscriptionList_Subscription", uniqueConstraints = {
-		@UniqueConstraint(columnNames = {"SubscriptionList_id", "EMailAddress_id"})
+		@UniqueConstraint(columnNames = {"SubscriptionList_id","EMailAddress_id"})
 })
 public class Subscription extends BaseDomain {
 

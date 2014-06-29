@@ -21,14 +21,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-/*
-@EnableJpaRepositories(entityManagerFactoryRef = "entityManagerFactory"/*, 
-	basePackages = "de.mfischbo.bustamail", 
-	includeFilters = {
-		@ComponentScan.Filter(value = JpaRepository.class, type = FilterType.ASSIGNABLE_TYPE)
-	})
-@EnableTransactionManagement
-*/
 public class RepositoryConfig {
 
 	@Inject
@@ -56,7 +48,7 @@ public class RepositoryConfig {
 	public EntityManagerFactory getEntityManagerFactory() {
 		
 		HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
-		adapter.setShowSql(true);
+		adapter.setShowSql(false);
 		adapter.setGenerateDdl(true);
 		adapter.setDatabasePlatform(MySQL5InnoDBDialect.class.getName());
 		
