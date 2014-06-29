@@ -28,13 +28,25 @@ public class TableDataReader {
 			type = FileType.CSV;
 		}
 		
+		if (mimetype.equalsIgnoreCase("application/x-tika-msoffice") && filename.toLowerCase().endsWith(".xlsx")) {
+			tableReader = new XLSXReader(inStream);
+			type = FileType.XLSX;
+		}
+		
 		if (tableReader == null && (filename.toLowerCase().endsWith(".csv") || filename.toLowerCase().endsWith(".txt"))) {
 			tableReader = new CSVReader(inStream);
 			type = FileType.CSV;
 		}
 		
-		// TODO: Add more reader implementations for mime types here
-		//if (mimetype.equalsIgnoreCase("application/ms-office-xls"))
+		if (tableReader == null && filename.toLowerCase().endsWith(".xlsx")) {
+			tableReader = new XLSXReader(inStream);
+			type = FileType.XLSX;
+		}
+		
+		if (tableReader == null && filename.toLowerCase().endsWith(".xls")) {
+			tableReader = new XLSReader(inStream);
+			type = FileType.XLS;
+		}
 	}
 	
 	public List<List<String>> getRawTableData() {

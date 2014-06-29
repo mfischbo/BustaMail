@@ -20,7 +20,6 @@ public class CSVReader implements ITableReader {
 	public static String NIX_EOL = "\n";
 
 	private InputStream 	inStream;
-	private String[]		headers;
 	
 	private char			delimiter = ',';
 	private char			quoteChar = '"';
@@ -107,19 +106,6 @@ public class CSVReader implements ITableReader {
 		return CSVReader.readFile(getPreferences(), reader);
 	}
 
-	@Override
-	public <T> List<T> readObjects(Class<T> classname) {
-		InputStreamReader reader = new InputStreamReader(this.inStream); 
-		try {
-			return CSVReader.readFile(classname, reader, this.headers, true, getPreferences());
-		} catch (Exception ex) {
-			return null;
-		}
-	}
-
-	public void setColumnHeaders(String[] headers) {
-		this.headers = headers;
-	}
 
 	public void setDelimiter(char character) {
 		this.delimiter = character;
