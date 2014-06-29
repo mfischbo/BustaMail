@@ -248,6 +248,11 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 				imports++;
 			}
 		}
+		
+		// remove the data source from the cache
+		if (importCache.containsKey(media.getId()))
+			importCache.remove(media.getId());
+		
 		retval.setLinesImported(imports);
 		return retval;
 	}
@@ -335,7 +340,13 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		return c;
 	}
 	
-	
+
+	/**
+	 * Returns the import data from either the given media file or from the import cache
+	 * @param media The media file containing the data to be imported
+	 * @param settings The settings for import
+	 * @return The raw table data as returned from the reader
+	 */
 	private List<List<String>> getImportDataSecure(Media media, SubscriptionImportDTO settings) {
 		List<List<String>> data = null;
 		
