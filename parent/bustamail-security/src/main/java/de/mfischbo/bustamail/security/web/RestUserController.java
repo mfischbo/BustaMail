@@ -58,7 +58,7 @@ public class RestUserController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}/actors", method = RequestMethod.POST)
-	public Set<ActorDTO> updateActors(@PathVariable("id") UUID userId, @RequestBody List<ActorDTO> actors) throws Exception {
+	public List<ActorDTO> updateActors(@PathVariable("id") UUID userId, @RequestBody List<ActorDTO> actors) throws Exception {
 		return service.updateActors(userId, actors);
 	}
 

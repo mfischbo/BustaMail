@@ -63,9 +63,17 @@ public class ActorBasedPermissionEvaluator implements PermissionEvaluator {
 						//.and(ActorSpecification.hasPermission(perm.getId()));
 			
 			Actor a = actorRepo.findOne(specs);
-			if (a.getPermissions() != null)
-				return (a.getPermissions().contains(perm.getId()));
+			if (a == null) {
+				log.debug("Permission denied");
+				return false;	
+			}
+			if (a.getPermissions() != null) {
+				boolean retval = (a.getPermissions().contains(perm.getId()));
+				log.debug("Permission " + (retval?"granted" : "denied"));
+				return retval;
+			}
 		}
+		log.debug("Permission denied!");
 		return false;
 	}
 

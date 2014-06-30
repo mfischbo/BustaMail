@@ -1,11 +1,11 @@
 package de.mfischbo.bustamail.security.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -438,11 +438,15 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	 * @see de.mfischbo.bustamail.security.service.SecurityService#updateActors(java.util.UUID, java.util.List)
 	 */
 	@Override
-	public Set<ActorDTO> updateActors(UUID userId, List<ActorDTO> actors) throws EntityNotFoundException {
+	public List<ActorDTO> updateActors(UUID userId, List<ActorDTO> actors) throws EntityNotFoundException {
 		User u = userRepo.findOne(userId);
 		checkOnNull(u);
-	
-		List<Actor> inserts = new LinkedList<Actor>();
+
+		List<Actor> del = actorRepo.findByUser(u);
+		actorRepo.delete(del);
+		
+		// explicitly created actors. This is the users selection
+		List<Actor> inserts = new LinkedList<>();
 		for (ActorDTO d : actors) {
 			Actor a = new Actor();
 			a.setAddToChildren(d.isAddToChildren());
@@ -455,14 +459,33 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 			a.setOrgUnit(ou);
 			inserts.add(a);
 		}
-	
+		List<Actor> retval = new ArrayList<>(inserts.size());
+		retval = actorRepo.save(inserts);
+		actorRepo.flush();
+		return asDTO(retval, ActorDTO.class);
+		
+		/*
 		// create actors for all parent units without permissions
 		ListIterator<Actor> ait = inserts.listIterator();
 		while (ait.hasNext()) {
 			Actor t = ait.next();
-			if (t.getOrgUnit().getParent().getId() == null)
+		
+			// don't add to the root org unit
+			if (t.getOrgUnit().getParent().getId() == ROOT_UNIT_ID)
 				continue;
 			
+			// if the user is not actor in the parent org unit add him without permissions
+			if (!isActorIn(t.getOrgUnit().getParent(), inserts)) {
+				Actor a2 = new Actor();
+				a2.setAddToChildren(false);
+				a2.setAddToFutureChildren(false);
+				a2.setOrgUnit(t.getOrgUnit().getParent());
+				a2.setPermissions(new LinkedHashSet<>());
+				a2.setUser(u);
+				ait.add(a2);
+			}
+			
+			/*
 			if (!hasParentActor(t, inserts)) {
 				Actor a2 = new Actor();
 				a2.setAddToChildren(false);
@@ -472,8 +495,12 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 				a2.setUser(u);
 				ait.add(a2);
 			}
+			
 		}
+		*/
 		
+		
+		/*
 		// put everything into a set to make sure each actor tuple(orgunit, user)
 		// is exactly created once
 		Set<Actor> create = new HashSet<Actor>();
@@ -488,7 +515,17 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		u.getActors().addAll(create);
 		u = userRepo.saveAndFlush(u);
 		return asDTO(u.getActors(), ActorDTO.class);
+		*/
 	}
+	
+	private boolean isActorIn(OrgUnit parent, List<Actor> actors) {
+		for (Actor a : actors) {
+			if (a.getOrgUnit().getId().equals(parent.getId()))
+				return true;
+		}
+		return false;
+	}
+	
 	
 	private boolean hasParentActor(Actor t, List<Actor> actors) {
 		UUID ouId = t.getOrgUnit().getParent().getId();
@@ -502,8 +539,6 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		}
 		return found;
 	}
-	
-
 
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher arg0) {

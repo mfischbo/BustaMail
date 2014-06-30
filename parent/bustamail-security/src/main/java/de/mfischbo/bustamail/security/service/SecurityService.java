@@ -142,7 +142,7 @@ public interface SecurityService {
 	 * @return
 	 * @throws EntityNotFoundException
 	 */
-	@Transactional
-	public Set<ActorDTO>	updateActors(UUID userId, List<ActorDTO> actors) throws EntityNotFoundException;
+	//@Transactional
+	public List<ActorDTO>	updateActors(UUID userId, List<ActorDTO> actors) throws EntityNotFoundException;
 	
 }

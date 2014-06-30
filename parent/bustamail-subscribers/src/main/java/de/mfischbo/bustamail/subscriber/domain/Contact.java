@@ -24,7 +24,7 @@ public class Contact extends BaseDomain {
 	
 	@Basic(fetch = FetchType.EAGER)
 	@Enumerated(EnumType.STRING)
-	private Gender gender;
+	private Gender gender = Gender.N;
 	
 	@Basic(fetch = FetchType.EAGER)
 	private String firstName;

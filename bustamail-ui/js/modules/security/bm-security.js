@@ -115,12 +115,14 @@ BMApp.Security.controller("SecurityUserIndexController", ['$http', '$scope', fun
 	};
 	
 	$scope.deleteUser = function(id) {
-		$http({
-			url		:	"/api/security/users/" + id + "/lock",
-			method	:	"DELETE"
-		}).success(function() {
-			BMApp.utils.remove("id", id, $scope.users.content);
-			BMApp.alert("Der Benutzer wurde erfolgreich entfernt")
+		BMApp.confirm("Soll der Benutzer wirklich entfernt werden?", function() {
+			$http({
+				url		:	"/api/security/users/" + id,
+				method	:	"DELETE"
+			}).success(function() {
+				BMApp.utils.remove("id", id, $scope.users.content);
+				BMApp.alert("Der Benutzer wurde erfolgreich entfernt")
+			});
 		});
 	};
 }]);

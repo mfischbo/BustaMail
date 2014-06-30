@@ -40,6 +40,8 @@ public class ActorDTO {
 	}
 
 	public UUID getUserId() {
+		if (user != null)
+			return user.getId();
 		return userId;
 	}
 
@@ -58,6 +60,8 @@ public class ActorDTO {
 	}
 
 	public UUID getOrgUnitId() {
+		if (orgUnit != null)
+			return orgUnit.getId();
 		return orgUnitId;
 	}
 
