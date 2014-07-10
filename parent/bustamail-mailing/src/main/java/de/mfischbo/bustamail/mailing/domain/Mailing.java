@@ -18,6 +18,8 @@ import de.mfischbo.bustamail.template.domain.Template;
 @Table(name = "Mailing_Mailing")
 public class Mailing extends OwnedBaseDomain {
 
+	private static final long serialVersionUID = 4233998675412535889L;
+
 	@Basic
 	@NotBlank
 	private String 		subject;

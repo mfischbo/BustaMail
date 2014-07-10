@@ -21,6 +21,8 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 @Table(name = "Security_OrgUnit")
 public class OrgUnit extends BaseDomain {
 
+	private static final long serialVersionUID = 1410454016750659990L;
+
 	@Basic
 	@NotBlank
 	private String			name;

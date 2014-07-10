@@ -16,6 +16,8 @@ import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 @Table(name = "Media_Directory")
 public class Directory extends OwnedBaseDomain {
 
+	private static final long serialVersionUID = -1066888517355528723L;
+
 	@Basic
 	private String			name;
 	

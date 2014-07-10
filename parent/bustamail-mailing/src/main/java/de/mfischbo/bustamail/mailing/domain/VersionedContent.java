@@ -24,6 +24,8 @@ import de.mfischbo.bustamail.security.domain.User;
 @Table(name = "Mailing_VersionedContent")
 public class VersionedContent extends BaseDomain {
 
+	private static final long serialVersionUID = 2960183880457152474L;
+
 	public enum ContentType {
 		HTML,
 		Text

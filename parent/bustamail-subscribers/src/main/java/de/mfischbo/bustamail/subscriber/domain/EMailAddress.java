@@ -18,6 +18,8 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 })
 public class EMailAddress extends BaseDomain {
 
+	private static final long serialVersionUID = 8055176368450793272L;
+
 	@Basic
 	@Column(name = "localPart", length = 255, nullable = false)
 	@NotBlank

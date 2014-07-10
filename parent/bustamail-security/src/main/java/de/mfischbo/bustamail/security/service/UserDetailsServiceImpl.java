@@ -13,16 +13,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private UserRepository		userRepo;
 
-	
 	@Override
 	public UserDetails loadUserByUsername(String arg0)
 			throws UsernameNotFoundException {
-		
-		User u = userRepo.findByEmail(arg0);
-		if (u == null)
-			throw new UsernameNotFoundException("Unknown user");
-		
-		return u;
-	}
 
+		try {
+			User u = userRepo.findByEmail(arg0);
+			if (u == null)
+				throw new UsernameNotFoundException("Unknown user");
+			
+			return u;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new UsernameNotFoundException(ex.getMessage());
+		}
+	}
 }

@@ -11,7 +11,7 @@ import org.dozer.spring.DozerBeanMapperFactoryBean;
 import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.MultiPartConfigFactory;
+import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +48,7 @@ public class ITConfiguration {
 	
 	@Bean
 	public MultipartConfigElement getMultipartResolver() {
-		MultiPartConfigFactory factory = new MultiPartConfigFactory();
+		MultipartConfigFactory factory = new MultipartConfigFactory();
 		factory.setMaxFileSize("10MB");
 		return factory.createMultipartConfig();
 	}

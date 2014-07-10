@@ -13,6 +13,8 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 @Table(name = "Subscriber_Address")
 public class Address extends BaseDomain {
 
+	private static final long serialVersionUID = 5852562852738592425L;
+
 	@Basic
 	private String street;
 	

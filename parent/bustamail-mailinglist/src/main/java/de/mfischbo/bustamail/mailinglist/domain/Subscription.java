@@ -21,6 +21,8 @@ import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 })
 public class Subscription extends BaseDomain {
 
+	private static final long serialVersionUID = 3316987035776229064L;
+
 	public enum SourceType {
 		UserAction,
 		ImportAction,

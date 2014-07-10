@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.common.domain;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -10,8 +11,10 @@ import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.GenericGenerator;
 
 @MappedSuperclass
-public class BaseDomain {
+public class BaseDomain implements Serializable {
 
+	private static final long serialVersionUID = -1501141222657838588L;
+	
 	@Id
 	@GeneratedValue(generator = "uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid2")

@@ -26,6 +26,8 @@ import de.mfischbo.bustamail.media.domain.MediaImage;
 @Table(name = "Templates_Template")
 public class Template extends BaseDomain {
 
+	private static final long serialVersionUID = -257611755576891163L;
+
 	@Basic
 	private String		name;
 	

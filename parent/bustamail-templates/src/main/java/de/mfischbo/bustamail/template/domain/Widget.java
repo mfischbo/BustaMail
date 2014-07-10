@@ -14,6 +14,8 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 @Table(name = "Templates_Widget")
 public class Widget extends BaseDomain {
 
+	private static final long serialVersionUID = 7619850045491333396L;
+
 	@Basic
 	private String		name;
 	

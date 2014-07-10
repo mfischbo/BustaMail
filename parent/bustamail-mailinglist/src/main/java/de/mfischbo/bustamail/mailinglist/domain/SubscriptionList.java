@@ -16,6 +16,8 @@ import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 @Table(name = "SubscriptionList_List")
 public class SubscriptionList extends OwnedBaseDomain {
 
+	private static final long serialVersionUID = -5335592314616788305L;
+
 	@Basic
 	@Column(nullable = false)
 	@NotBlank

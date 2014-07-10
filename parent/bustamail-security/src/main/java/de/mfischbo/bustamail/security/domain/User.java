@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -70,7 +71,7 @@ public class User extends BaseDomain implements UserDetails, PersonalizedEmailRe
 	@Basic
 	private boolean		hidden;
 
-	@ManyToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	@ManyToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Actor>		actors;
 	
 	

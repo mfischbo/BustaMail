@@ -24,6 +24,8 @@ import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Media extends OwnedBaseDomain {
 
+	private static final long serialVersionUID = 2299514868852775624L;
+
 	@Basic
 	private String name;
 	

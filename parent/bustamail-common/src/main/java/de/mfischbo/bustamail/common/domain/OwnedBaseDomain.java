@@ -10,6 +10,8 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public class OwnedBaseDomain extends BaseDomain {
 
+	private static final long serialVersionUID = -4608480581507322585L;
+	
 	@Basic(fetch = FetchType.EAGER)
 	@Column(name = "Owner_Id", length = 16, nullable = false)
 	private UUID		owner;

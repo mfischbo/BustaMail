@@ -21,6 +21,8 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 //})
 public class Actor extends BaseDomain {
 
+	private static final long serialVersionUID = -450042238744926288L;
+
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(name = "User_id", referencedColumnName = "id")
 	private User 		user;

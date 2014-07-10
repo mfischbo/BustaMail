@@ -14,6 +14,8 @@ import javax.persistence.Table;
 @Table(name = "Media_MediaImage")
 public class MediaImage extends Media {
 
+	private static final long serialVersionUID = -2954918522384485908L;
+
 	@Basic
 	private int		width;
 	

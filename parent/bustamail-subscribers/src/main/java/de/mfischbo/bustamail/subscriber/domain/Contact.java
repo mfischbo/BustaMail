@@ -19,6 +19,8 @@ import de.mfischbo.bustamail.common.domain.Gender;
 @Table(name = "Subscriber_Contact")
 public class Contact extends BaseDomain {
 
+	private static final long serialVersionUID = -7625104438651224536L;
+
 	@Basic(fetch = FetchType.EAGER)
 	private String title;
 	

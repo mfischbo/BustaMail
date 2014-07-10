@@ -18,6 +18,8 @@ import de.mfischbo.bustamail.media.domain.MediaImage;
 @Table(name = "Templates_TemplatePack")
 public class TemplatePack extends OwnedBaseDomain {
 
+	private static final long serialVersionUID = 8606991297872941503L;
+
 	@Basic
 	private String		name;
 	
