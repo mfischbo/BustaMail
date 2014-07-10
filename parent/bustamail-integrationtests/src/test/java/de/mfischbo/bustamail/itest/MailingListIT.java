@@ -12,21 +12,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.UUID;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {ITConfiguration.class})
-@WebAppConfiguration
-@IntegrationTest
-@ActiveProfiles("testing")
+
 public class MailingListIT extends AbstractIntegrationTestBase {
 
 	private static final UUID TEST_LIST_ID  = UUID.fromString(toUUIDString("DA66D81495BE4AD6A1F66A0EEC414ED9"));

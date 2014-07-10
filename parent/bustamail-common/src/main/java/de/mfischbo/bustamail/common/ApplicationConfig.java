@@ -1,6 +1,11 @@
 package de.mfischbo.bustamail.common;
 
+import java.util.Arrays;
+import java.util.List;
+
+import javax.inject.Inject;
 import javax.servlet.MultipartConfigElement;
+import javax.sql.DataSource;
 
 import org.dozer.spring.DozerBeanMapperFactoryBean;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -9,20 +14,43 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.mangofactory.swagger.plugin.EnableSwagger;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("de.mfischbo.bustamail")
-@EnableSwagger
+@ComponentScan("de.mfischbo")
+//@EnableSwagger
 @PropertySource("classpath:/bm-application.properties")
 public class ApplicationConfig {
-
+	
+	@Inject
+	Environment			env;
+	
+	@Bean(destroyMethod = "shutdown")
+	public DataSource getBustamailCoreDS() {
+		
+		List<String> profiles = Arrays.asList(env.getActiveProfiles());
+		
+		String dbName = "bustamaildb";
+		if (profiles.contains("testing"))
+			dbName += "_test";
+		
+		HikariConfig c = new HikariConfig();
+		c.setMaximumPoolSize(50);
+		c.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+		c.addDataSourceProperty("url", "jdbc:mysql://localhost:3306/" + dbName);
+		c.addDataSourceProperty("user", "root");
+		c.addDataSourceProperty("password", "matrix");
+		return new HikariDataSource(c);
+	}
+	
 	@Bean
 	public Module getJacksonJodaModule() {
 		return new JodaModule();
