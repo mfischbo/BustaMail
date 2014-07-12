@@ -32,6 +32,14 @@ BMApp.Mailing.controller("MailingIndexController", ['$scope', '$http', function(
 			});
 		});
 	};
+	
+	$scope.publishMailing = function(id) {
+		BMApp.confirm("Das Mailing wird nun veroeffentlicht. Fortsetzen?", function() {
+			$http.put("/api/mailings/"+id+"/publish").success(function() {
+				
+			});
+		});
+	};
 
 	/**
 	 * Sends a preview of the mailing to the current users email address

@@ -17,11 +17,14 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+import freemarker.cache.StringTemplateLoader;
 
 @Configuration
 @EnableAutoConfiguration
@@ -70,5 +73,14 @@ public class ApplicationConfig {
 		MultipartConfigFactory factory = new MultipartConfigFactory();
 		factory.setMaxFileSize("10MB");
 		return factory.createMultipartConfig();
+	}
+	
+	@Bean
+	public FreeMarkerConfigurer getFreeMarkerConfigurer() {
+		FreeMarkerConfigurer fmc = new FreeMarkerConfigurer();
+		freemarker.template.Configuration c = new freemarker.template.Configuration();
+		c.setTemplateLoader(new StringTemplateLoader());
+		fmc.setConfiguration(c);
+		return fmc;
 	}
 }

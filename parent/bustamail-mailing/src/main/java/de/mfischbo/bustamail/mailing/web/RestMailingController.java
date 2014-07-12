@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.mfischbo.bustamail.annotation.IntegrationTested;
 import de.mfischbo.bustamail.common.web.BaseApiController;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
@@ -32,6 +34,12 @@ import de.mfischbo.bustamail.mailinglist.service.MailingListService;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.service.TemplateService;
 
+/**
+ * RESTful controller to handle all actions the mailing provides.
+ * 
+ * @author M. Fischboeck 
+ *
+ */
 @RestController
 @RequestMapping("/api/mailings")
 public class RestMailingController extends BaseApiController {
@@ -45,11 +53,26 @@ public class RestMailingController extends BaseApiController {
 	@Inject
 	private MailingListService		mListService;
 	
+	/**
+	 * Returns all mailings owned by the specified owner id
+	 * @param owner The id of the owner
+	 * @param page The page parameters
+	 * @return A page with mailings
+	 */
+	@IntegrationTested
 	@RequestMapping(value = "/unit/{owner}", method = RequestMethod.GET)
 	public Page<MailingIndexDTO> getAllMailings(@PathVariable("owner") UUID owner, @PageableDefault(page=0, size=30) Pageable page) {
 		return asDTO(service.getAllMailings(owner, page), MailingIndexDTO.class, page);
 	}
 
+	/**
+	 * Creates a new mailing for the specified owner
+	 * @param owner The id of the mailings owner
+	 * @param dto The DTO holding the data for the mailing
+	 * @return The DTO representing the persisted entity
+	 * @throws Exception On any failure
+	 */
+	@Transactional
 	@RequestMapping(value = "/unit/{owner}", method = RequestMethod.POST)
 	public MailingDTO createMailing(@PathVariable("owner") UUID owner, @RequestBody MailingDTO dto) throws Exception {
 
@@ -66,9 +89,16 @@ public class RestMailingController extends BaseApiController {
 			Template t = tService.getTemplateById(dto.getTemplate().getId());
 			m.setTemplate(t);
 		}
-		return asDTO(service.createMailing(m), MailingDTO.class);
+		m = service.createMailing(m);
+		return asDTO(m, MailingDTO.class);
 	}
 
+	/**
+	 * Returns the mailing with the specified id
+	 * @param mailingId The id of the mailing to be returned
+	 * @return The DTO representing the persisted mailing
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public MailingDTO getMailingById(@PathVariable("id") UUID mailingId) throws Exception {
 		Mailing m = service.getMailingById(mailingId);
@@ -83,7 +113,15 @@ public class RestMailingController extends BaseApiController {
 		
 		return retval;
 	}
-	
+
+	/**
+	 * Updates the mailing
+	 * @param owner The owner of the mailing 
+	 * @param mailingId The id of the mailing to be updated
+	 * @param mailing The DTO containing the data for the mailing 
+	 * @return The DTO representing the persisted entity of the mailing
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
 	public MailingDTO updateMailing(@PathVariable("owner") UUID owner, @PathVariable("id") UUID mailingId, @RequestBody MailingIndexDTO mailing) throws Exception {
 		Mailing m = service.getMailingById(mailingId);
@@ -96,7 +134,13 @@ public class RestMailingController extends BaseApiController {
 		return asDTO(service.updateMailing(m), MailingDTO.class);
 	}
 
-	
+	/**
+	 * Retrieves the list of VersionedContent headers
+	 * @param mailingId The if of the mailing to get the versioned content headers
+	 * @param types The type of the versioned content (either HTML or Text)
+	 * @return The list of versioned content headers for the specified mailing
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
 	public List<VersionedContentIndexDTO> getAllVersions(@PathVariable("id") UUID mailingId, 
 			@RequestParam(value = "type", required = false) List<ContentType> types) throws Exception {
@@ -125,14 +169,28 @@ public class RestMailingController extends BaseApiController {
 		Mailing m = service.getMailingById(id);
 		service.approveMailing(m);
 	}
-	
+
+	/**
+	 * Returns the full versioned content for the specified mailing and content id
+	 * @param mailingId The id of the mailing
+	 * @param contentId The id of the content
+	 * @return The DTO representing the persisted entity
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}/content/{cid}", method = RequestMethod.GET)
 	public VersionedContentDTO getVersionById(@PathVariable("id") UUID mailingId, @PathVariable("cid") UUID contentId) throws Exception {
 		Mailing m = service.getMailingById(mailingId);
 		return asDTO(service.getContentById(m, contentId), VersionedContentDTO.class);
 	}
 	
-	
+
+	/**
+	 * Creates a new content version for the specified mailing
+	 * @param mailingId The id of the mailing
+	 * @param dto The DTO containing the data of the versioned content to be stored
+	 * @return The DTO representing the persisted entity
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.POST)
 	public VersionedContentDTO createContentVersion(@PathVariable("id") UUID mailingId, @RequestBody VersionedContentDTO dto) throws Exception {
 		Mailing m = service.getMailingById(mailingId);
@@ -142,32 +200,71 @@ public class RestMailingController extends BaseApiController {
 		c.setType(dto.getType());
 		return asDTO(service.createContentVersion(m, c), VersionedContentDTO.class);
 	}
-	
+
+	/**
+	 * Adds the subscription list with the specified id to the mailings lists
+	 * @param mailingId The id of the mailing
+	 * @param listId The id of the subscription list to be added to the lists the mailing will be published to
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}/subscription-lists/{lid}", method = RequestMethod.PUT)
 	public void attachSubscriptionList(@PathVariable("id") UUID mailingId, @PathVariable("lid") UUID listId) throws Exception {
 		Mailing m = service.getMailingById(mailingId);
 		SubscriptionList l = mListService.getSubscriptionListById(listId);
 		service.attachSubscriptionList(m, l);
 	}
-	
+
+	/**
+	 * Removes the subscription list from the lists the mailing will be sent to
+	 * @param mailingId The id of the mailing
+	 * @param listId The id of the list to be removed
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}/subscription-lists/{lid}", method = RequestMethod.DELETE)
 	public void removeSubscriptionList(@PathVariable("id") UUID mailingId, @PathVariable("lid") UUID listId) throws Exception {
 		Mailing m = service.getMailingById(mailingId);
 		SubscriptionList l = mListService.getSubscriptionListById(listId);
 		service.removeSubscriptionList(m, l);
 	}
-	
+
+	/**
+	 * Sends a preview of the mailing to the current users email account
+	 * @param mailingId The id of the mailing to send the preview for
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}/preview", method = RequestMethod.PUT)
 	public void sendPreviewMailing(@PathVariable("id") UUID mailingId) throws Exception {
 		Mailing m = service.getMailingById(mailingId);
 		service.sendPreview(m);
 	}
-	
+
+	/**
+	 * Publishes the mailing with the specified id to all lists the mailing holds.
+	 * @param mailingId The id of the mailing to be published
+	 * @throws Exception On any error
+	 */
+	@RequestMapping(value = "/{id}/publish", method = RequestMethod.PUT)
+	public void publishMailing(@PathVariable("id") UUID mailingId) throws Exception {
+		Mailing m = service.getMailingById(mailingId);
+		service.publishMailing(m);
+	}
+
+	/**
+	 * Proxies a call to check if a link is valid
+	 * @param dtos The DTO containing the target for the link
+	 * @return The DTO containing the result of the link checks
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/linkcheck", method = RequestMethod.POST)
 	public List<HyperlinkDTO> checkHyperlinkConnectivity(@RequestBody List<HyperlinkDTO> dtos) throws Exception {
 		return service.checkHyperlinkConnectivity(dtos);
 	}
-	
+
+	/**
+	 * Deletes the mailing with the specified id
+	 * @param mailingId The id of the mailing to be deleted
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteMailing(@PathVariable("id") UUID mailingId) throws Exception {
 		Mailing m = service.getMailingById(mailingId);

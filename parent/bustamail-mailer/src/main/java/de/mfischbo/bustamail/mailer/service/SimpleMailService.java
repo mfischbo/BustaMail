@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.mailer.service;
 
 import javax.mail.internet.InternetAddress;
 
+import de.mfischbo.bustamail.mailer.LiveMailing;
 import de.mfischbo.bustamail.mailer.PreviewMailing;
 
 public interface SimpleMailService {
@@ -27,4 +28,12 @@ public interface SimpleMailService {
 	
 	
 	public void sendPreviewMailing(PreviewMailing mailing);
+	
+
+	/**
+	 * Schedules the given mailing to be sent by the batch mailing subsystem.
+	 * @param m The LiveMailing that should be scheduled for publishing
+	 * @return True, if the mailing could be scheduled successfully, false otherwise
+	 */
+	public boolean scheduleLiveMailing(LiveMailing m);
 }

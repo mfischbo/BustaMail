@@ -1,5 +1,9 @@
 package de.mfischbo.bustamail.mailer.service;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.inject.Inject;
 import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -9,24 +13,39 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
+import de.mfischbo.bustamail.mailer.LiveMailing;
 import de.mfischbo.bustamail.mailer.PreviewMailing;
 import de.mfischbo.bustamail.mailer.util.HTMLSourceProcessor;
+import de.mfischbo.bustamail.mailer.util.MailingSerializer;
 
 @Service
 public class SimpleMailServiceImpl implements SimpleMailService {
 
-	@Autowired
+	private static final String		CNF_JOBDIR_KEY = "de.mfischbo.bustamail.mailer.batch.basedir";
+	private static final String		CNF_S_FAIL_KEY = "de.mfischbo.bustamail.mailer.batch.failOnSerializationFailure";
+	
+	@Inject
 	private JavaMailSender mailSender;
+	
+	@Inject
+	private Environment		env;
+	
+	@Inject
+	private MailingSerializer	serializer;
 
 	private Logger log = Logger.getLogger(getClass());
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailer.service.SimpleMailService#sendSimpleMail(javax.mail.internet.InternetAddress, javax.mail.internet.InternetAddress, java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void sendSimpleMail(InternetAddress from, InternetAddress to, String subject, String text) {
 		SimpleMailMessage msg = new SimpleMailMessage();
@@ -37,6 +56,10 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 		mailSender.send(msg);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailer.service.SimpleMailService#sendSimpleHtmlMail(javax.mail.internet.InternetAddress, java.lang.String, java.lang.String, javax.mail.internet.InternetAddress, java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void sendSimpleHtmlMail(final InternetAddress from, String senderName, String replyToAddress, final InternetAddress to,
 			final String subject, final String html) {
@@ -77,7 +100,116 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 			
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailer.service.SimpleMailService#scheduleLiveMailing(de.mfischbo.bustamail.mailer.LiveMailing)
+	 */
+	@Override
+	public boolean scheduleLiveMailing(LiveMailing m) {
+		assert(m.getHtmlContent() != null || m.getTextContent() != null);
+		assert(m.getSenderAddress() != null);
+		assert(m.getReplyToAddress() != null);
+		
+		// preprocess the HTML content of the mailing
+		String html = "";
+		String text = "";
+		try {
+			if (m.getHtmlContent() != null && m.getHtmlContent().trim().length() > 0) 
+				html = prepareBaseHTMLContent(m);
+			if (m.getTextContent() != null && m.getTextContent().trim().length() > 0)
+				text = prepareBaseTextContent(m);
+		} catch (Exception ex) {
+			log.error("Failed to prepare HTML/TEXT contents. Cause: " + ex.getMessage());
+			log.error("Scheduling of live mailing for id : " + m.getMailingId() + " failed");
+			return false;
+		}
+		
+		
+		// create the folder structure for this mailing
+		File jobFolder;
+		try {
+			log.info("Creating job folder for this mailing");
+			jobFolder = new File(env.getProperty(CNF_JOBDIR_KEY) + "/" + m.getMailingId());
+			if (jobFolder.exists()) {
+				log.error("Found a job folder with the same matching path at : " + jobFolder.getAbsolutePath());
+				log.error("This indicates that the publishing has been already triggered. Aborting this attempt!");
+				throw new RuntimeException("Found a job folder with the same path at : " + jobFolder.getAbsolutePath());
+			} else {
+				jobFolder.mkdirs();
+			}
+		} catch (Exception ex) {
+			log.error("Failed to create job output folder for mailing " + m.getMailingId());
+			log.error("Cause: " + ex.getMessage());
+			return false;
+		}
 	
+		// create a serialized mailing for each recipient in the job folder
+		boolean failFast = Boolean.parseBoolean(env.getProperty(CNF_S_FAIL_KEY));
+		
+		try {
+			for (PersonalizedEmailRecipient r : m.getRecipients()) {
+				boolean success = serializer.serializeMailing(jobFolder, m, html, text, r);
+				if (!success) {
+					log.warn("Failed to serialize mailing for recipient: " + r.getEmail());
+					if (failFast) {
+						log.error("Aborting scheduling of mailing due to previous warning since fail fast is set to true");
+						jobFolder.delete();
+						return false;
+					}
+				}
+			}
+		} catch (Exception ex) {
+			log.error("Problem occured during mailing serialization. Cause: " + ex.getMessage());
+			jobFolder.delete();
+			return false;
+		}
+		
+		// set the activation flag in the job folder to start the mailing
+		File activation = new File(jobFolder.getAbsolutePath() + "/.activate");
+		if (!activation.exists()) {
+			try {
+				activation.createNewFile();
+			} catch (IOException ex) {
+				jobFolder.delete();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private String prepareBaseTextContent(LiveMailing m) {
+		// TODO Implement this
+		return m.getTextContent();
+	}
+	
+	private String prepareBaseHTMLContent(LiveMailing m) {
+		String html = m.getHtmlContent();
+		assert(html != null && html.trim().length() > 0);
+		
+		Document doc = Jsoup.parse(html);
+		
+		if (m.isSpanCellReplacement()) {
+			log.info("Running span cell optimization...");
+			doc = HTMLSourceProcessor.replaceSpanCells(doc, m.getContentProviderBaseURL(), "/img/blank.gif");
+		}
+		
+		log.info("Replacing source URLs");
+		doc = HTMLSourceProcessor.replaceSourceURLs(doc, m.getContentProviderBaseURL(), m.getDisableLinkTrackClass());
+		
+		log.info("Removing Editor class/attribute markers");
+		doc = HTMLSourceProcessor.removeAttributes(doc, m.getRemoveAttributes());
+		doc = HTMLSourceProcessor.removeClasses(doc, m.getRemoveClasses());
+		
+		log.info("Cleaning up the document");
+		doc = HTMLSourceProcessor.cleanUp(doc);
+		return doc.html();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailer.service.SimpleMailService#sendPreviewMailing(de.mfischbo.bustamail.mailer.PreviewMailing)
+	 */
 	@Override
 	public void sendPreviewMailing(PreviewMailing mailing) {
 

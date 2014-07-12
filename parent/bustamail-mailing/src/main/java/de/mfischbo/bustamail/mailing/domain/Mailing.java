@@ -57,7 +57,7 @@ public class Mailing extends OwnedBaseDomain {
 
 	@ManyToOne
 	@JoinColumn(name = "User_Approval_Requested_id", referencedColumnName = "id", nullable = true)
-	private User		userApprovalRequestd;
+	private User		userApprovalRequested;
 	
 	@ManyToOne
 	@JoinColumn(name = "User_Approved_id", referencedColumnName = "id", nullable = true)
@@ -154,12 +154,12 @@ public class Mailing extends OwnedBaseDomain {
 		this.userModified = userModified;
 	}
 
-	public User getUserApprovalRequestd() {
-		return userApprovalRequestd;
+	public User getUserApprovalRequested() {
+		return userApprovalRequested;
 	}
 
-	public void setUserApprovalRequestd(User userApprovalRequestd) {
-		this.userApprovalRequestd = userApprovalRequestd;
+	public void setUserApprovalRequested(User userApprovalRequested) {
+		this.userApprovalRequested = userApprovalRequested;
 	}
 
 	public User getUserApproved() {

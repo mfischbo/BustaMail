@@ -75,6 +75,9 @@ public class AbstractIntegrationTestBase {
 	// UUID of the testing org unit
 	protected static final UUID TEST_OWNER_ID = UUID.fromString("223f9d9d-473b-9d9d-781e-1c9d615f0000");
 	
+	// UUID of the user with full permissions
+	protected static final UUID TEST_USER_FULL_PERMS = UUID.fromString(toUUIDString("6424309D169D42059D145D9D3E9D9D9D"));
+	
 	@Before
 	public void setup() throws ScriptException, SQLException {
 		JdbcTemplate t = new JdbcTemplate(ds);

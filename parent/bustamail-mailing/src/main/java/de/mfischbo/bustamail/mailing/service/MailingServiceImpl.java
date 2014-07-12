@@ -1,11 +1,13 @@
 package de.mfischbo.bustamail.mailing.service;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.joda.time.DateTime;
@@ -21,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import de.mfischbo.bustamail.common.service.BaseService;
+import de.mfischbo.bustamail.exception.ConfigurationException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
+import de.mfischbo.bustamail.mailer.LiveMailing;
 import de.mfischbo.bustamail.mailer.PreviewMailing;
 import de.mfischbo.bustamail.mailer.service.SimpleMailService;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
@@ -46,6 +50,8 @@ import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 @Service
 public class MailingServiceImpl extends BaseService implements MailingService {
 
+	private static final String 	BASE_URL_KEY = "de.mfischbo.bustamail.mailing.baseUrl";
+	
 	@Autowired
 	private		MailingRepository		mRepo;
 	
@@ -153,7 +159,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		pm.setDisableLinkTrackClass(DefaultTemplateMarkers.getDiableLinkTrackClass());
 		
 		try {
-			pm.setContentProviderBaseURL(new URL(env.getProperty("de.mfischbo.bustamail.mailing.baseUrl")));
+			pm.setContentProviderBaseURL(new URL(env.getProperty(BASE_URL_KEY)));
 		} catch (Exception ex) {
 			log.error("The provided base url is not valid! Check the configuration property de.mfischbo.bustamail.mailing.baseUrl!");
 		}
@@ -278,7 +284,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	public void requestApproval(Mailing m) {
 		m.setApprovalRequested(true);
 		m.setDateApprovalRequested(DateTime.now());
-		m.setUserApprovalRequestd((User) auth.getPrincipal());
+		m.setUserApprovalRequested((User) auth.getPrincipal());
 		mRepo.saveAndFlush(m);
 	}
 
@@ -296,8 +302,27 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	}
 
 	@Override
-	public void publishMailing(Mailing m) {
-		// TODO Auto-generated method stub
+	public boolean publishMailing(Mailing m) throws ConfigurationException {
+		VersionedContent html = getRecentContent(m, ContentType.HTML);
+		VersionedContent text = getRecentContent(m, ContentType.Text);
+		String baseUrl 		  = env.getProperty(BASE_URL_KEY);
+		try {
+			LiveMailing liveMailing = MailingPreProcessor.createLiveMailing(m, html, text, baseUrl);
+			boolean success = simpleMailer.scheduleLiveMailing(liveMailing);
+			if (success) {
+				m.setPublished(true);
+				m.setDatePublished(DateTime.now());
+				m.setUserPublished((User) auth.getPrincipal());
+				mRepo.saveAndFlush(m);
+			}
+			return success;
+		} catch (MalformedURLException ex) {
+			throw new ConfigurationException("The value provided : " + baseUrl + " is not a valid URL");
+		} catch (AddressException ex2) {
+			log.error("Sender address is not a valid InternetAddress. Got: " + ex2.getMessage());
+			// this should not occur, since we're checking the addresses when setting it on the mailing
+		}
+		return false;
 	}
 
 	/*

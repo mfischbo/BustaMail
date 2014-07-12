@@ -27,6 +27,8 @@ import de.mfischbo.bustamail.media.domain.MediaImage;
 public class Template extends BaseDomain {
 
 	private static final long serialVersionUID = -257611755576891163L;
+	
+	public static final String SKEY_CELLPADDING_OPTIMIZATION = "enableCellPaddingOptimization";
 
 	@Basic
 	private String		name;

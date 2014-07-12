@@ -11,6 +11,7 @@ import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import de.mfischbo.bustamail.exception.ConfigurationException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.domain.VersionedContent;
@@ -44,7 +45,6 @@ public interface MailingService {
 	 * @return The persisted entity of the newly created mailing
 	 * @throws EntityNotFoundException
 	 */
-	@Transactional
 	@PreAuthorize("hasPermission(#m.owner, 'Mailings.MANAGE_MAILINGS')")
 	Mailing				createMailing(@P("m") Mailing m) throws EntityNotFoundException;
 	
@@ -156,7 +156,7 @@ public interface MailingService {
 	 * @param m The mailing to be published
 	 */
 	@PreAuthorize("hasPermission(#m.owner, 'Mailings.PUBLISH_MAILINGS')")
-	void				publishMailing(@P("m") Mailing m);
+	boolean				publishMailing(@P("m") Mailing m) throws ConfigurationException;
 
 	/**
 	 * Checks if the given hyperlink would return a successful HTTP code

@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.mailer.util;
 
 import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +53,7 @@ public class HTMLSourceProcessor {
 		return doc;
 	}
 	
-	public static Document createTrackingUrls(Document doc, URL baseUrl, String disableTrackingClass) {
+	public static Document createTrackingUrls(Document doc, URL baseUrl, String disableTrackingClass, UUID mailingId, UUID subscriberId) {
 		doc.select("*[href]").forEach(new Consumer<Element>() {
 			@Override
 			public void accept(Element t) {
