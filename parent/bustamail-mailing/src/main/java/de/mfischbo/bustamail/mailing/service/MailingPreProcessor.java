@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
-import de.mfischbo.bustamail.mailer.LiveMailing;
+import de.mfischbo.bustamail.mailer.dto.LiveMailing;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.domain.VersionedContent;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;

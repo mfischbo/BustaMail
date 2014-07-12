@@ -2,8 +2,8 @@ package de.mfischbo.bustamail.mailer.service;
 
 import javax.mail.internet.InternetAddress;
 
-import de.mfischbo.bustamail.mailer.LiveMailing;
-import de.mfischbo.bustamail.mailer.PreviewMailing;
+import de.mfischbo.bustamail.mailer.dto.LiveMailing;
+import de.mfischbo.bustamail.mailer.dto.PreviewMailing;
 
 public interface SimpleMailService {
 

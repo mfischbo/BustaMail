@@ -17,6 +17,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.fasterxml.jackson.databind.Module;
@@ -28,8 +30,10 @@ import freemarker.cache.StringTemplateLoader;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("de.mfischbo")
+@EnableScheduling
+@EnableAsync
 //@EnableSwagger
+@ComponentScan("de.mfischbo")
 @PropertySource("classpath:/bm-application.properties")
 public class ApplicationConfig {
 	

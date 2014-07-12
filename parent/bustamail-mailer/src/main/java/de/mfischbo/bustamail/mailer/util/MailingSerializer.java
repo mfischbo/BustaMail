@@ -10,7 +10,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
-import de.mfischbo.bustamail.mailer.LiveMailing;
+import de.mfischbo.bustamail.mailer.dto.LiveMailing;
 import de.mfischbo.bustamail.mailer.dto.SerializedMailing;
 
 @Component

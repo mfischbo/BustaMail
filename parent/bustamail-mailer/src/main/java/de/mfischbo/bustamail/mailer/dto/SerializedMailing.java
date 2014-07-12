@@ -12,6 +12,8 @@ public class SerializedMailing implements Serializable {
 	private String		senderName;
 	private String		htmlContent;
 	private String		textContent;
+	private String		recipientAddress;
+	
 	public String getSubject() {
 		return subject;
 	}
@@ -47,5 +49,11 @@ public class SerializedMailing implements Serializable {
 	}
 	public void setTextContent(String textContent) {
 		this.textContent = textContent;
+	}
+	public String getRecipientAddress() {
+		return recipientAddress;
+	}
+	public void setRecipientAddress(String recipientAddress) {
+		this.recipientAddress = recipientAddress;
 	}
 }

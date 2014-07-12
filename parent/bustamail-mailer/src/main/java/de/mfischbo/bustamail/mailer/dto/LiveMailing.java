@@ -1,4 +1,4 @@
-package de.mfischbo.bustamail.mailer;
+package de.mfischbo.bustamail.mailer.dto;
 
 import java.net.URL;
 import java.util.LinkedList;

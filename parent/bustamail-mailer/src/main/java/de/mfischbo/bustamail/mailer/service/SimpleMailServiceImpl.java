@@ -20,15 +20,15 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
-import de.mfischbo.bustamail.mailer.LiveMailing;
-import de.mfischbo.bustamail.mailer.PreviewMailing;
+import de.mfischbo.bustamail.mailer.dto.LiveMailing;
+import de.mfischbo.bustamail.mailer.dto.PreviewMailing;
 import de.mfischbo.bustamail.mailer.util.HTMLSourceProcessor;
 import de.mfischbo.bustamail.mailer.util.MailingSerializer;
 
 @Service
 public class SimpleMailServiceImpl implements SimpleMailService {
 
-	private static final String		CNF_JOBDIR_KEY = "de.mfischbo.bustamail.mailer.batch.basedir";
+	public static final String		CNF_JOBDIR_KEY = "de.mfischbo.bustamail.mailer.batch.basedir";
 	private static final String		CNF_S_FAIL_KEY = "de.mfischbo.bustamail.mailer.batch.failOnSerializationFailure";
 	
 	@Inject
@@ -82,7 +82,7 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 				}
 				
 				m.setSubject(subject);
-				m.setHeader("Content-Type", "text/html);charset-utf-8");
+				m.setHeader("Content-Type", "text/html;charset-utf-8");
 				
 				MimeMultipart content = new MimeMultipart("alternative");
 				MimeBodyPart htmlBody = new MimeBodyPart();
@@ -170,6 +170,7 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 		if (!activation.exists()) {
 			try {
 				activation.createNewFile();
+				log.info("Created activation file to trigger the mailer to start mailing");
 			} catch (IOException ex) {
 				jobFolder.delete();
 				return false;
