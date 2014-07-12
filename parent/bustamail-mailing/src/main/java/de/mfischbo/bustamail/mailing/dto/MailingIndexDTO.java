@@ -3,6 +3,7 @@ package de.mfischbo.bustamail.mailing.dto;
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.dto.OwnedBaseDTO;
+import de.mfischbo.bustamail.security.dto.UserDTO;
 import de.mfischbo.bustamail.template.dto.TemplateIndexDTO;
 
 public class MailingIndexDTO extends OwnedBaseDTO {
@@ -19,10 +20,16 @@ public class MailingIndexDTO extends OwnedBaseDTO {
 	private DateTime			dateApprovalRequested;
 	private DateTime			dateApproved;
 	private DateTime			datePublished;
+
+	
+	private UserDTO				userCreated;
+	private UserDTO				userApprovalRequested;
+	private UserDTO				userApproved;
 	
 	private boolean				approvalRequested;
 	private boolean				approved;
 	private boolean				published;
+	
 	public String getSubject() {
 		return subject;
 	}
@@ -82,6 +89,24 @@ public class MailingIndexDTO extends OwnedBaseDTO {
 	}
 	public void setDatePublished(DateTime datePublished) {
 		this.datePublished = datePublished;
+	}
+	public UserDTO getUserCreated() {
+		return userCreated;
+	}
+	public void setUserCreated(UserDTO userCreated) {
+		this.userCreated = userCreated;
+	}
+	public UserDTO getUserApprovalRequested() {
+		return userApprovalRequested;
+	}
+	public void setUserApprovalRequested(UserDTO userApprovalRequested) {
+		this.userApprovalRequested = userApprovalRequested;
+	}
+	public UserDTO getUserApproved() {
+		return userApproved;
+	}
+	public void setUserApproved(UserDTO userApproved) {
+		this.userApproved = userApproved;
 	}
 	public boolean isApprovalRequested() {
 		return approvalRequested;

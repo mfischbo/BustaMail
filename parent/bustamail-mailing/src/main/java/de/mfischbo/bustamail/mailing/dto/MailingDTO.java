@@ -1,5 +1,8 @@
 package de.mfischbo.bustamail.mailing.dto;
 
+import java.util.List;
+
+import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 import de.mfischbo.bustamail.security.dto.UserDTO;
 
 public class MailingDTO extends MailingIndexDTO {
@@ -9,11 +12,10 @@ public class MailingDTO extends MailingIndexDTO {
 	private VersionedContentDTO			htmlContent;
 	private VersionedContentDTO			textContent;
 	
-	private UserDTO						userCreated;
 	private UserDTO						userModified;
-	private UserDTO						userApprovalRequested;
-	private UserDTO						userApproved;
 	private UserDTO						userPublished;
+	private List<SubscriptionListDTO>	subscriptionLists;
+	
 	public VersionedContentDTO getHtmlContent() {
 		return htmlContent;
 	}
@@ -26,34 +28,22 @@ public class MailingDTO extends MailingIndexDTO {
 	public void setTextContent(VersionedContentDTO textContent) {
 		this.textContent = textContent;
 	}
-	public UserDTO getUserCreated() {
-		return userCreated;
-	}
-	public void setUserCreated(UserDTO userCreated) {
-		this.userCreated = userCreated;
-	}
 	public UserDTO getUserModified() {
 		return userModified;
 	}
 	public void setUserModified(UserDTO userModified) {
 		this.userModified = userModified;
 	}
-	public UserDTO getUserApprovalRequested() {
-		return userApprovalRequested;
-	}
-	public void setUserApprovalRequested(UserDTO userApprovalRequested) {
-		this.userApprovalRequested = userApprovalRequested;
-	}
-	public UserDTO getUserApproved() {
-		return userApproved;
-	}
-	public void setUserApproved(UserDTO userApproved) {
-		this.userApproved = userApproved;
-	}
 	public UserDTO getUserPublished() {
 		return userPublished;
 	}
 	public void setUserPublished(UserDTO userPublished) {
 		this.userPublished = userPublished;
+	}
+	public List<SubscriptionListDTO> getSubscriptionLists() {
+		return subscriptionLists;
+	}
+	public void setSubscriptionLists(List<SubscriptionListDTO> subscriptionLists) {
+		this.subscriptionLists = subscriptionLists;
 	}
 }

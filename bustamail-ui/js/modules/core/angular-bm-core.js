@@ -106,6 +106,10 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 			templateUrl : 	"./js/modules/editor/tmpl/editor.html",
 			controller	:	"EditorIndexController"
 		})
+		.when("/mailings/:id/envelope", {
+			templateUrl	:	"./js/modules/mailing/tmpl/mailing/envelope.html",
+			controller	:	"MailingEnvelopeController"
+		})
 		
 		// Media Module
 		.when("/media", {

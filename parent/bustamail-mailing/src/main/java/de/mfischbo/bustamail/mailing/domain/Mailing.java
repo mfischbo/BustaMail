@@ -1,8 +1,12 @@
 package de.mfischbo.bustamail.mailing.domain;
 
+import java.util.List;
+
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -11,6 +15,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
+import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.template.domain.Template;
 
@@ -85,6 +90,13 @@ public class Mailing extends OwnedBaseDomain {
 
 	@Basic
 	private boolean		published;
+	
+	@ManyToMany
+	@JoinTable(name = "Mailing_SubscriptionLists",
+		joinColumns 		= { @JoinColumn(name = "Mailing_id", referencedColumnName = "id")},
+		inverseJoinColumns 	= { @JoinColumn(name = "SubscriptionList_id", referencedColumnName = "id")}
+	)
+	private List<SubscriptionList>		subscriptionLists;
 
 	public String getSubject() {
 		return subject;
@@ -228,5 +240,13 @@ public class Mailing extends OwnedBaseDomain {
 
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+
+	public List<SubscriptionList> getSubscriptionLists() {
+		return subscriptionLists;
+	}
+
+	public void setSubscriptionLists(List<SubscriptionList> subscriptionLists) {
+		this.subscriptionLists = subscriptionLists;
 	}
 }

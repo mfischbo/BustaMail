@@ -12,18 +12,34 @@
 			<thead>
 				<tr>
 					<th>Betreff</th>
+					<th>Besitzer</th>
+					<th>Angelegt von</th>
+					<th>Status</th>
 					<th>&nbsp;</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr data-ng-if="!mailings.content || mailings.content.length == 0">
-					<td colspan="2">Bisher sind keine Mailings angelegt</td>
+					<td colspan="5">Bisher sind keine Mailings angelegt</td>
 				</tr>
 			
 				<tr data-ng-repeat="m in mailings.content">
 					<td>{{m.subject}}</td>
+					<td></td>
+					<td>{{m.userCreated.firstName}} {{m.userCreated.lastName}}</td>
+					<td>
+						<span data-ng-if="!m.approvalRequested">Neu</span>
+						<span data-ng-if="m.approvalRequested && !m.approved">Freigabe angefordert</span>
+						<span data-ng-if="m.approved && !m.published">Freigegeben</span>
+						<span data-ng-if="m.published">Versendet</span>
+					</td>
 					<td class="tools">
 						<a href="#/mailings/{{m.id}}/edit" title="Mailing bearbeiten"><span class="fa fa-pencil"></span></a>
+						<a href="#/mailings/{{m.id}}/envelope" title="Versanddaten bearbeiten"><span class="fa fa-envelope-o"></span></a>
+						<a href="javascript:void('');" data-ng-click="requestApproval(m.id)" data-ng-if="!m.approvalRequested" title="Freigabe anfordern"><span class="fa fa-exchange"></span></a>
+						<a href="javascript:void('');" data-ng-click="approveMailing(m.id)"  data-ng-if="m.approvalRequested && !m.approved" title="Freigeben"><span class="fa fa-thumbs-o-up"></span></a>
+						<a href="javascript:void('');" data-ng-click="publishMailing(m.id)"  data-ng-if="m.approved && !m.published" title="Mailing veröffentlichen"><span class="fa fa-paper-plane-o"></span></a>
+						<a href="javascript:void('');" data-ng-click="sendPreview(m.id)" title="Vorschau an meine E-Mail Adresse senden"><span class="fa fa-eye"></span></a>
 						<a href="javascript:void('');" data-ng-click="deleteMailing(m.id)" title="Mailing entfernen"><span class="fa fa-trash-o"></span></a>
 					</td>
 				</tr>

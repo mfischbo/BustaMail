@@ -11,7 +11,41 @@ BMApp.Mailing.controller("MailingIndexController", ['$scope', '$http', function(
 			$scope.mailings = data;
 		});
 	});
+
+	/**
+	 * Requests the approval for a given mailing
+	 */
+	$scope.requestApproval = function(id) {
+		BMApp.confirm("Soll die Freigabe für das Mailing eingeholt werden?", function() {
+			$http.get("/api/mailings/" + id + "/requestApproval").success(function() {
+				BMApp.alert("Die Freigabe wurde angefordert!");
+				(BMApp.utils.find('id', id, $scope.mailings.content)).approvalRequested = true;
+			});
+		});
+	};
 	
+	$scope.approveMailing = function(id) {
+		BMApp.confirm("Soll die Freigabe für das Mailing erteilt werden?", function() {
+			$http.put("/api/mailings/" + id + "/approve").success(function() {
+				BMApp.alert("Die Freigabe wurde erteilt.");
+				(BMApp.utils.find('id', id, $scope.mailings.content)).approved = true;
+			});
+		});
+	};
+
+	/**
+	 * Sends a preview of the mailing to the current users email address
+	 */
+	$scope.sendPreview = function(id) {
+		$http.put("/api/mailings/"+id+"/preview").success(function() {
+			BMApp.alert("Die Vorschau wurde erfolgreich versendet");
+		});
+	};
+	
+
+	/**
+	 * Removes the mailing with the given id
+	 */
 	$scope.deleteMailing = function(id) {
 		BMApp.confirm("Soll das Mailing wirklich entfernt werden?", function() {
 			$http({
@@ -21,6 +55,51 @@ BMApp.Mailing.controller("MailingIndexController", ['$scope', '$http', function(
 				BMApp.utils.remove("id", id, $scope.mailings.content);
 			});
 		});
+	};
+}]);
+
+
+BMApp.Mailing.controller("MailingEnvelopeController", ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+
+	$scope.mailing = undefined;
+	$scope.listOwner = undefined;
+	$scope.sLists = {};
+	
+	$scope.$watch('listOwner', function(val) {
+		if (!val) return;
+		$http.get("/api/subscription-lists?owner=" + $scope.listOwner).success(function(data) {
+			$scope.sLists = data;
+		});
+	});
+	
+	$http.get("/api/mailings/" + $routeParams.id).success(function(data) {
+		$scope.mailing = data;
+	});
+	
+	/**
+	 * Returns whether the given subscription list is attached to the current mailing
+	 */
+	$scope.isAttached = function(listId) {
+		if (!$scope.mailing || !$scope.mailing.subscriptionLists) return false;
+		return (BMApp.utils.indexOf('id', listId, $scope.mailing.subscriptionLists) > -1);
+	};
+
+	/**
+	 * Adds or removes the subscription list with the given id from the mailing
+	 */
+	$scope.toggleSubscriptionList = function(listId) {
+		if (!$scope.isAttached(listId)) {
+			$http.put("/api/mailings/" + $routeParams.id+ "/subscription-lists/" + listId).success(function() {
+				$scope.mailing.subscriptionLists.push(BMApp.utils.find('id', listId, $scope.sLists.content));
+			});
+		} else {
+			$http({
+				method : "DELETE",
+				url	:	"/api/mailings/" + $routeParams.id + "/subscription-lists/" + listId
+			}).success(function() {
+				BMApp.utils.remove("id", listId, $scope.mailing.subscriptionLists);
+			});
+		}
 	};
 }]);
 

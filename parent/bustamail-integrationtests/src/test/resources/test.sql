@@ -16,27 +16,6 @@ set foreign_key_checks = 0;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
---
--- Dumping data for table `Mailing_Mailing`
---
-
-LOCK TABLES `Mailing_Mailing` WRITE;
-/*!40000 ALTER TABLE `Mailing_Mailing` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Mailing_Mailing` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Mailing_VersionedContent`
---
-
-LOCK TABLES `Mailing_VersionedContent` WRITE;
-/*!40000 ALTER TABLE `Mailing_VersionedContent` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Mailing_VersionedContent` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Media_Directory`
---
 
 LOCK TABLES `Media_Directory` WRITE;
 /*!40000 ALTER TABLE `Media_Directory` DISABLE KEYS */;
@@ -44,9 +23,6 @@ INSERT INTO `Media_Directory` (`id`, `Owner_Id`, `description`, `name`, `Parent_
 /*!40000 ALTER TABLE `Media_Directory` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `Media_Media`
---
 
 LOCK TABLES `Media_Media` WRITE;
 /*!40000 ALTER TABLE `Media_Media` DISABLE KEYS */;
@@ -54,18 +30,6 @@ INSERT INTO `Media_Media` (`id`, `Owner_Id`, `data`, `description`, `mimetype`, 
 /*!40000 ALTER TABLE `Media_Media` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `Media_MediaImage`
---
-
-LOCK TABLES `Media_MediaImage` WRITE;
-/*!40000 ALTER TABLE `Media_MediaImage` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Media_MediaImage` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Security_Actor`
---
 
 LOCK TABLES `Security_Actor` WRITE;
 /*!40000 ALTER TABLE `Security_Actor` DISABLE KEYS */;
@@ -73,9 +37,6 @@ INSERT INTO `Security_Actor` (`id`, `addToChildren`, `addToFutureChildren`, `Org
 /*!40000 ALTER TABLE `Security_Actor` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `Security_Actor_Permission`
---
 
 LOCK TABLES `Security_Actor_Permission` WRITE;
 /*!40000 ALTER TABLE `Security_Actor_Permission` DISABLE KEYS */;
@@ -99,9 +60,6 @@ INSERT INTO `Security_Actor_Permission` (`Actor`, `Permission_id`) VALUES
 /*!40000 ALTER TABLE `Security_Actor_Permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `Security_OrgUnit`
---
 
 LOCK TABLES `Security_OrgUnit` WRITE;
 /*!40000 ALTER TABLE `Security_OrgUnit` DISABLE KEYS */;
@@ -109,9 +67,6 @@ INSERT INTO `Security_OrgUnit` (`id`, `dateCreated`, `dateModified`, `deleted`, 
 /*!40000 ALTER TABLE `Security_OrgUnit` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `Security_User`
---
 
 LOCK TABLES `Security_User` WRITE;
 /*!40000 ALTER TABLE `Security_User` DISABLE KEYS */;
@@ -122,36 +77,6 @@ INSERT INTO `Security_User` (`id`, `dateCreated`, `dateModified`, `deleted`, `em
 /*!40000 ALTER TABLE `Security_User` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `Subscriber_Address`
---
-
-LOCK TABLES `Subscriber_Address` WRITE;
-/*!40000 ALTER TABLE `Subscriber_Address` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Subscriber_Address` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Subscriber_Contact`
---
-
-LOCK TABLES `Subscriber_Contact` WRITE;
-/*!40000 ALTER TABLE `Subscriber_Contact` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Subscriber_Contact` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Subscriber_ContactAttribute`
---
-
-LOCK TABLES `Subscriber_ContactAttribute` WRITE;
-/*!40000 ALTER TABLE `Subscriber_ContactAttribute` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Subscriber_ContactAttribute` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `SubscriptionList_List`
---
 
 LOCK TABLES `SubscriptionList_List` WRITE;
 /*!40000 ALTER TABLE `SubscriptionList_List` DISABLE KEYS */;
@@ -159,68 +84,6 @@ INSERT INTO `SubscriptionList_List` (`id`, `Owner_Id`, `description`, `name`) VA
 /*!40000 ALTER TABLE `SubscriptionList_List` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `SubscriptionList_List_SubscriptionList_Subscription`
---
-
-LOCK TABLES `SubscriptionList_List_SubscriptionList_Subscription` WRITE;
-/*!40000 ALTER TABLE `SubscriptionList_List_SubscriptionList_Subscription` DISABLE KEYS */;
-/*!40000 ALTER TABLE `SubscriptionList_List_SubscriptionList_Subscription` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `SubscriptionList_Subscription`
---
-
-LOCK TABLES `SubscriptionList_Subscription` WRITE;
-/*!40000 ALTER TABLE `SubscriptionList_Subscription` DISABLE KEYS */;
-/*!40000 ALTER TABLE `SubscriptionList_Subscription` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Templates_Template`
---
-
-LOCK TABLES `Templates_Template` WRITE;
-/*!40000 ALTER TABLE `Templates_Template` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Templates_Template` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Templates_TemplateImages`
---
-
-LOCK TABLES `Templates_TemplateImages` WRITE;
-/*!40000 ALTER TABLE `Templates_TemplateImages` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Templates_TemplateImages` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Templates_TemplatePack`
---
-
-LOCK TABLES `Templates_TemplatePack` WRITE;
-/*!40000 ALTER TABLE `Templates_TemplatePack` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Templates_TemplatePack` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Templates_TemplateSettings`
---
-
-LOCK TABLES `Templates_TemplateSettings` WRITE;
-/*!40000 ALTER TABLE `Templates_TemplateSettings` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Templates_TemplateSettings` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `Templates_Widget`
---
-
-LOCK TABLES `Templates_Widget` WRITE;
-/*!40000 ALTER TABLE `Templates_Widget` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Templates_Widget` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

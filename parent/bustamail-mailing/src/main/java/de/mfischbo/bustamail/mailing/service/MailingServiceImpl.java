@@ -1,12 +1,12 @@
 package de.mfischbo.bustamail.mailing.service;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.mail.internet.InternetAddress;
-import javax.transaction.Transactional;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +31,18 @@ import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailing.repository.MailingRepository;
 import de.mfischbo.bustamail.mailing.repository.VersionedContentRepository;
 import de.mfischbo.bustamail.mailing.repository.VersionedContentSpecification;
+import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 
+/**
+ * Service class that handles all actions regarding a mailing.
+ * The service provides CRUD operations for mailings, as well as content retrieval, 
+ * publishing workflow and preview sending
+ * @author M. Fischboeck 
+ *
+ */
 @Service
 public class MailingServiceImpl extends BaseService implements MailingService {
 
@@ -54,16 +62,24 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	private		Environment				env;
 	
 	
-	private MailingServiceImpl() {
+	public MailingServiceImpl() {
 		MailingModulePermissionProvider mmpp = new MailingModulePermissionProvider();
 		PermissionRegistry.registerPermissions(mmpp.getModulePermissions());
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#getAllMailings(java.util.UUID, org.springframework.data.domain.Pageable)
+	 */
 	@Override
 	public Page<Mailing> getAllMailings(UUID owner, Pageable page) {
 		return mRepo.findAllByOwner(owner, page);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#getMailingById(java.util.UUID)
+	 */
 	@Override
 	public Mailing getMailingById(UUID id) throws EntityNotFoundException {
 		Mailing m = mRepo.findOne(id);
@@ -71,8 +87,11 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		return m;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#createMailing(de.mfischbo.bustamail.mailing.domain.Mailing)
+	 */
 	@Override
-	@Transactional
 	public Mailing createMailing(Mailing m) throws EntityNotFoundException {
 	
 		User current = (User) auth.getPrincipal();
@@ -92,14 +111,22 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		return m;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#updateMailing(de.mfischbo.bustamail.mailing.domain.Mailing)
+	 */
 	@Override
 	public Mailing updateMailing(Mailing m) throws EntityNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		m.setDateModified(DateTime.now());
+		m.setUserModified((User) auth.getPrincipal()); 
+		return mRepo.saveAndFlush(m);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#deleteMailing(de.mfischbo.bustamail.mailing.domain.Mailing)
+	 */
 	@Override
-	@Transactional
 	public void deleteMailing(Mailing m) throws EntityNotFoundException {
 		mRepo.delete(m);
 		Specifications<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(m.getId()));
@@ -107,6 +134,10 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		vcRepo.delete(contents);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#sendPreview(de.mfischbo.bustamail.mailing.domain.Mailing)
+	 */
 	@Override
 	public void sendPreview(Mailing m) {
 		User u = (User) auth.getPrincipal();
@@ -184,6 +215,10 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		return result.getContent().get(0);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#createContentVersion(de.mfischbo.bustamail.mailing.domain.Mailing, de.mfischbo.bustamail.mailing.domain.VersionedContent)
+	 */
 	@Override
 	public VersionedContent createContentVersion(Mailing m,
 			VersionedContent c) {
@@ -194,32 +229,81 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		c.setUserCreated(current);
 		return vcRepo.saveAndFlush(c);
 	}
+	
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#attachSubscriptionList(de.mfischbo.bustamail.mailing.domain.Mailing, de.mfischbo.bustamail.mailinglist.domain.SubscriptionList)
+	 */
+	@Override
+	public void attachSubscriptionList(Mailing m, SubscriptionList list) {
+		if (m.getSubscriptionLists() == null) {
+			m.setSubscriptionLists(new ArrayList<>(1));
+			m.getSubscriptionLists().add(list);
+			mRepo.saveAndFlush(m);
+			return;
+		} else {
+			for (SubscriptionList l : m.getSubscriptionLists()) {
+				if (l.getId().equals(list.getId()))
+					return;
+			}
+			m.getSubscriptionLists().add(list);
+			mRepo.saveAndFlush(m);
+		}
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#removeSubscriptionList(de.mfischbo.bustamail.mailing.domain.Mailing, de.mfischbo.bustamail.mailinglist.domain.SubscriptionList)
+	 */
+	@Override
+	public void removeSubscriptionList(Mailing m, SubscriptionList list) {
+		if (m.getSubscriptionLists() == null)
+			return;
+		
+		for (SubscriptionList l : m.getSubscriptionLists()) {
+			if (l.getId().equals(list.getId())) {
+				m.getSubscriptionLists().remove(l);
+				mRepo.saveAndFlush(m);
+				return;
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#requestApproval(de.mfischbo.bustamail.mailing.domain.Mailing)
+	 */
 	@Override
 	public void requestApproval(Mailing m) {
-		// TODO Auto-generated method stub
-
+		m.setApprovalRequested(true);
+		m.setDateApprovalRequested(DateTime.now());
+		m.setUserApprovalRequestd((User) auth.getPrincipal());
+		mRepo.saveAndFlush(m);
 	}
 
 	@Override
 	public void denyApproval(Mailing m) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void approveMailing(Mailing m) {
-		// TODO Auto-generated method stub
-
+		m.setApproved(true);
+		m.setDateApproved(DateTime.now());
+		m.setUserApproved((User) auth.getPrincipal());
+		mRepo.saveAndFlush(m);
 	}
 
 	@Override
 	public void publishMailing(Mailing m) {
 		// TODO Auto-generated method stub
-
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#checkHyperlinkConnectivity(java.util.List)
+	 */
 	@Override
 	public List<HyperlinkDTO> checkHyperlinkConnectivity(List<HyperlinkDTO> dtos) {
 		
