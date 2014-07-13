@@ -16,6 +16,7 @@ import de.mfischbo.bustamail.mailer.dto.LiveMailing;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.domain.VersionedContent;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
+import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.subscriber.dto.RecipientDTO;
 import de.mfischbo.bustamail.template.domain.Template;
@@ -41,6 +42,10 @@ public class MailingPreProcessor {
 			
 			log.info("Adding subscribers from subscription list : " + l.getName());
 			for (Subscription s : l.getSubscriptions()) {
+				
+				if (s.getState() != State.ACTIVE)
+					continue;
+				
 				RecipientDTO d = new RecipientDTO();
 				d.setAddress(s.getEmailAddress());
 				d.setFirstName(s.getEmailAddress().getContact().getFirstName());

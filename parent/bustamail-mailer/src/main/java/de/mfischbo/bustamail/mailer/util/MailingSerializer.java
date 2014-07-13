@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
@@ -17,10 +18,26 @@ import de.mfischbo.bustamail.mailer.dto.SerializedMailing;
 public class MailingSerializer {
 
 	@Inject
-	private	ObjectMapper		mapper;	
+	private	ObjectMapper			mapper;	
 	
 	@Inject
 	private FreeMarkerConfigurer	fmCfger;
+	
+	private boolean					isDevMode;
+	private String					testAddress;
+	
+	@Inject
+	public MailingSerializer(Environment env) {
+		this.isDevMode = true;
+		this.testAddress = env.getProperty("de.mfischbo.bustamail.mailingSerializer.defaultDevAddress");
+		
+		String[] profiles = env.getActiveProfiles();
+		for (String profile : profiles) {
+			if (profile.equals("production")) {
+				isDevMode = false;
+			}
+		}
+	}
 	
 	public boolean serializeMailing(File jobFolder, LiveMailing lm, String preparedHTML, String preparedText, PersonalizedEmailRecipient r) {
 		
@@ -32,7 +49,11 @@ public class MailingSerializer {
 			m.setSenderAddress(lm.getSenderAddress().toString());
 			m.setReplyToAddress(lm.getReplyToAddress().toString());
 			m.setSenderName(lm.getSenderName());
-		
+			
+			m.setRecipientAddress(r.getEmail());
+			if (isDevMode)
+				m.setRecipientAddress(testAddress);
+
 			/*
 			Template ht = new Template("htDummy", preparedHTML, fmCfger.getConfiguration());
 			m.setHtmlContent(FreeMarkerTemplateUtils.processTemplateIntoString(ht, r));

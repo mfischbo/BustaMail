@@ -30,7 +30,7 @@ public class BatchMailWorker {
 	
 	private ObjectMapper mapper;
 	
-	private InternetAddress senderAddress = null;
+	private InternetAddress senderAddress;
 	
 	private Session			session;
 	
@@ -43,6 +43,9 @@ public class BatchMailWorker {
 	public BatchMailWorker(File folder, ObjectMapper mapper, SMTPConfiguration fallbackConfig) {
 		this.mapper = mapper;
 		this.jobFolder = folder;
+		try {
+			this.senderAddress = new InternetAddress("test@example.com");
+		} catch (Exception ex) { }
 	
 		// Read the configuration file for the SMTP connection or fallback to default
 		log.info("Reading configuration file if present");
@@ -94,16 +97,35 @@ public class BatchMailWorker {
 		
 		// process and send each mailing
 		for (File f : mailings) {
+			SerializedMailing m = null;
 			try {
-				SerializedMailing m = mapper.readValue(f, SerializedMailing.class);
-				sendMessage(m);
+				m = mapper.readValue(f, SerializedMailing.class);
 			} catch (Exception ex) {
 				log.error("Unable to deserialize json from file : " + f.getAbsolutePath());
+				
+				// move the file to the failed folder, since we are not able to read it
+				f.renameTo(new File(jobFolder.getAbsolutePath() + "/failed/" + f.getName()));
+				continue;
 			}
+			
+			try {
+				sendMessage(m);
+			} catch (Exception ex) {
+				log.error("Unable to send message. Cause: " + ex.getMessage());
+				f.renameTo(new File(jobFolder.getAbsolutePath() + "/retry/" + f.getName()));
+				continue;
+			}
+			
+			// all went well. Move the file to the success folder
+			f.renameTo(new File(jobFolder.getAbsolutePath() + "/success/" + f.getName()));
 		}
 	}
 	
-	
+	/**
+	 * Constructs a mime message from the serialized message and sends it using the mailers transport
+	 * @param m The SerializedMailing to be sent
+	 * @throws Exception On any error when creating the message or sending it
+	 */
 	private void sendMessage(final SerializedMailing m) throws Exception {
 		
 		MimeMessage message = new MimeMessage(this.session);
@@ -145,7 +167,11 @@ public class BatchMailWorker {
 		this.transport.sendMessage(message, message.getAllRecipients());
 	}
 	
-	
+
+	/**
+	 * Opens a connection to the configured transport
+	 * @throws MessagingException
+	 */
 	private void createMailSessionFromConfiguration() throws MessagingException {
 		if (this.config.getAuthentication().equals(SMTPAuthentication.USERNAME_PASSWORD)) {
 			this.session = Session.getInstance(config.asProperties(), new Authenticator() {

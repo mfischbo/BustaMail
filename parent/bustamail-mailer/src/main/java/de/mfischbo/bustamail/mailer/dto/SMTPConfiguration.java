@@ -7,6 +7,17 @@ import org.springframework.core.env.Environment;
 
 public class SMTPConfiguration {
 
+	private static final String KEY_HOST = 		"de.mfischbo.bustamail.smtp.host";
+	private static final String KEY_USERNAME = 	"de.mfischbo.bustamail.smtp.username";
+	private static final String KEY_PASSWORD =	"de.mfischbo.bustamail.smtp.password";
+	private static final String KEY_PORT	=	"de.mfischbo.bustamail.smtp.port";
+	private static final String KEY_PROTOCOL = 	"de.mfischbo.bustamail.smtp.protocol";
+	private static final String KEY_AUTH	=	"de.mfischbo.bustamail.smtp.auth";
+	private static final String KEY_DELAY	=	"de.mfischbo.bustamail.batchmailer.afterSendDelay";
+	private static final String KEY_MAX_MAILS =	"de.mfischbo.bustamail.batchmailer.maxMailsPerConnection";
+	private static final String KEY_RECONNECT = "de.mfischbo.bustamail.batchmailer.reconnectDelay";
+	
+	
 	public enum SMTPAuthentication {
 		NO_AUTH,
 		USERNAME_PASSWORD
@@ -15,6 +26,7 @@ public class SMTPConfiguration {
 	private String			hostname;
 	private String			username;
 	private String			password;
+	private int				port;
 	private String			protocol;
 	
 	private long			mailSendingDelay;
@@ -28,6 +40,21 @@ public class SMTPConfiguration {
 	}
 	
 	public SMTPConfiguration(Environment env) {
+		this.hostname = env.getProperty(KEY_HOST);
+		this.username = env.getProperty(KEY_USERNAME);
+		this.password = env.getProperty(KEY_PASSWORD);
+		this.port	  = Integer.parseInt(env.getProperty(KEY_PORT));
+		this.protocol = env.getProperty(KEY_PROTOCOL);
+		
+		this.mailSendingDelay = Long.parseLong(env.getProperty(KEY_DELAY));
+		this.maxMailsPerConnection = Long.parseLong(env.getProperty(KEY_MAX_MAILS));
+		this.reconnectAfter = Long.parseLong(env.getProperty(KEY_RECONNECT));
+		
+		// auth mechanism
+		this.authentication = SMTPAuthentication.NO_AUTH;
+		String auth = env.getProperty(KEY_AUTH);
+		if (auth.equals("USERNAME_PASSWORD"))
+			this.authentication = SMTPAuthentication.USERNAME_PASSWORD;
 	}
 
 	public String getHostname() {
@@ -36,6 +63,14 @@ public class SMTPConfiguration {
 
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
+	}
+	
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 	public String getUsername() {
@@ -71,7 +106,18 @@ public class SMTPConfiguration {
 	}
 	
 	public Properties asProperties() {
-		return null;
+		Properties p = new Properties();
+		p.setProperty("mail.transport.protocol", this.protocol);
+		p.setProperty("mail.host", this.hostname);
+		p.setProperty("mail.user", this.username);
+		p.setProperty("mail.password", this.password);
+		
+		if (this.authentication != SMTPAuthentication.NO_AUTH) {
+			p.setProperty("mail.smtps.auth", "true");
+			p.setProperty("mail.smtp.auth", "true");
+			p.setProperty("mail.auth", "true");
+		}
+		return p;
 	}
 
 	public long getMailSendingDelay() {

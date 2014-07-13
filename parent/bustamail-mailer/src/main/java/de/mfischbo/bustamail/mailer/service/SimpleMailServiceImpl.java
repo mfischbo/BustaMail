@@ -138,6 +138,22 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 			} else {
 				jobFolder.mkdirs();
 			}
+			
+			log.info("Creating subfolders for success/failed/retry mailings");
+			boolean sub = true;
+			File success = new File(jobFolder.getAbsolutePath() + "/success");
+			File failed  = new File(jobFolder.getAbsolutePath() + "/failed");
+			File retry   = new File(jobFolder.getAbsolutePath() + "/retry");
+			sub &= success.mkdir();
+			sub &= failed.mkdir();
+			sub &= retry.mkdir();
+			
+			if (!sub) {
+				log.error("Failed to create success/failed/retry folders in job folder");
+				jobFolder.delete();
+				return false;
+			}
+			
 		} catch (Exception ex) {
 			log.error("Failed to create job output folder for mailing " + m.getMailingId());
 			log.error("Cause: " + ex.getMessage());
