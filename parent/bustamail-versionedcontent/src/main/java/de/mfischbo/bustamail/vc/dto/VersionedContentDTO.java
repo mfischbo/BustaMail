@@ -1,4 +1,4 @@
-package de.mfischbo.bustamail.mailing.dto;
+package de.mfischbo.bustamail.vc.dto;
 
 public class VersionedContentDTO extends VersionedContentIndexDTO {
 

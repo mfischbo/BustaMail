@@ -185,5 +185,7 @@
 		<module>bustamail-mailinglist</module>
 		<module>bustamail-integrationtests</module>
 		<module>bustamail-io</module>
+		<module>bustamail-landingpage</module>
+		<module>bustamail-versionedcontent</module>
 	</modules>
 </project>

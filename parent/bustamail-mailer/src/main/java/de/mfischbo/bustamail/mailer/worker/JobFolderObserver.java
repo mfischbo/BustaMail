@@ -48,9 +48,11 @@ public class JobFolderObserver {
 			}
 		});
 		
-		for (File j : jobs) {
-			BatchMailWorker w = new BatchMailWorker(j, mapper, this.fallbackConfig);
-			w.execute();
+		if (jobs != null) {
+			for (File j : jobs) {
+				BatchMailWorker w = new BatchMailWorker(j, mapper, this.fallbackConfig);
+				w.execute();
+			}
 		}
 	}
 }

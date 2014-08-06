@@ -5,13 +5,8 @@
     <artifactId>parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>bustamail-mailing</artifactId>
+  <artifactId>bustamail-landingpage</artifactId>
   <dependencies>
-  	<dependency>
-  		<groupId>de.mfischbo.bustamail</groupId>
-  		<artifactId>bustamail-common</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
-  	</dependency>
   	<dependency>
   		<groupId>de.mfischbo.bustamail</groupId>
   		<artifactId>bustamail-security</artifactId>
@@ -20,16 +15,6 @@
   	<dependency>
   		<groupId>de.mfischbo.bustamail</groupId>
   		<artifactId>bustamail-templates</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>de.mfischbo.bustamail</groupId>
-  		<artifactId>bustamail-mailer</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>de.mfischbo.bustamail</groupId>
-  		<artifactId>bustamail-mailinglist</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   	<dependency>

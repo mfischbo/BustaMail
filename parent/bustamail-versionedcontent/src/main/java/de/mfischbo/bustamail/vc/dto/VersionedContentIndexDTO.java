@@ -1,10 +1,10 @@
-package de.mfischbo.bustamail.mailing.dto;
+package de.mfischbo.bustamail.vc.dto;
 
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.dto.BaseDTO;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.security.dto.UserDTO;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 
 public class VersionedContentIndexDTO extends BaseDTO {
 

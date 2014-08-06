@@ -1,4 +1,4 @@
-package de.mfischbo.bustamail.mailing.domain;
+package de.mfischbo.bustamail.vc.domain;
 
 import java.util.UUID;
 

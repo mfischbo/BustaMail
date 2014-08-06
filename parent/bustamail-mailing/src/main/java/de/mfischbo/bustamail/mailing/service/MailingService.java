@@ -14,10 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import de.mfischbo.bustamail.exception.ConfigurationException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 
 public interface MailingService {
 

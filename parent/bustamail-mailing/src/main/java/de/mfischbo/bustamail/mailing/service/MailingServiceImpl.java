@@ -29,16 +29,16 @@ import de.mfischbo.bustamail.mailer.dto.LiveMailing;
 import de.mfischbo.bustamail.mailer.dto.PreviewMailing;
 import de.mfischbo.bustamail.mailer.service.SimpleMailService;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailing.repository.MailingRepository;
-import de.mfischbo.bustamail.mailing.repository.VersionedContentRepository;
-import de.mfischbo.bustamail.mailing.repository.VersionedContentSpecification;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
+import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
+import de.mfischbo.bustamail.vc.repo.VersionedContentSpecification;
 
 /**
  * Service class that handles all actions regarding a mailing.

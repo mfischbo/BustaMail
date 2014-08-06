@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 import de.mfischbo.bustamail.mailer.dto.LiveMailing;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.subscriber.dto.RecipientDTO;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
 
 public class MailingPreProcessor {
 

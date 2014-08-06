@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 import de.mfischbo.bustamail.security.dto.UserDTO;
+import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
 
 public class MailingDTO extends MailingIndexDTO {
 

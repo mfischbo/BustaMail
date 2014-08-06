@@ -21,18 +21,18 @@ import de.mfischbo.bustamail.annotation.IntegrationTested;
 import de.mfischbo.bustamail.common.web.BaseApiController;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailing.dto.MailingDTO;
 import de.mfischbo.bustamail.mailing.dto.MailingIndexDTO;
-import de.mfischbo.bustamail.mailing.dto.VersionedContentDTO;
-import de.mfischbo.bustamail.mailing.dto.VersionedContentIndexDTO;
 import de.mfischbo.bustamail.mailing.service.MailingService;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.service.MailingListService;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.service.TemplateService;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
+import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
+import de.mfischbo.bustamail.vc.dto.VersionedContentIndexDTO;
 
 /**
  * RESTful controller to handle all actions the mailing provides.

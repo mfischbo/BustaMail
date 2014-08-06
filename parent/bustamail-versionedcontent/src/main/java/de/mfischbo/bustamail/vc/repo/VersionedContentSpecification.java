@@ -1,4 +1,4 @@
-package de.mfischbo.bustamail.mailing.repository;
+package de.mfischbo.bustamail.vc.repo;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,9 +10,9 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import de.mfischbo.bustamail.mailing.domain.VersionedContent;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent.ContentType;
-import de.mfischbo.bustamail.mailing.domain.VersionedContent_;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
+import de.mfischbo.bustamail.vc.domain.VersionedContent_;
 
 
 public class VersionedContentSpecification {
