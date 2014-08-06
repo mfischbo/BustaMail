@@ -18,7 +18,7 @@ public interface LandingPageService {
 	Page<LandingPage>	getLandingPagesByOwner(UUID owner, Pageable page);
 	LandingPage			getLandingPageById(UUID id) throws EntityNotFoundException;
 
-	LandingPage			createLandingPage(LandingPageIndexDTO page);
+	LandingPage			createLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException;
 	LandingPage			updateLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException;
 	void				deleteLandingPage(LandingPage page); 
 	

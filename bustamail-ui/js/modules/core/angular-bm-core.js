@@ -145,6 +145,12 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 			controller	:	"MailingListImportController"
 		})
 		
+		// Landing Pages Module
+		.when("/landingpages", {
+			templateUrl	:	"./js/modules/landing-pages/tmpl/landing-pages/index.html",
+			controller  :	"LPIndexController"
+		})
+		
 		// Other stuff
 		.when("/logout", {
 			templateUrl :   "./js/modules/security/tmpl/logout.html",
