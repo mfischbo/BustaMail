@@ -24,7 +24,7 @@ public interface MediaService {
 	Media			getMediaById(UUID id) throws EntityNotFoundException;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
-	Media			createMedia(@P("m") Media media) throws EntityNotFoundException;
+	Media			createMedia(@P("m") Media media);
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	MediaImage		createMediaImage(@P("m") MediaImage media);

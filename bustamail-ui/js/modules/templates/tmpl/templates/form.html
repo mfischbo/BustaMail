@@ -19,6 +19,7 @@
 	<ul class="nav nav-tabs">
 		<li class="active">	<a data-target="#source" data-toggle="tab">Quellcode</a></li>
 		<li>				<a data-target="#images" data-toggle="tab">Bilder</a></li>
+		<li>				<a data-target="#resources" data-toggle="tab">CSS / JS</a></li>
 		<li>				<a data-target="#settings" data-toggle="tab">Einstellungen</a></li>
 	</ul>
 	
@@ -64,6 +65,41 @@
 			</div>
 			<button class="btn btn-primary pull-right" data-ng-click="uploadTemplateImages()" data-ng-disabled="templateFiles.length == 0">
 				{{templateFiles.length}} hochladen
+			</button>
+		</div>
+		
+		
+		<div class="tab-pane" id="resources">
+			<h4>CSS / JS Dateien</h4>
+			<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>Name</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr data-ng-repeat="i in template.resources">
+					<td><img data-ng-src="./img/media/{{i.id}}" width="64"></td>
+					<td>{{i.name}}</td>
+					<td class="tools">
+						<a href="javascript:void('');" data-ng-click="deleteTemplateResource(i.id)"><span class="fa fa-trash-o"></span></a>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			
+				
+			<h5>Weiteres hochladen</h5>
+			<input type="file" data-ng-file-select="onFileSelectResource($files)" multiple class="form-control">
+			
+			<h5>Markiert zum hochladen</h5>
+			<div data-ng-repeat="f in templateResources">
+				{{f.name}}
+			</div>
+			<button class="btn btn-primary pull-right" data-ng-click="uploadTemplateResources()" data-ng-disabled="templateResources.length == 0">
+				{{templateResources.length}} hochladen
 			</button>
 		</div>
 		

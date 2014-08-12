@@ -1,23 +1,39 @@
-function BMNodeEdit(templateSettings) {
+function BMNodeEdit(template) {
 	this.editor			  = undefined;
-	this.templateSettings = templateSettings; 
+	this.template 		  = template;
+	this.templateSettings = template.settings; 
 };
 
 BMNodeEdit.prototype.setup = function() {
 
 	this.editor		  = $("#editor");
+	
+	// create fragment controller
 	this.fragControl = new BMFragmentControl(this.editor);
 	this.fragControl.setup();
 	
+	// create element controller
 	this.elementControl = new BMElementControl(this.editor);
 	this.elementControl.setup();
 
+	// create image controller
 	this.imageControl = new BMImageControl(this.editor);
 	this.imageControl.setup();
 	
+	// create the text selection controll
 	this.textSelectionControl = new BMTextSelectionControl(this.editor);
 	this.textSelectionControl.setup();
 
+	// append stylesheets and scripts to the editor
+	for (var i in this.template.resources) {
+		var r = this.template.resources[i];
+		if (r.mimetype == 'text/css')
+			this.editor.append('<link rel="stylesheet" type="text/css" href="./img/media/' + r.id + '">');
+		
+		if (r.mimetype == 'text/javascript')
+			this.editor.append('<script type="text/javascript" src="./img/media/'+r.id+'"></script>');
+	}
+	
 	var fontSettings = {
 			defaultFontFamily 	: this.templateSettings.defaultFontFamily,
 			defaultFontSize		: this.templateSettings.defaultFontSize,

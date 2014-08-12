@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.security.service.PermissionRegistry;
@@ -157,6 +158,21 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		templateRepo.saveAndFlush(template);
 		return retval;
 	}
+	
+	@Override
+	@Transactional
+	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
+	public Media createTemplateResource(Template template, Media resource) {
+		
+		resource.setOwner(template.getTemplatePack().getOwner());
+		Media retval = mediaService.createMedia(resource);
+		if (template.getResources() == null)
+			template.setResources(new LinkedList<Media>());
+		template.getResources().add(retval);
+		templateRepo.saveAndFlush(template);
+		return retval;
+	}
+	
 	
 	@Override
 	@Transactional

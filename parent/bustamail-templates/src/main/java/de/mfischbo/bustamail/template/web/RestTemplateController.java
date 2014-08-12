@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import de.mfischbo.bustamail.common.web.BaseApiController;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
+import de.mfischbo.bustamail.media.dto.MediaDTO;
 import de.mfischbo.bustamail.media.dto.MediaImageDTO;
 import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.template.domain.Template;
@@ -79,9 +81,22 @@ public class RestTemplateController extends BaseApiController {
 			m.setAwtColorSpace(mo.getAwtColorSpace());
 			m.setData(mo.getData());
 			m.setDescription(mo.getDescription());
+			m.setMimetype(mo.getMimetype());
 			m.setName(mo.getName());
 			m.setOwner(mo.getOwner());
 			t.getImages().add(m);
+		}
+		
+		// copy resources
+		t.setResources(new LinkedList<Media>());
+		for (Media mo : o.getResources()) {
+			Media m = new Media();
+			m.setData(mo.getData());
+			m.setDescription(mo.getDescription());
+			m.setName(mo.getName());
+			m.setMimetype(mo.getMimetype());
+			m.setOwner(mo.getOwner());
+			t.getResources().add(m);
 		}
 		
 		//copy settings
@@ -168,6 +183,28 @@ public class RestTemplateController extends BaseApiController {
 		ListIterator<MediaImage> it = t.getImages().listIterator();
 		while (it.hasNext()) {
 			if (it.next().getId().equals(imageId)) {
+				it.remove();
+				break;
+			}
+		}
+		service.updateTemplate(t);
+	}
+	
+	@RequestMapping(value = "/templates/{tid}/resources", method = RequestMethod.POST)
+	public MediaDTO createResource(@PathVariable("tid") UUID template, MultipartFile file) throws Exception {
+		Media m = new Media();
+		m.setData(file.getBytes());
+		m.setName(file.getOriginalFilename());
+		Template t = service.getTemplateById(template);
+		return asDTO(service.createTemplateResource(t, m), MediaDTO.class);
+	}
+	
+	@RequestMapping(value = "/templates/{tid}/resources/{id}", method = RequestMethod.DELETE)
+	public void deleteResource(@PathVariable("tid") UUID template, @PathVariable("id") UUID resourceId) throws Exception {
+		Template t = service.getTemplateById(template);
+		ListIterator<Media> it = t.getResources().listIterator();
+		while (it.hasNext()) {
+			if (it.next().getId().equals(resourceId)) {
 				it.remove();
 				break;
 			}

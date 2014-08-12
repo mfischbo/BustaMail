@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
@@ -26,6 +27,7 @@ public interface TemplateService {
 	public Template					updateTemplate(Template template);
 	public void						deleteTemplate(Template template);
 	public MediaImage				createTemplateImage(Template template, MediaImage image);
+	public Media					createTemplateResource(Template template, Media media);
 	
 	public Widget					getWidgetById(UUID id) throws EntityNotFoundException;
 	public Widget					createWidget(Widget w);
