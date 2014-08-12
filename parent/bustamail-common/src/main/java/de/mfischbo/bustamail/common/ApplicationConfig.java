@@ -45,16 +45,16 @@ public class ApplicationConfig {
 		
 		List<String> profiles = Arrays.asList(env.getActiveProfiles());
 		
-		String dbName = "bustamaildb";
+		String dbName = env.getProperty("de.mfischbo.bustamail.db.ds.name");
 		if (profiles.contains("testing"))
-			dbName += "_test";
+			dbName = env.getProperty("de.mfischbo.bustamail.db.ds.testName");
 		
 		HikariConfig c = new HikariConfig();
 		c.setMaximumPoolSize(50);
-		c.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-		c.addDataSourceProperty("url", "jdbc:mysql://localhost:3306/" + dbName);
-		c.addDataSourceProperty("user", "root");
-		c.addDataSourceProperty("password", "matrix");
+		c.setDataSourceClassName(env.getProperty("de.mfischbo.bustamail.db.ds.classname"));
+		c.addDataSourceProperty("url", env.getProperty("de.mfischbo.bustamail.db.ds.url")+ dbName);
+		c.addDataSourceProperty("user", env.getProperty("de.mfischbo.bustamail.db.ds.user"));
+		c.addDataSourceProperty("password", env.getProperty("de.mfischbo.bustamail.db.ds.password"));
 		return new HikariDataSource(c);
 	}
 	
