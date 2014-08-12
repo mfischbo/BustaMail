@@ -169,6 +169,11 @@ BMImageControl.prototype.hideControls = function() {
 	this.imageControl.hide();
 };
 
+
+/**
+ * Fragment controller
+ */
+
 var BMFragmentControl = function(editor) {
 	this.editor = editor;
 	this.selectedFragment = undefined;

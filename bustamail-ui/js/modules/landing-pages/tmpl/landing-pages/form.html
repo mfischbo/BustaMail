@@ -1,0 +1,21 @@
+<form data-role="form">
+	<div class="form-group">
+		<label>Name</label>
+		<input type="text" data-ng-model="page.name" class="form-control">
+	</div>
+	
+	<div class="form-group">
+		<label>Beschreibung</label>
+		<textarea data-ng-model="page.description" class="form-control"></textarea>
+	</div>
+	
+	<div class="form-group">
+		<label>Templates aus Organisations Einheit</label>
+		<div data-ou-selector data-select-as="$parent.owner"></div>
+	</div>
+	
+	<div class="form-group">
+		<label>Vorlage</label>
+		<select data-ng-model="page.template" class="form-control" data-ng-options="p.id as p.name group by p.pack for p in templates"></select>
+	</div>
+</form>

@@ -1,1 +1,40 @@
-Landing pages index
+<h3>Landing Pages</h3>
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div data-ou-selector data-select-as="owner" class="pull-right"></div>
+				<div class="clearfix"></div>
+			</div>
+			
+			<div class="panel-body">
+				<table class="table">
+				<thead>
+					<tr>
+						<th>Landing Page</th>
+						<th>Beschreibung</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-ng-if="!pages || pages.content.length == 0">
+						<td colspan="3">Bisher wurden noch keine Landing Pages angelegt</td>
+					</tr>
+					<tr data-ng-repeat="p in pages.content">
+						<td>{{p.name}}</td>
+						<td>{{p.description}}</td>
+						<td class="tools">
+						
+						</td>
+					</tr>
+				</tbody>
+				</table>
+			</div>
+		
+			<div class="panel-footer">
+				<a href="#/landingpages/create" class="btn btn-primary pull-right"><span class="fa fa-plus"> Neue Page</span></a>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>

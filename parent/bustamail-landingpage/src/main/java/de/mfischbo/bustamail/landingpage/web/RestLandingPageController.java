@@ -48,7 +48,7 @@ public class RestLandingPageController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public LandingPageIndexDTO createLandingPage(@PathVariable("owner") UUID owner, @RequestBody LandingPageIndexDTO page) throws EntityNotFoundException {
+	public LandingPageIndexDTO createLandingPage(@RequestBody LandingPageIndexDTO page) throws EntityNotFoundException {
 		return asDTO(service.createLandingPage(page), LandingPageIndexDTO.class);
 	}
 	

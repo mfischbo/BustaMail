@@ -1,6 +1,6 @@
 var BMApp = angular.module("BMApp", 
 		['ngRoute', 'SecurityModule', 'SubscriberModule', 
-		 'BMEditorModule', 'TemplatesModule', 'MailingModule', 'MailingListModule', 'MediaModule',
+		 'BMEditorModule', 'TemplatesModule', 'MailingModule', 'MailingListModule', 'MediaModule', 'LandingPageModule',
 		 'ui.bootstrap']);
 
 BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
@@ -147,8 +147,12 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 		
 		// Landing Pages Module
 		.when("/landingpages", {
-			templateUrl	:	"./js/modules/landing-pages/tmpl/landing-pages/index.html",
-			controller  :	"LPIndexController"
+			templateUrl	:	'./js/modules/landing-pages/tmpl/landing-pages/index.html',
+			controller  :	'LPIndexController'
+		})
+		.when("/landingpages/create", {
+			templateUrl :	'./js/modules/landing-pages/tmpl/landing-pages/create.html',
+			controller	:	'LPCreateController'
 		})
 		
 		// Other stuff
