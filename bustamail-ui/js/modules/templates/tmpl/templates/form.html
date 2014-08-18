@@ -81,7 +81,7 @@
 			</thead>
 			<tbody>
 				<tr data-ng-repeat="i in template.resources">
-					<td><img data-ng-src="./img/media/{{i.id}}" width="64"></td>
+					<td width="64px"><i class="{{i.iconClass}}"></i></td>
 					<td>{{i.name}}</td>
 					<td class="tools">
 						<a href="javascript:void('');" data-ng-click="deleteTemplateResource(i.id)"><span class="fa fa-trash-o"></span></a>

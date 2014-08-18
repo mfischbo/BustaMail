@@ -105,7 +105,7 @@ BMApp.Editor.controller("EditorIndexController",
 	// initialize the mailing and the widgets
 	var id = window.location.href.split('=')[1];
 	
-	$http.get("/api/mailings/" + id).success(function(data) {
+	$http.get("/api/landingpages/" + id).success(function(data) {
 		$scope.initializeMailing(data);
 	});
 	
@@ -139,7 +139,7 @@ BMApp.Editor.controller("EditorIndexController",
 		});
 	
 		// fetch all content versions for this mailing
-		$http.get("/api/mailings/" + $scope.mailing.id + "/content").success(function(data) {
+		$http.get("/api/landingpages/" + $scope.mailing.id + "/content").success(function(data) {
 			$scope.contentVersions = data;
 		});
 	};

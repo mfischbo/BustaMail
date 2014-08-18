@@ -76,6 +76,11 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	
 	$http.get("/api/templates/packs/" + $routeParams.id).success(function(data) {
 		$scope.pack = data;
+		for (var i in $scope.pack.templates) {
+			for (var k in $scope.pack.templates[i].resources)
+				if ($scope.pack.templates[i].resources[k].mimetype == 'text/css')
+					$scope.pack.templates[i].resources[k].iconClass = 'flaticon-css5';
+		}
 	});
 	
 	$scope.setupCodeMirror = function(_editor) {

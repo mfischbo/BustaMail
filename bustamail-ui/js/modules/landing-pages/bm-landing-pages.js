@@ -65,7 +65,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	var dFrame = document.getElementById("documentFrame");
 	
 	// initialize the mailing and the widgets
-	$http.get("/api/mailings/" + $routeParams.id).success(function(data) {
+	$http.get("/api/landingpages/" + $routeParams.id).success(function(data) {
 	
 		$scope.mailing = data;
 		
@@ -79,7 +79,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 		});
 	
 		// fetch all content versions for this mailing
-		$http.get("/api/mailings/" + $scope.mailing.id + "/content").success(function(data) {
+		$http.get("/api/landingpages/" + $scope.mailing.id + "/content").success(function(data) {
 			$scope.contentVersions = data;
 		});
 	});
