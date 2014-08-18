@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html data-ng-app="BMFrameEdit">
+<head>
+	<base href="http://localhost/bustamail/">
+	<link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+</head>
+
+<body style="background-color:#FFF;">
+		<script type="text/javascript" src="./js/lib/jquery-2.1.1.min.js"></script>	
+		<script type="text/javascript" src="./js/lib/angular-fileupload-shim.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular.min.js"></script>
+		
+
+		<script type="text/javascript" src="./js/lib/angular-route.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-treeview.js"></script>
+		<script type="text/javascript" src="./js/lib/ui-bootstrap/ui-bootstrap-custom-0.10.0.min.js"></script>
+		<script type="text/javascript" src="./js/lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-fileupload-shim.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-treeview.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-file-upload.min.js"></script>
+		<script type="text/javascript" src="./js/lib/rangy-1.2.3/rangy-core.js"></script>
+		<script type="text/javascript" src="./js/lib/rangy-1.2.3/rangy-cssclassapplier.js"></script>
+
+		<script type="text/javascript">
+			console.log(window.location.href);
+			var BMApp = angular.module("BMFrameEdit", ['ngRoute', 'BMEditorModule']);
+		</script>
+		<script type="text/javascript" src="./js/modules/media/bm-media.js"></script>
+		<script type="text/javascript" src="./js/modules/editor/bm-nodeeditor-support.js"></script>
+		<script type="text/javascript" src="./js/modules/editor/bm-nodeeditor.js"></script>
+		<script type="text/javascript" src="./js/modules/editor/bm-frameeditor.js"></script>
+		
+		<div data-ng-controller="EditorIndexController">
+			<div id="editor">
+				<div id="editor-content" data-ng-bind-html="html">
+				
+				</div>
+			</div>
+		</div>
+		
+</body>
+</html>

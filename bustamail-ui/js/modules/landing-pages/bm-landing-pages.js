@@ -51,3 +51,42 @@ BMApp.LandingPages.controller('LPCreateController', ['$scope', '$http', '$locati
 		$location.path("/landingpages");
 	};
 }]);
+
+
+/**
+ * Controller for editing the contents of landing pages
+ */
+BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routeParams', '$sce', function($scope, $http, $routeParams, $sce) {
+
+	$scope.pageId = './js/modules/landing-pages/tmpl/frameedit.html?id=' + ($routeParams.id);
+	$scope.tlink = $sce.trustAsUrl($scope.pageId);
+	console.log($scope.tlink);
+	
+	var dFrame = document.getElementById("documentFrame");
+	
+	// initialize the mailing and the widgets
+	$http.get("/api/mailings/" + $routeParams.id).success(function(data) {
+	
+		$scope.mailing = data;
+		
+		// fetch the full graph for the given template
+		$http.get("/api/templates/templates/" + $scope.mailing.template.id).success(function(data) {
+			$scope.mailing.template = data;
+			$scope.widgets = data.widgets;
+			for (var i in $scope.widgets) 
+				if ($scope.widgets[i].source.indexOf("bm-on-replace") > 0)
+					$scope.widgets[i].nestable = true;
+		});
+	
+		// fetch all content versions for this mailing
+		$http.get("/api/mailings/" + $scope.mailing.id + "/content").success(function(data) {
+			$scope.contentVersions = data;
+		});
+	});
+	
+	$scope.appendWidget = function(id) {
+		var w = BMApp.utils.find('id', id, $scope.widgets);
+		var m = { type : 'appendWidget', data : w };
+		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
+	}
+}]);

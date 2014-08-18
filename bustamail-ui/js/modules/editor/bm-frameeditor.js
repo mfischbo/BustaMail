@@ -1,4 +1,4 @@
-BMApp.Editor = angular.module("BMEditorModule", ['MediaModule']);
+BMApp.Editor = angular.module("BMEditorModule", ['ui.bootstrap', 'MediaModule']);
 
 BMApp.Editor.service("HyperlinkService", [function() {
 
@@ -96,11 +96,16 @@ BMApp.Editor.controller("EditorIndexController",
 	// the underlaying jQuery element when an element is marked as selected
 	var jE		 = undefined;
 	
+	// the iframe element
+	var dFrame = $("#documentFrame");
+	
 	// The actual editor
 	var nodeEdit   = undefined;
 	
 	// initialize the mailing and the widgets
-	$http.get("/api/mailings/" + $routeParams.id).success(function(data) {
+	var id = window.location.href.split('=')[1];
+	
+	$http.get("/api/mailings/" + id).success(function(data) {
 		$scope.initializeMailing(data);
 	});
 	
@@ -111,9 +116,9 @@ BMApp.Editor.controller("EditorIndexController",
 		$scope.mailing = data;
 		$scope.html = $sce.trustAsHtml($scope.mailing.htmlContent.content);
 
-
 		// fetch the full graph for the given template
 		$http.get("/api/templates/templates/" + $scope.mailing.template.id).success(function(data) {
+
 			$scope.mailing.template = data;
 			$scope.widgets = data.widgets;
 			for (var i in $scope.widgets) 
@@ -123,7 +128,6 @@ BMApp.Editor.controller("EditorIndexController",
 			// create the editor
 			// bind editor after content is inserted into DOM
 			nodeEdit = new BMNodeEdit($scope.mailing.template);
-			BMApp.showSpinner();
 			window.setTimeout(function() {
 				nodeEdit.setup();
 
@@ -131,10 +135,6 @@ BMApp.Editor.controller("EditorIndexController",
 				$("a.bm-hyperlink").each(function() {
 					$scope.hyperlinks.push(HyperlinkService.parseNode($(this)));
 				});
-				console.log($scope.hyperlinks);
-			
-				BMApp.hideSpinner();
-				BMApp.alert("Editor bereit", 'success');
 			}, 1000);
 		});
 	
@@ -230,15 +230,14 @@ BMApp.Editor.controller("EditorIndexController",
 		$scope.$apply();
 	});
 
-	$scope.appendWidget = function(id) {
-		var w = BMApp.utils.find("id", id, $scope.widgets);
-		nodeEdit.appendWidget(w);
-	};
-	
-	$scope.replaceElement = function(id) {
-		var w = BMApp.utils.find("id", id, $scope.widgets);
-		nodeEdit.replaceWidget(w);
-	}
+	window.addEventListener("message", function(e) {
+		e = e.data;
+		if (e.type == 'appendWidget')
+			nodeEdit.appendWidget(e.data);
+		if (e.type == 'replaceWidget')
+			nodeEdit.replaceWidget(e.data);
+		
+	}, false);
 
 	$scope.replaceVar = function() {
 		var txt = '${' + $scope.textVar + '}';

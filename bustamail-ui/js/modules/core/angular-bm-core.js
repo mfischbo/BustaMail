@@ -154,6 +154,11 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 			templateUrl :	'./js/modules/landing-pages/tmpl/landing-pages/create.html',
 			controller	:	'LPCreateController'
 		})
+		.when("/landingpages/:id/edit", {
+			templateUrl :	'./js/modules/landing-pages/tmpl/landing-pages/edit.html',
+			controller	:	'LPEditController'
+		})
+		
 		
 		// Other stuff
 		.when("/logout", {

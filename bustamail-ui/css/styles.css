@@ -61,3 +61,14 @@ td.tools span {
 	-moz-box-shadow:    7px 7px 5px 0px rgba(50, 50, 50, 0.08);
 	box-shadow:         7px 7px 5px 0px rgba(50, 50, 50, 0.08);
 }
+
+#resourceConsole {
+	position:fixed;
+	bottom:0;
+	margin-bottom:0;
+	height:300px;
+	margin:0;
+	width:100%;
+	padding:0px;
+	outline:1px solid red;
+}
