@@ -43,7 +43,7 @@ public class RestLandingPageController extends BaseApiController {
 	public LandingPageDTO getLandingPageById(@PathVariable("id") UUID id) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(id);
 		LandingPageDTO retval = asDTO(page, LandingPageDTO.class);
-		retval.setContent(asDTO(service.getRecentContentVersionByPage(page), VersionedContentDTO.class));
+		retval.setHtmlContent(asDTO(service.getRecentContentVersionByPage(page), VersionedContentDTO.class));
 		return retval;
 	}
 	

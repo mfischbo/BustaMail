@@ -28,6 +28,7 @@ import de.mfischbo.bustamail.security.service.SecurityService;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.service.TemplateService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 import de.mfischbo.bustamail.vc.repo.VersionedContentSpecification;
 
@@ -84,7 +85,18 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		p.setTemplate(t);
 		p.setUserCreated(current);
 		p.setUserModified(current);
-		return lpRepo.saveAndFlush(p);
+		p = lpRepo.saveAndFlush(p);
+		
+		// create a versioned content
+		VersionedContent html = new VersionedContent();
+		html.setContent(t.getSource());
+		html.setDateCreated(p.getDateCreated());
+		html.setMailingId(p.getId());
+		html.setUserCreated(current);
+		html.setType(ContentType.HTML);
+		vcRepo.saveAndFlush(html);
+	
+		return p;
 	}
 
 	@Override

@@ -6,13 +6,13 @@ public class LandingPageDTO extends LandingPageIndexDTO {
 
 	private static final long serialVersionUID = -4806411259910343701L;
 
-	private VersionedContentDTO 		content;
+	private VersionedContentDTO 		htmlContent;
 
-	public VersionedContentDTO getContent() {
-		return content;
+	public VersionedContentDTO getHtmlContent() {
+		return htmlContent;
 	}
 
-	public void setContent(VersionedContentDTO content) {
-		this.content = content;
+	public void setHtmlContent(VersionedContentDTO content) {
+		this.htmlContent = content;
 	}
 }
