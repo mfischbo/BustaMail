@@ -35,10 +35,16 @@ BMNodeEdit.prototype.setup = function() {
 	}
 	
 	var fontSettings = {
-			defaultFontFamily 	: this.templateSettings.defaultFontFamily,
-			defaultFontSize		: this.templateSettings.defaultFontSize,
-			defaultFontColor	: this.templateSettings.defaultFontColor
+		defaultFontFamily : "Arial",
+		defaultFontSize 	: "12px;",
+		defaultFontColor	:	"#000"
 	};
+	
+	if (this.templateSettings) {
+		fontSettings.defaultFontFamily = this.templateSettings.defaultFontFamily,
+		fontSettings.defaultFontSize = this.templateSettings.defaultFontSize,
+		fontSettings.defaultFontColor = this.templateSettings.defaultFontColor
+	}
 	
 	this.textStyleControl = new BMTextStyleControl(this.editor, fontSettings);
 	this.textStyleControl.setup();

@@ -78,14 +78,14 @@ BMApp.Editor.controller("EditorIndexController",
           function($scope, $http, $routeParams, $sce, HyperlinkService) {
 
 
-	// The applicable template widgets
-	$scope.widgets = undefined;
-	
 	// The Mailing in question + initialization
 	$scope.mailing = undefined;
 	
 	// HTML content of the mailing
 	$scope.html    = undefined;
+	
+	// the tinymce instance running
+	var mce = undefined;
 	
 	$scope.element = undefined;
 	$scope.textSelection = undefined;
@@ -106,45 +106,52 @@ BMApp.Editor.controller("EditorIndexController",
 	var id = window.location.href.split('=')[1];
 	
 	$http.get("/api/landingpages/" + id).success(function(data) {
-		$scope.initializeMailing(data);
+		$scope.initializeDocument(data);
 	});
 	
 	/**
 	 * Initializes the editor with the data from a given mailing
 	 */
-	$scope.initializeMailing = function(data) {
+	$scope.initializeDocument = function(data) {
 		$scope.mailing = data;
 		$scope.html = $sce.trustAsHtml($scope.mailing.htmlContent.content);
 
 		// fetch the full graph for the given template
 		$http.get("/api/templates/templates/" + $scope.mailing.template.id).success(function(data) {
 
-			$scope.mailing.template = data;
-			$scope.widgets = data.widgets;
-			for (var i in $scope.widgets) 
-				if ($scope.widgets[i].source.indexOf("bm-on-replace") > 0)
-					$scope.widgets[i].nestable = true;
-			
 			// create the editor
 			// bind editor after content is inserted into DOM
-			nodeEdit = new BMNodeEdit($scope.mailing.template);
+			nodeEdit = new BMNodeEdit(data);
 			window.setTimeout(function() {
 				nodeEdit.setup();
-
 				// find all managed hyperlinks in the document
 				$("a.bm-hyperlink").each(function() {
 					$scope.hyperlinks.push(HyperlinkService.parseNode($(this)));
 				});
 			}, 1000);
-		});
 	
-		// fetch all content versions for this mailing
-		$http.get("/api/landingpages/" + $scope.mailing.id + "/content").success(function(data) {
-			$scope.contentVersions = data;
+			// bind events from the outside world
+			window.addEventListener("message", function(e) {
+				e = e.data;
+				if (e.type == 'appendWidget')
+					nodeEdit.appendWidget(e.data);
+				
+				if (e.type == 'replaceWidget')
+					nodeEdit.replaceWidget(e.data);
+				
+				if (e.type == 'saveDocument') 
+					$scope.saveContents();
+				
+				if (e.type == 'rollbackTo')
+					$scope.rollbackTo(e.data);
+				
+			}, false);
 		});
+		
+
 	};
-	
-	
+
+
 	/**
 	 * Saves the editor contents.
 	 * Copies the content of the editor node and removes all editor markers before saving it
@@ -161,9 +168,8 @@ BMApp.Editor.controller("EditorIndexController",
 			content : content 
 		};
 		
-		$http.post("/api/mailings/" + $scope.mailing.id + "/content", d).success(function(data) {
+		$http.post("/api/landingpages/" + $scope.mailing.id + "/content", d).success(function(data) {
 			BMApp.alert("Inhalt erfolgreich gespeichert", 'success');
-			$scope.contentVersions.push(data);
 		});
 	};
 	
@@ -196,9 +202,12 @@ BMApp.Editor.controller("EditorIndexController",
 	 * Sends a preview of this mailing
 	 */
 	$scope.sendPreview = function() {
+		/*
 		$http.put("/api/mailings/" + $scope.mailing.id + "/preview").success(function(data) {
 			BMApp.alert("Preview versendet", 'success');
 		});
+		*/
+		// TODO: Requires reimplementation for landing pages
 	};
 	
 
@@ -217,11 +226,15 @@ BMApp.Editor.controller("EditorIndexController",
 	});
 	
 	$(document).on("_bmTextSelection", function(e, s) {
-		$scope.textSelection = $(s);
-		$scope.link = HyperlinkService.newHyperlink($scope.mailing.template.settings);
-		if ($scope.textSelection.prop("tagName") == 'A')
-			$scope.handleHyperlinkSelection();
-		$scope.$apply();
+		if (mce) 
+			mce.remove();
+		// setup tinymce
+		mce = tinymce.init({
+			selector : '.bm-fragment',
+			inline   : true,
+			toolbar	 :	'fullscreen | undo redo | styleselect | bold italic underlined',
+			plugins  :  'fullscreen'
+		});
 	});
 
 	$(document).on("_bmNoTextSelection", function() {
@@ -230,57 +243,12 @@ BMApp.Editor.controller("EditorIndexController",
 		$scope.$apply();
 	});
 
-	window.addEventListener("message", function(e) {
-		e = e.data;
-		if (e.type == 'appendWidget')
-			nodeEdit.appendWidget(e.data);
-		if (e.type == 'replaceWidget')
-			nodeEdit.replaceWidget(e.data);
-		
-	}, false);
-
 	$scope.replaceVar = function() {
 		var txt = '${' + $scope.textVar + '}';
 		$scope.textSelection.text(txt);
 	};
 
-	$scope.handleHyperlinkSelection = function() {
-		var x = $($scope.textSelection).first();
-		var linkId = x.attr("data-link-id");
-		if (!linkId) {
-			x.attr("data-link-id", BMApp.utils.UUID());
-			$scope.hyperlinks.push(HyperlinkService.fromNode(x));
-		}
-		$scope.link = BMApp.utils.find("id", linkId, $scope.hyperlinks);
-		if (!$scope.link)
-			$scope.link = HyperlinkService.newHyperlink($scope.mailing.template.settings);
-	};
 	
-	$scope.checkLinkConnectivity = function() {
-		var check = {
-				id		: $scope.link.id,
-				target	: $scope.link.href
-		};
-		$http.post("/api/mailings/linkcheck", [check]).success(function(data) {
-			$scope.link.working = data[0].success;
-		});
-	};
-	
-	
-	$scope.insertHyperlink = function() {
-		// add the selections text content
-		$scope.link.textContent = $scope.textSelection.text();
-		
-		// create a new link and add to watched links
-		var link = HyperlinkService.toString($scope.link);
-		var idx = BMApp.utils.remove("id", $scope.link.id, $scope.hyperlinks);
-		$scope.hyperlinks.push($scope.link);
-		
-		// manipulate the text selection
-		$scope.textSelection.html(link);
-	};
-	
-
 	$scope.applySettings = function() {
 		for (var i in $scope.element) {
 			jE.attr(i, $scope.element[i]);

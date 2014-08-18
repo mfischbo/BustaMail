@@ -24,6 +24,8 @@ import de.mfischbo.bustamail.landingpage.dto.LandingPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
 
 @RestController
@@ -61,6 +63,24 @@ public class RestLandingPageController extends BaseApiController {
 	public void deleteLandingPage(@PathVariable("id") UUID id) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(id);
 		service.deleteLandingPage(p);
+	}
+	
+	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
+	public VersionedContentDTO getRecentVersionedContent(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
+		LandingPage p = service.getLandingPageById(lpId);
+		checkOnNull(p);
+		return asDTO(service.getRecentContentVersionByPage(p), VersionedContentDTO.class);
+	}
+	
+	@RequestMapping(value = "/{id}/content", method = RequestMethod.POST)
+	public VersionedContentDTO saveContent(@PathVariable("id") UUID lpId, @RequestBody VersionedContentDTO dto) throws EntityNotFoundException {
+		LandingPage p = service.getLandingPageById(lpId);
+		checkOnNull(p);
+		
+		VersionedContent c = new VersionedContent();
+		c.setType(ContentType.HTML);
+		c.setContent(dto.getContent());
+		return asDTO(service.createContentVersion(p, c), VersionedContentDTO.class);
 	}
 	
 	@RequestMapping(value = "/{id}/statics", method = RequestMethod.GET)

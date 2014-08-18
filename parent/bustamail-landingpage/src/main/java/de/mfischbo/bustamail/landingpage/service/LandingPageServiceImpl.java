@@ -131,6 +131,18 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 			return null;
 		else return result.getContent().get(0);
 	}
+	
+	
+	@Override
+	public VersionedContent createContentVersion(LandingPage page, VersionedContent content) {
+		User current = (User) auth.getPrincipal();
+		
+		content.setMailingId(page.getId());
+		content.setDateCreated(DateTime.now());
+		content.setUserCreated(current);
+		content.setType(ContentType.HTML);
+		return vcRepo.saveAndFlush(content);
+	}
 
 	@Override
 	public List<StaticPage> getStaticPages(LandingPage page) {

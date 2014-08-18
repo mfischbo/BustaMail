@@ -23,7 +23,7 @@ public interface LandingPageService {
 	void				deleteLandingPage(LandingPage page); 
 	
 	VersionedContent	getRecentContentVersionByPage(LandingPage page);
-	
+	VersionedContent	createContentVersion(LandingPage page, VersionedContent content);
 	
 	List<StaticPage>	getStaticPages(LandingPage page);
 	StaticPage			getStaticPageById(UUID id) throws EntityNotFoundException;

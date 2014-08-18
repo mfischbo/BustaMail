@@ -83,10 +83,29 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 			$scope.contentVersions = data;
 		});
 	});
-	
+
+	/**
+	 * Posts a message to the iframe containig the widget to be appended
+	 */
 	$scope.appendWidget = function(id) {
 		var w = BMApp.utils.find('id', id, $scope.widgets);
 		var m = { type : 'appendWidget', data : w };
 		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
-	}
+	};
+
+	/**
+	 * Posts a message to the iframe containing the widget to replace the current selected one
+	 */
+	$scope.replaceElement = function(id) {
+		var w = BMApp.utils.find("id", id, $scope.widgets);
+		var m = { type : 'replaceWidget', data : w };
+		dFrame.contentWindow.postMessage(m , "http://localhost/bustamail");
+	};
+	
+	$scope.saveContents = function() {
+		console.log("Saving document");
+		var m = { type : 'saveDocument'};
+		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
+	};
+	
 }]);
