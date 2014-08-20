@@ -31,15 +31,20 @@ public class RestLPFormController extends BaseApiController {
 		LandingPage p = service.getLandingPageById(pageId);
 		return asDTO(p.getForms(), LPFormDTO.class);
 	}
-	
+
+	@RequestMapping(value = "/{lpid}/forms/{fid}", method = RequestMethod.GET)
+	public LPFormDTO getFormById(@PathVariable("lpid") UUID pageId, @PathVariable("fid") UUID formId) throws EntityNotFoundException {
+		return asDTO(service.getFormById(formId), LPFormDTO.class);
+	}
+
 	@RequestMapping(value = "/{lpid}/forms", method = RequestMethod.POST)
 	public LPFormDTO createForm(@PathVariable("lpid") UUID pageId, @RequestBody LPFormDTO dto) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(pageId);
 		return asDTO(service.createForm(p, dto), LPFormDTO.class);
 	}
 	
-	@RequestMapping(value = "/{lpid}/forms/{fid}", method = RequestMethod.GET)
-	public LPFormDTO getFormById(@PathVariable("lpid") UUID pageId, @PathVariable("fid") UUID formId, @RequestBody LPFormDTO dto) throws EntityNotFoundException {
+	@RequestMapping(value = "/{lpid}/forms/{fid}", method = RequestMethod.PATCH)
+	public LPFormDTO updateForm(@PathVariable("lpid") UUID pageId, @PathVariable("fid") UUID formId, @RequestBody LPFormDTO dto) throws EntityNotFoundException {
 		return asDTO(service.updateForm(dto), LPFormDTO.class);
 	}
 	

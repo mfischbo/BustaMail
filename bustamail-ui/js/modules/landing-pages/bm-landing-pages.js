@@ -191,6 +191,20 @@ BMApp.LandingPages.controller('LPDetailsController',
 		});
 	};
 	
+	$scope.updateForm = function() {
+		$http({
+			method:		"PATCH",
+			url:		"/api/landingpages/" + $scope.lp.id + "/forms/" + $scope.form.id,
+			data:		$scope.form,
+			headers:	{"Content-Type" : "application/json"}
+		}).success(function(data) {
+			BMApp.utils.remove('id', data.id, $scope.forms);
+			$scope.forms.push(data);
+			BMApp.alert("Das Formular wurde erfolgreich gespeichert");
+			$scope.unfocusForm();
+		});
+	};
+	
 	
 	$scope.createField = function() {
 		$scope.field = {};
@@ -229,7 +243,7 @@ BMApp.LandingPages.controller('LPDetailsController',
 	};
 
 	$scope.deleteForm = function(id) {
-		BMApp.confim("Soll das Formular wirklich entfernt werden?", function() {
+		BMApp.confirm("Soll das Formular wirklich entfernt werden?", function() {
 			$http({
 				method:		"DELETE",
 				url:		'/api/landingpages/' + $scope.lp.id + '/forms/' + id

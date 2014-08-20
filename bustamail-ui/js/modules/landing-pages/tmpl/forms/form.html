@@ -113,7 +113,8 @@
 		<div class="col-md-12">
 			<div class="pull-right">
 				<button class="btn btn-danger" data-ng-click="unfocusForm()" data-ng-if="!field">Abbrechen</button>			
-				<button class="btn btn-success" data-ng-click="createForm()" data-ng-if="!field">Formular speichern</button>
+				<button class="btn btn-success" data-ng-click="createForm()" data-ng-if="!field && !form.id">Formular anlegen</button>
+				<button class="btn btn-success" data-ng-click="updateForm()" data-ng-if="!field && form.id">Formular speichern</button>
 			</div>
 		</div>
 	</div>
