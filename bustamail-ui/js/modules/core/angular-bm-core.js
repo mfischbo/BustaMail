@@ -158,6 +158,10 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 			templateUrl :	'./js/modules/landing-pages/tmpl/landing-pages/edit.html',
 			controller	:	'LPEditController'
 		})
+		.when("/landingpages/:id/details", {
+			templateUrl	:	'./js/modules/landing-pages/tmpl/landing-pages/details.html',
+			controller	:	'LPDetailsController'
+		})
 		
 		
 		// Other stuff

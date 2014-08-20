@@ -40,7 +40,13 @@ public class RestLandingPageController extends BaseApiController {
 			@PageableDefault(size=30, value=0) Pageable page) {
 		return asDTO(service.getLandingPagesByOwner(owner, page), LandingPageIndexDTO.class, page);
 	}
-	
+
+	/**
+	 * Returns the landing page by the specified id
+	 * @param id The id of the landing page
+	 * @return The landing page
+	 * @throws EntityNotFoundException If no such landing page exists
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public LandingPageDTO getLandingPageById(@PathVariable("id") UUID id) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(id);
@@ -55,8 +61,8 @@ public class RestLandingPageController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public LandingPageIndexDTO updateLandingPage(@RequestBody LandingPageIndexDTO page) throws EntityNotFoundException {
-		return asDTO(service.updateLandingPage(page), LandingPageIndexDTO.class);
+	public LandingPageDTO updateLandingPage(@RequestBody LandingPageDTO page) throws EntityNotFoundException {
+		return asDTO(service.updateLandingPage(page), LandingPageDTO.class);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

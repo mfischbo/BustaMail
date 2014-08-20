@@ -1,10 +1,15 @@
 package de.mfischbo.bustamail.landingpage.domain;
 
+import java.util.List;
+
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -27,10 +32,25 @@ public class LandingPage extends OwnedBaseDomain {
 	@Basic
 	@Column(length = 4096)
 	private String description;
+
+	@Basic
+	private DateTime	dateCreated;
+
+	@Basic
+	private DateTime	dateModified;
+
+	@Basic
+	private DateTime	datePublished;
 	
 	@ManyToOne
 	@JoinColumn(name = "Template_id", referencedColumnName = "id", nullable=false)
 	private Template template;
+
+	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<StaticPage>	staticPages;
+	
+	@OneToMany(mappedBy = "landingPage", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<LPForm>		forms;
 	
 	@ManyToOne
 	@JoinColumn(name = "UserCreated_id", referencedColumnName = "id", nullable=false)
@@ -44,15 +64,7 @@ public class LandingPage extends OwnedBaseDomain {
 	@JoinColumn(name = "UserPublished_id", referencedColumnName = "id", nullable = true)
 	private User		userPublished;
 	
-	@Basic
-	private DateTime	dateCreated;
 
-	@Basic
-	private DateTime	dateModified;
-
-	@Basic
-	private DateTime	datePublished;
-	
 	public String getName() {
 		return name;
 	}
@@ -124,8 +136,20 @@ public class LandingPage extends OwnedBaseDomain {
 	public void setDatePublished(DateTime datePublished) {
 		this.datePublished = datePublished;
 	}
+	
+	public List<StaticPage> getStaticPages() {
+		return staticPages;
+	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public void setStaticPages(List<StaticPage> staticPages) {
+		this.staticPages = staticPages;
+	}
+
+	public List<LPForm> getForms() {
+		return forms;
+	}
+
+	public void setForms(List<LPForm> forms) {
+		this.forms = forms;
 	}
 }

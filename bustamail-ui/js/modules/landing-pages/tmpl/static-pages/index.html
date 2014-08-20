@@ -1,0 +1,40 @@
+<div class="row">
+	<div class="col-md-12">
+		<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Beschreibung</th>
+				<th>Angelegt am</th>
+				<th>Von</th>
+				<th>&nbsp;</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr data-ng-if="!staticPages || staticPages.length == 0">
+				<td colspan="5" style="text-align:center">Bisher wurden noch keine statischen Seiten angelegt</td>
+			</tr>
+			<tr data-ng-repeat="s in staticPages">
+				<td>{{s.name}}</td>
+				<td>{{s.description}}</td>
+				<td>{{s.dateCreated | date: "dd.MM.yyyy HH:mm"}}</td>
+				<td>{{s.userCreated.firstName}} {{s.userCreated.lastName}}</td>
+				<td class="tools">
+					<a href="#/landingpages/{{s.id}}/edit"><span class="fa fa-pencil" title="Inhalt bearbeiten"></span></a>
+					<a href="javascript:void('');" data-ng-click="deleteStaticPage(s.id)" title="Entfernen"><span class="fa fa-trash-o"></span></a>	
+				</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="pull-right">
+			<button type="button" class="btn btn-primary" data-ng-click="showStaticCreate()">
+				<span class="fa fa-plus">&nbsp;Neue Anlegen</span>
+			</button>
+		</div>
+	</div>
+</div>

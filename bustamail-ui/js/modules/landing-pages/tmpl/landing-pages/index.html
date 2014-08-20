@@ -24,7 +24,9 @@
 						<td>{{p.name}}</td>
 						<td>{{p.description}}</td>
 						<td class="tools">
+							<a href="#/landingpages/{{p.id}}/details" title="Details bearbeiten"><span class="fa fa-pencil-square"></span></a>
 							<a href="#/landingpages/{{p.id}}/edit" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
+							<a href="javascript:void('');" title="Entfernen" data-ng-click="deleteLandingPage(p.id)"><span class="fa fa-trash-o"></span></a>
 						</td>
 					</tr>
 				</tbody>
