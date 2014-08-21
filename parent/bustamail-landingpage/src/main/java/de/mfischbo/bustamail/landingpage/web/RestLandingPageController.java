@@ -1,6 +1,5 @@
 package de.mfischbo.bustamail.landingpage.web;
 
-import java.util.Collection;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -18,11 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import de.mfischbo.bustamail.common.web.BaseApiController;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
-import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.landingpage.dto.LandingPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.LandingPageIndexDTO;
-import de.mfischbo.bustamail.landingpage.dto.StaticPageDTO;
-import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
@@ -88,7 +84,15 @@ public class RestLandingPageController extends BaseApiController {
 		c.setContent(dto.getContent());
 		return asDTO(service.createContentVersion(p, c), VersionedContentDTO.class);
 	}
+
+	@RequestMapping(value = "/{id}/preview", method = RequestMethod.PUT)
+	public void publishPreview(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
+		LandingPage page = service.getLandingPageById(pageId);
+		service.publishPreview(page);
+	}
 	
+	
+	/*
 	@RequestMapping(value = "/{id}/statics", method = RequestMethod.GET)
 	public Collection<StaticPageIndexDTO> getStaticPages(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
@@ -102,4 +106,5 @@ public class RestLandingPageController extends BaseApiController {
 		retval.setContent(asDTO(service.getRecentContentVersionByPage(page), VersionedContentDTO.class));
 		return retval;
 	}
+	*/
 }

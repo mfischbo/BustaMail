@@ -1,100 +1,20 @@
 BMApp.Editor = angular.module("BMEditorModule", ['ui.bootstrap', 'MediaModule']);
 
-BMApp.Editor.service("HyperlinkService", [function() {
-
-	return {
-		newHyperlink 	: function(defaults) {
-			return {
-				id				:	BMApp.utils.UUID(),
-				href			:	'',
-				textContent		:	'',
-				enableTracking	:	BMApp.utils.convertString(defaults.linkTrackingEnabled) || false,
-				textUnderline	:	BMApp.utils.convertString(defaults.linksUnderlined) || false,
-				color			:	defaults.defaultLinkColor || "#ff0000",
-				isWorking		:	false
-			}
-		},
-	
-		toString		: function(link) {
-			var a = $.parseHTML("<a>" + link.textContent + "</a>");
-			a = $(a[0]);
-			a.attr("data-link-id", link.id);
-			a.attr("href", link.href);
-			if (!link.enableTracking)
-				a.addClass("bm-disable-tracking");
-			if (link.textUnderline)
-				a.css("text-decoration", "underline");
-			else
-				a.css("text-decoration", "none");
-			if (link.color)
-				a.css("color", link.color);
-			
-			// flag as managed link
-			a.addClass("bm-hyperlink");
-			
-			var retval = $("<div>").append(a).clone().html();
-			return retval;
-		},
-		
-		parseNode		: function(node) {
-			var retval = {};
-			
-			// uuid of the link. if none found create a new one
-			if (node.attr("data-link-id"))
-				retval.id = node.attr("data-link-id");
-			else {
-				node.attr("data-link-id", BMApp.utils.UUID());
-				retval.id = node.attr("data-link-id");
-			}
-			
-			// href
-			if (node.attr("href").length > 0)
-				retval.href = node.attr("href");
-			
-			if (node.text().length > 0)
-				retval.textContent = node.text();
-			
-			if (!node.hasClass("bm-disable-tracking"))
-				retval.enableTracking = true;
-			
-			// check if the current link color
-			if (node.css("color")) {
-				if (node.css("color").indexOf("rgb") > -1)
-					retval.color = BMApp.cssUtils.rgb2Hex(node.css("color"));
-				else
-					retval.color = "#" + node.css("color");
-			}
-			if (node.css("text-decoration")) {
-				if (node.css("text-decoration").indexOf("underline") > -1)
-					retval.textUnderline = true;
-			}
-			return retval;
-		}
-	};
-}]);
-
 BMApp.Editor.controller("EditorIndexController", 
-		['$scope', '$http', '$routeParams', '$sce', 'HyperlinkService',
+		['$scope', '$http', '$routeParams', '$sce',
           function($scope, $http, $routeParams, $sce, HyperlinkService) {
 
 
 	// The Mailing in question + initialization
-	$scope.mailing = undefined;
+	$scope.document = undefined;
 	
-	// HTML content of the mailing
+	// HTML content of the document 
 	$scope.html    = undefined;
 	
 	// the tinymce instance running
 	var mce = undefined;
 	
-	$scope.element = undefined;
-	$scope.textSelection = undefined;
-
-	$scope.link = {};
-	$scope.hyperlinks = [];
-	
-	// the underlaying jQuery element when an element is marked as selected
-	var jE		 = undefined;
+	var jE = undefined;
 	
 	// the iframe element
 	var dFrame = $("#documentFrame");
@@ -102,7 +22,7 @@ BMApp.Editor.controller("EditorIndexController",
 	// The actual editor
 	var nodeEdit   = undefined;
 	
-	// initialize the mailing and the widgets
+	// initialize the document and the widgets
 	var id = window.location.href.split('=')[1];
 	
 	$http.get("/api/landingpages/" + id).success(function(data) {
@@ -110,24 +30,20 @@ BMApp.Editor.controller("EditorIndexController",
 	});
 	
 	/**
-	 * Initializes the editor with the data from a given mailing
+	 * Initializes the editor with the data from a given document 
 	 */
 	$scope.initializeDocument = function(data) {
-		$scope.mailing = data;
-		$scope.html = $sce.trustAsHtml($scope.mailing.htmlContent.content);
+		$scope.document = data;
+		$scope.html = $sce.trustAsHtml($scope.document.htmlContent.content);
 
 		// fetch the full graph for the given template
-		$http.get("/api/templates/templates/" + $scope.mailing.template.id).success(function(data) {
+		$http.get("/api/templates/templates/" + $scope.document.template.id).success(function(data) {
 
 			// create the editor
 			// bind editor after content is inserted into DOM
 			nodeEdit = new BMNodeEdit(data);
 			window.setTimeout(function() {
 				nodeEdit.setup();
-				// find all managed hyperlinks in the document
-				$("a.bm-hyperlink").each(function() {
-					$scope.hyperlinks.push(HyperlinkService.parseNode($(this)));
-				});
 			}, 1000);
 	
 			// bind events from the outside world
@@ -146,9 +62,19 @@ BMApp.Editor.controller("EditorIndexController",
 					$scope.rollbackTo(e.data);
 				
 			}, false);
-		});
+			
+			if (mce) mce.remove();
 		
+			// setup tinymce
+			mce = tinymce.init({
+				selector : '[contenteditable="true"]',
+				inline   : true,
+				toolbar	 :	'undo redo | styleselect | bold italic underline',
+				plugins  :  ['link'],
+				link_list : $scope.getMCELinkList()
+			});	
 
+		});
 	};
 
 
@@ -168,7 +94,7 @@ BMApp.Editor.controller("EditorIndexController",
 			content : content 
 		};
 		
-		$http.post("/api/landingpages/" + $scope.mailing.id + "/content", d).success(function(data) {
+		$http.post("/api/landingpages/" + $scope.document.id + "/content", d).success(function(data) {
 			BMApp.alert("Inhalt erfolgreich gespeichert", 'success');
 		});
 	};
@@ -178,36 +104,18 @@ BMApp.Editor.controller("EditorIndexController",
 	 * This will reinitialize the editor.
 	 */
 	$scope.rollBackTo = function(contentId) {
-		$http.get("/api/mailings/" + $scope.mailing.id + "/content/" + contentId).success(function(data) {
+		$http.get("/api/landingpages/" + $scope.document.id + "/content/" + contentId).success(function(data) {
 			// reinit the editor
 			$scope.html = $sce.trustAsHtml(data.content);
 			nodeEdit.destroy();
-			nodeEdit = new BMNodeEdit($scope.mailing.template);
+			nodeEdit = new BMNodeEdit($scope.document.template);
 			BMApp.showSpinner();
 			window.setTimeout(function() {
 				nodeEdit.setup();
-			
-				// find all managed hyperlinks in the document
-				$("a.bm-hyperlink").each(function() {
-					$scope.hyperlinks.push(HyperlinkService.parseNode($(this)));
-				});
-	
 				BMApp.hideSpinner();
 				BMApp.alert("Version wiederhergestellt");
 			}, 1000);
 		});
-	};
-	
-	/**
-	 * Sends a preview of this mailing
-	 */
-	$scope.sendPreview = function() {
-		/*
-		$http.put("/api/mailings/" + $scope.mailing.id + "/preview").success(function(data) {
-			BMApp.alert("Preview versendet", 'success');
-		});
-		*/
-		// TODO: Requires reimplementation for landing pages
 	};
 	
 
@@ -226,16 +134,18 @@ BMApp.Editor.controller("EditorIndexController",
 	});
 	
 	$(document).on("_bmTextSelection", function(e, s) {
-		if (mce) 
-			mce.remove();
-		// setup tinymce
-		mce = tinymce.init({
-			selector : '.bm-fragment',
-			inline   : true,
-			toolbar	 :	'fullscreen | undo redo | styleselect | bold italic underlined',
-			plugins  :  'fullscreen'
-		});
+		console.log("Text selection occured");
+		
 	});
+	
+	$scope.getMCELinkList = function() {
+		var retval = [];
+		for (var i in $scope.document.staticPages) {
+			var p = $scope.document.staticPages[i];
+			retval.push({title : p.name, value : p.id})
+		}
+		return retval;
+	};
 
 	$(document).on("_bmNoTextSelection", function() {
 		$scope.textSelection = undefined;

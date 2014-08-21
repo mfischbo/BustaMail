@@ -24,6 +24,7 @@ public interface LandingPageService {
 	LandingPage			createLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException;
 	LandingPage			updateLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException;
 	void				deleteLandingPage(LandingPage page); 
+	void				publishPreview(LandingPage page);
 	
 	VersionedContent	getRecentContentVersionByPage(LandingPage page);
 	VersionedContent	createContentVersion(LandingPage page, VersionedContent content);

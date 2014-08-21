@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,8 @@ import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.repo.LPFormRepo;
 import de.mfischbo.bustamail.landingpage.repo.LandingPageRepo;
 import de.mfischbo.bustamail.landingpage.repo.StaticPageRepo;
+import de.mfischbo.bustamail.landingpage.service.LandingPagePublisher.Mode;
+import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.security.service.SecurityService;
@@ -49,6 +52,9 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	SecurityService		secService;
 	
 	@Inject
+	MediaService		mediaService;
+	
+	@Inject
 	LandingPageRepo		lpRepo;
 	
 	@Inject
@@ -62,6 +68,9 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 
 	@Inject
 	VersionedContentRepository	vcRepo;
+
+	@Inject
+	Environment			env;
 	
 	@Override
 	public Page<LandingPage> getLandingPagesByOwner(UUID owner, Pageable page) {
@@ -126,6 +135,12 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	@Override
 	public void deleteLandingPage(LandingPage page) {
 		lpRepo.delete(page);
+	}
+	
+	@Override
+	public void publishPreview(LandingPage page) {
+		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.PREVIEW);
+		publisher.publish();
 	}
 
 	@Override

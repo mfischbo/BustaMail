@@ -19,11 +19,12 @@ BMNodeEdit.prototype.setup = function() {
 	// create image controller
 	this.imageControl = new BMImageControl(this.editor);
 	this.imageControl.setup();
+
 	
 	// create the text selection controll
 	this.textSelectionControl = new BMTextSelectionControl(this.editor);
 	this.textSelectionControl.setup();
-
+	
 	// append stylesheets and scripts to the editor
 	for (var i in this.template.resources) {
 		var r = this.template.resources[i];

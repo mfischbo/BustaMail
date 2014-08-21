@@ -26,6 +26,15 @@ BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function(
 			});
 		});
 	};
+	
+	/**
+	 * Creates a preview of the landing page
+	 */
+	$scope.createPreview = function(id) {
+		$http.put("/api/landingpages/" + id + "/preview").success(function() {
+			window.open("http://previews.localhost/preview_" + id + "/index.html", "_blank");
+		});
+	};
 }]);
 
 
