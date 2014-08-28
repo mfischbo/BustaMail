@@ -3,6 +3,7 @@ package de.mfischbo.bustamail.template.dto;
 import java.util.HashMap;
 import java.util.List;
 
+import de.mfischbo.bustamail.media.dto.MediaDTO;
 import de.mfischbo.bustamail.media.dto.MediaImageDTO;
 
 public class TemplateDTO extends TemplateIndexDTO {
@@ -13,6 +14,7 @@ public class TemplateDTO extends TemplateIndexDTO {
 	private HashMap<String, String>		settings = new HashMap<>();
 	private List<WidgetDTO>				widgets;
 	private List<MediaImageDTO> 		images;
+	private List<MediaDTO>				resources;
 
 	public String getSource() {
 		return source;
@@ -36,6 +38,14 @@ public class TemplateDTO extends TemplateIndexDTO {
 
 	public void setImages(List<MediaImageDTO> images) {
 		this.images = images;
+	}
+
+	public List<MediaDTO> getResources() {
+		return resources;
+	}
+
+	public void setResources(List<MediaDTO> resources) {
+		this.resources = resources;
 	}
 
 	public HashMap<String, String> getSettings() {

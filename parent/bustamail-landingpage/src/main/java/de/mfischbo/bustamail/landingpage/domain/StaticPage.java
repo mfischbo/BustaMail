@@ -7,12 +7,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.joda.time.DateTime;
+
 import de.mfischbo.bustamail.common.domain.BaseDomain;
+import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.template.domain.Template;
 
 @Entity
 @Table(name = "LandingPages_StaticPage")
-public class StaticPage extends BaseDomain {
+public class StaticPage extends BaseDomain implements HTMLPage {
 
 	private static final long serialVersionUID = 8737051906342406125L;
 
@@ -22,6 +25,20 @@ public class StaticPage extends BaseDomain {
 	@Basic
 	@Column(length = 4096)
 	private String description;
+	
+	@Basic
+	private DateTime	dateCreated;
+	
+	@Basic
+	private DateTime	dateModified;
+	
+	@ManyToOne
+	@JoinColumn(name = "UserCreated_id", referencedColumnName = "id", nullable = false)
+	private User		userCreated;
+	
+	@ManyToOne
+	@JoinColumn(name = "UserModified_id", referencedColumnName = "id", nullable = false)
+	private User		userModified;
 	
 	@ManyToOne
 	@JoinColumn(name = "LandingPage_id", referencedColumnName = "id", nullable = false)
@@ -45,6 +62,38 @@ public class StaticPage extends BaseDomain {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public DateTime getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(DateTime dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public DateTime getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(DateTime dateModified) {
+		this.dateModified = dateModified;
+	}
+
+	public User getUserCreated() {
+		return userCreated;
+	}
+
+	public void setUserCreated(User userCreated) {
+		this.userCreated = userCreated;
+	}
+
+	public User getUserModified() {
+		return userModified;
+	}
+
+	public void setUserModified(User userModified) {
+		this.userModified = userModified;
 	}
 
 	public LandingPage getParent() {

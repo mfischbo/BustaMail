@@ -1,0 +1,34 @@
+<div class="row">
+	<div class="col-md-12">
+		<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>&nbsp;</th>
+			</tr>	
+		</thead>
+		<tbody>
+			<tr data-ng-if="!forms || forms.length == 0">
+				<td colspan="2" style="text-align:center">Derzeit sind noch keine Formulare angelegt</td>
+			</tr>	
+			<tr data-ng-repeat="f in forms">
+				<td>{{f.name}}</td>
+				<td class="tools">
+					<a href="javascript:void('')" data-ng-click="focusForm(f.id)"><span class="fa fa-pencil"></span></a>
+					<a href="javascript:void('');" data-ng-click="deleteForm(f.id)"><span class="fa fa-trash-o"></span></a>
+				</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="pull-right">
+			<button type="button" class="btn btn-primary" data-ng-click="showFormCreate()">
+				<span class="fa fa-plus">&nbsp;Neues Anlegen</span>
+			</button>
+		</div>
+	</div>
+</div>

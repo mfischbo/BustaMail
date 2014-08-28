@@ -1,0 +1,34 @@
+<h3>&quot;{{lp.name}}&quot; bearbeiten</h3>
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Details zu {{lp.name}}
+			</div>
+			
+			<div class="panel-body">
+				<ul class="nav nav-tabs">
+					<li class="active">	<a data-target="#details" data-toggle="tab">Details</a></li>
+					<li>				<a data-target="#statics" data-toggle="tab">Statische Seiten</a></li>
+					<li>				<a data-target="#forms" data-toggle="tab">Formulare</a></li>
+				</ul>
+				
+				<div class="tab-content">
+					<div class="tab-pane active" id="details">
+						<div data-ng-include src="'./js/modules/landing-pages/tmpl/landing-pages/site-data.html'"></div>
+					</div>
+					
+					<div class="tab-pane" id="statics">
+						<div data-ng-include data-ng-if="spViewMode == 'TABLE'" src="'./js/modules/landing-pages/tmpl/static-pages/index.html'"></div>
+						<div data-ng-include data-ng-if="spViewMode == 'FORM'" src="'./js/modules/landing-pages/tmpl/static-pages/form.html'"></div>
+					</div>
+					
+					<div class="tab-pane" id="forms">
+						<div data-ng-include data-ng-if="formViewMode == 'TABLE'" src="'./js/modules/landing-pages/tmpl/forms/index.html'"></div>
+						<div data-ng-include data-ng-if="formViewMode == 'FORM'" src="'./js/modules/landing-pages/tmpl/forms/form.html'"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

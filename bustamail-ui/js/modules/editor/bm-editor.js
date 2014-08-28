@@ -1,4 +1,4 @@
-BMApp.Editor = angular.module("BMEditorModule", ['ui.bootstrap', 'MediaModule']);
+BMApp.Editor = angular.module("BMEditorModule", ['MediaModule']);
 
 BMApp.Editor.service("HyperlinkService", [function() {
 
@@ -74,8 +74,8 @@ BMApp.Editor.service("HyperlinkService", [function() {
 }]);
 
 BMApp.Editor.controller("EditorIndexController", 
-		['$scope', '$http', '$routeParams', '$sce', '$modal', 'HyperlinkService',
-          function($scope, $http, $routeParams, $sce, $modal, HyperlinkService) {
+		['$scope', '$http', '$routeParams', '$sce', 'HyperlinkService',
+          function($scope, $http, $routeParams, $sce, HyperlinkService) {
 
 
 	// The applicable template widgets
@@ -122,7 +122,7 @@ BMApp.Editor.controller("EditorIndexController",
 			
 			// create the editor
 			// bind editor after content is inserted into DOM
-			nodeEdit = new BMNodeEdit($scope.mailing.template.settings);
+			nodeEdit = new BMNodeEdit($scope.mailing.template);
 			BMApp.showSpinner();
 			window.setTimeout(function() {
 				nodeEdit.setup();
@@ -176,7 +176,7 @@ BMApp.Editor.controller("EditorIndexController",
 			// reinit the editor
 			$scope.html = $sce.trustAsHtml(data.content);
 			nodeEdit.destroy();
-			nodeEdit = new BMNodeEdit($scope.mailing.template.settings);
+			nodeEdit = new BMNodeEdit($scope.mailing.template);
 			BMApp.showSpinner();
 			window.setTimeout(function() {
 				nodeEdit.setup();

@@ -4,19 +4,19 @@
 	<div class="panel-group" id="editor-accordion">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#widgetTab" style="color:#fff;cursor:pointer;">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#widgetTab">
 					Widgets
 				</a>
 			</div>
 			<div id="widgetTab" class="panel-collapse collapse">
 				<div class="panel-body">
 					<div data-ng-repeat="w in widgets">
-						<button class="btn btn-info btn-xs" data-ng-click="appendWidget(w.id)">
+						<a href="javascript:void('');" class="pull-right" data-ng-click="appendWidget(w.id)" title="Widget einfügen">
 							<span class="fa fa-plus"></span>
-						</button>
-						<button class="btn btn-info btn-xs" data-ng-click="replaceElement(w.id)" data-ng-if="w.nestable && element">
+						</a>
+						<a href="javascript:void('');" class="pull-right" data-ng-click="replaceElement(w.id)" data-ng-if="w.nestable && element" title="Markiertes Element ersetzen">
 							<span class="fa fa-refresh"></span>
-						</button>
+						</a>
 						{{w.name}}<br/>
 						<small>{{w.description}}</small>
 						<hr/>
@@ -27,7 +27,25 @@
 		
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#versionsTab" style="color:#fff;cursor:pointer;">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#resourcesTab">
+					CSS / JS Files	
+				</a>
+			</div>
+			<div id="resourcesTab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div data-ng-repeat="r in mailing.template.resources">
+						{{r.name}}
+						<a href="javascript:void('');" data-ng-click="editResource(r.id)" class="pull-right" title="Inhalt bearbeiten">
+							<span class="fa fa-pencil" data-ng-click="editResource(r.id)"></span>
+						</a>
+					</div>
+				</div>
+			</div>	
+		</div>
+	
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#versionsTab">
 					Versionen
 				</a>
 			</div>
@@ -38,14 +56,15 @@
 						{{v.dateCreated|date:'dd.MM.yyyy HH:mm:ss'}}<br/>
 						von {{v.userCreated.firstName}} {{v.userCreated.lastName}}<br/>
 						</small>
-						<button class="btn btn-info btn-xs pull-right" data-ng-click="rollBackTo(v.id)" title="Wiederherstellen">
+						<a href="javascript:void('');" class="pull-right" data-ng-click="rollBackTo(v.id)" title="Wiederherstellen">
 							<span class="fa fa-refresh"></span>
-						</button>
+						</a>
 						<div class="clearfix"></div><br/>
 					</div>
 				</div>
 			</div>
 		</div>
+	
 	</div>
 	
 	<button class="btn btn-success btn-sm" data-ng-click="saveContents()">Speichern</button>
@@ -59,7 +78,6 @@
 	</div>
 	<div id="editor-content" data-ng-bind-html="html"></div>
 </div>
-
 
 <div class="col-md-2">
 	<div data-ng-show="textSelection">
@@ -146,3 +164,9 @@
 	</form>
 	</div>
 </div>
+
+<!-- 
+<div id="resourceConsole">
+	Hello world
+</div>
+-->

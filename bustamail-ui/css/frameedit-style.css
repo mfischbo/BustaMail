@@ -1,0 +1,14 @@
+#slider {
+	position:absolute;
+	width:900px;
+	padding:24px;
+	margin-left:-915px;
+	margin-top:15px;
+	visibility:hidden;
+	min-height:600px;
+	background-color:#fff;
+	z-index:9999;
+	-webkit-box-shadow: 7px 7px 5px 0px rgba(50, 50, 50, 0.08);
+	-moz-box-shadow:    7px 7px 5px 0px rgba(50, 50, 50, 0.08);
+	box-shadow:         7px 7px 5px 0px rgba(50, 50, 50, 0.08);
+}

@@ -69,12 +69,18 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	$scope.widgets  = undefined;
 	
 	$scope.templateFiles = [];		// contains images marked for upload
+	$scope.templateResources = [];	// contains js/css files for the template
 	
 	var		_tCMEditor;	// instance for template source code
 	var		_wCMEditor; // instance for widget source code
 	
 	$http.get("/api/templates/packs/" + $routeParams.id).success(function(data) {
 		$scope.pack = data;
+		for (var i in $scope.pack.templates) {
+			for (var k in $scope.pack.templates[i].resources)
+				if ($scope.pack.templates[i].resources[k].mimetype == 'text/css')
+					$scope.pack.templates[i].resources[k].iconClass = 'flaticon-css5';
+		}
 	});
 	
 	$scope.setupCodeMirror = function(_editor) {
@@ -143,6 +149,11 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		for (var i in $files)
 			$scope.templateFiles.push($files[i]);
 	};
+
+	$scope.onFileSelectResource = function($files) {
+		for (var i in $files)
+			$scope.templateResources.push($files[i]);
+	};
 	
 	$scope.uploadTemplateImages = function() {
 		for (var i in $scope.templateFiles) {
@@ -160,6 +171,24 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		}
 	};
 	
+	$scope.uploadTemplateResources = function() {
+		for (var i in $scope.templateResources) {
+			BMApp.showSpinner();
+			$scope.upload = $upload.upload({
+				url		:	"/api/templates/templates/" + $scope.template.id + "/resources",
+				method	:	"POST",
+				file	:	$scope.templateResources[i]
+			}).success(function(data) {
+				$scope.template.resources.push(data);
+				BMApp.utils.remove("name", data.name, $scope.templateResources);
+				if ($scope.templateResources.length == 0)
+					BMApp.hideSpinner();
+			});
+		}
+	};
+	
+	
+	
 	$scope.deleteTemplateImage = function(id) {
 		BMApp.confirm("Soll das Bild wirklich aus dem Template entfernt werden?", function() {
 			$http({
@@ -167,6 +196,17 @@ BMApp.Templates.controller("TemplatePacksEditController",
 				url		:	"/api/templates/templates/" + $scope.template.id + "/images/" + id
 			}).success(function() {
 				BMApp.utils.remove("id", id, $scope.template.images);
+			});
+		});
+	};
+	
+	$scope.deleteTemplateResource = function(id) {
+		BMApp.confirm("Soll die Datei wirklich aus dem Template entfernt werden?", function() {
+			$http({
+				method	:	"DELETE",
+				url		:	"/api/templates/templates/" + $scope.template.id + "/resources/" + id
+			}).success(function() {
+				BMApp.utils.remove("id", id, $scope.template.resources);
 			});
 		});
 	};

@@ -1,0 +1,121 @@
+<div class="row">
+	<div class="col-md-12">
+		<h4>Neues Formular anlegen</h4>
+	</div>
+</div>
+
+
+
+<form data-role="form">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="form-group">
+				<label>Name</label>
+				<input type="text" data-ng-model="form.name" class="form-control">
+			</div>
+			
+			<div class="form-group">
+				<label>Aktion nach erfolgreichem Übertragen</label>
+				<select data-ng-model="form.onSuccessAction" class="form-control">
+					<option value="NONE">Nichts tun</option>
+					<option value="REDIRECT">Weiterleitung</option>
+				</select>
+			</div>
+			
+			<div class="form-group" data-ng-if="form.onSuccessAction == 'REDIRECT'">
+				<label>Weiterleitungs Ziel</label>	
+				<select data-ng-model="form.redirectTarget" class="form-control">
+					<option value="" disabled>Statische Seite</option>
+					<option data-ng-repeat="s in staticPages" value="{{s.id}}">{{s.name}}</option>
+				</select><br/>Oder auf URL:<br/>
+				<input type="text" data-ng-model="form.redirectTarget" class="form-control" placeholder="http://www.example.com">
+			</div>
+		
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" data-ng-model="form.conversion">
+					Übermittlung wird als conversion gerechnet
+				</label>
+			</div>	
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">	
+			
+			<h4>Formular Felder</h4>
+			<div class="col-md-4">
+				<table class="table">
+				<thead>
+					<tr>
+						<th>Name des Feldes</th>
+						<th>Pflichtfeld</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-ng-if="form.fields.length == 0">
+						<td colspan="3" style="text-align:center;">Bisher sind noch keine Felder angelegt</td>
+					</tr>
+					<tr data-ng-repeat="f in form.fields">
+						<td>{{f.name}}</td>
+						<td>
+							<span data-ng-if="f.required">Ja</span>
+							<span data-ng-if="!f.required">Nein</span>
+						</td>
+						<td class="tools">
+							<a href="javascript:void('');" data-ng-click="focusField(f)"><span class="fa fa-pencil"></span></a>
+							<a href="javascript:void('');" data-ng-click="purgeField(f)"><span class="fa fa-trash-o"></span></a>
+						</td>
+					</tr>
+				</tbody>
+				</table>
+				<button class="btn btn-primary pull-right" data-ng-click="createField()"><span class="fa fa-plus">&nbsp;Neues Feld</span></button>
+			</div>
+		
+			<div class="col-md-8" data-ng-if="field">
+				<div class="form-group">
+					<label>Feldname</label>
+					<input type="text" data-ng-model="field.name" class="form-control">
+				</div>
+				
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" data-ng-model="field.required">
+						Pflichtfeld
+					</label>
+				</div>
+				
+				<div class="form-group" data-ng-if="field.required">
+					<label>Validierung als</label>
+					<select data-ng-model="field.validationType" class="form-control">
+						<option value="NOT_EMPTY">Darf nicht leer sein</option>
+						<option value="EMAIL">Muss E-Mail Format haben</option>
+						<option value="DATE">Muss Datum sein</option>
+						<option value="INTEGER">Muss Ganzzahl sein</option>
+						<option value="FLOAT">Muss Kommazahl sein</option>
+						<option value="REGEXP">RegExp Ausdruck verwenden</option>
+					</select>
+				</div>
+				
+				<div class="form-group" data-ng-if="field.validationType == 'REGEXP'">
+					<label>Regulärer Ausdruck zur Validierung</label>
+					<input type="text" data-ng-model="field.regexp" class="form-control">	
+				</div>
+				
+				<div class="pull-right">
+					<button class="btn btn-danger" data-ng-click="unfocusField()">Abbrechen</button>	
+					<button class="btn btn-success" data-ng-click="pushField()">Übernehmen</button>
+				</div>	
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="pull-right">
+				<button class="btn btn-danger" data-ng-click="unfocusForm()" data-ng-if="!field">Abbrechen</button>			
+				<button class="btn btn-success" data-ng-click="createForm()" data-ng-if="!field && !form.id">Formular anlegen</button>
+				<button class="btn btn-success" data-ng-click="updateForm()" data-ng-if="!field && form.id">Formular speichern</button>
+			</div>
+		</div>
+	</div>
+</form>

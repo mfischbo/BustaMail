@@ -20,6 +20,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 
 @Entity
@@ -54,6 +55,14 @@ public class Template extends BaseDomain {
 		inverseJoinColumns 	= { @JoinColumn(name = "Media_id",    referencedColumnName = "id")}
 	)
 	private List<MediaImage>	images;
+	
+	
+	@ManyToMany
+	@JoinTable(name = "Templates_TemplateResources",
+		joinColumns			= { @JoinColumn(name = "Template_id", referencedColumnName = "id")},
+		inverseJoinColumns  = { @JoinColumn(name = "Media_id", 	  referencedColumnName = "id")}
+	)
+	private List<Media>			resources;
 
 	
 	@CollectionTable(name = "Templates_TemplateSettings")
@@ -115,5 +124,13 @@ public class Template extends BaseDomain {
 
 	public void setImages(List<MediaImage> images) {
 		this.images = images;
+	}
+
+	public List<Media> getResources() {
+		return resources;
+	}
+
+	public void setResources(List<Media> resources) {
+		this.resources = resources;
 	}
 }

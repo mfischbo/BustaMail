@@ -1,0 +1,40 @@
+<div class="row">
+	<div class="col-md-12">
+		<h3>Neue statische Seite anlegen</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<form data-role="form">
+			<div class="form-group">
+				<label>Name</label>
+				<input type="text" data-ng-model="staticPage.name" class="form-control">
+			</div>
+			
+			<div class="form-group">
+				<label>Beschreibung</label>
+				<textarea data-ng-model="staticPage.description" class="form-control"></textarea>
+			</div>
+			
+			<div class="form-group">
+				<label>Templates aus Organisations Einheit</label>
+				<div data-ou-selector data-select-as="staticPage.owner"></div>
+			</div>
+	
+			<div class="form-group">
+				<label>Template</label>
+				<select data-ng-model="staticPage.template" class="form-control" data-ng-options="t.id as t.name group by t.pack for t in templates"></select>
+			</div>	
+		</form>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="pull-right">
+			<button type="button" class="btn btn-danger" data-ng-click="cancelStaticCreate()">Abbrechen</button>
+			<button type="button" class="btn btn-success" data-ng-click="createStaticPage()">Anlegen</button>
+		</div>
+	</div>
+</div>

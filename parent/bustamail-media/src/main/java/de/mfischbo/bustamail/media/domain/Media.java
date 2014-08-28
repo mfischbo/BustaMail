@@ -88,4 +88,12 @@ public class Media extends OwnedBaseDomain {
 	public InputStream getDataStream() {
 		return new ByteArrayInputStream(this.data);
 	}
+	
+	@Transient
+	public String getExtension() {
+		if (this.name != null && this.name.contains(".")) {
+			return this.name.substring(this.name.lastIndexOf(".") +1);
+		}
+		return null;
+	}
 }

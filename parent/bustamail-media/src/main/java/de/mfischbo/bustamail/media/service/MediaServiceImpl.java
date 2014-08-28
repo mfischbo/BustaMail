@@ -96,15 +96,27 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	
 
 	@Override
-	public Media createMedia(Media media) throws EntityNotFoundException {
+	public Media createMedia(Media media) {
 		
 		String mimetype = tika.detect(media.getData()).toLowerCase();
+		if (mimetype.equals("text/plain")) {
+			if (media.getExtension().equalsIgnoreCase("css"))
+				mimetype = "text/css";
+			if (media.getExtension().equalsIgnoreCase("js"))
+				mimetype = "text/javascript";
+		}
 		media.setMimetype(mimetype);
 		
 		if (mimetype.startsWith("image")) {
 			return processImage(media);
 		} else {
-			return mRepo.saveAndFlush(media);
+			Media retval = mRepo.saveAndFlush(media);
+			try {
+				writeToDisk(retval, false);
+			} catch (IOException ex) {
+				log.error("Unable to write resource file to disk. Cause: " + ex.getMessage());
+			}
+			return retval;
 		}
 	}
 	
@@ -124,7 +136,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		return image;
 	}
 	
-	private void writeToDisk(MediaImage image, boolean includeVariants) throws IOException {
+	private void writeToDisk(Media image, boolean includeVariants) throws IOException {
 		File outputDir = new File(env.getProperty("de.mfischbo.bustamail.media.documentroot"));
 		if (!outputDir.exists())
 			outputDir.mkdirs();
@@ -134,9 +146,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		fout.write(image.getData());
 		fout.flush();
 		fout.close();
-		
-		if (includeVariants) {
-			for (MediaImage i : image.getVariants()) {
+	
+		if (includeVariants && image instanceof MediaImage) {
+			for (MediaImage i : ((MediaImage) image).getVariants()) {
 				File fv = new File(outputDir.getAbsolutePath() + "/" + i.getId());
 				fout = new FileOutputStream(fv);
 				fout.write(image.getData());
