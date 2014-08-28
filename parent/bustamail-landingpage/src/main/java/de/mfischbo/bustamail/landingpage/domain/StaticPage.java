@@ -15,7 +15,7 @@ import de.mfischbo.bustamail.template.domain.Template;
 
 @Entity
 @Table(name = "LandingPages_StaticPage")
-public class StaticPage extends BaseDomain {
+public class StaticPage extends BaseDomain implements HTMLPage {
 
 	private static final long serialVersionUID = 8737051906342406125L;
 

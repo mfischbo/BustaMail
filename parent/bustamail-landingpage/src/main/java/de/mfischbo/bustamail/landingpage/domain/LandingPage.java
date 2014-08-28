@@ -21,7 +21,7 @@ import de.mfischbo.bustamail.template.domain.Template;
 
 @Entity
 @Table(name = "LandingPage_LandingPage")
-public class LandingPage extends OwnedBaseDomain {
+public class LandingPage extends OwnedBaseDomain implements HTMLPage {
 
 	private static final long serialVersionUID = 1686708887179244769L;
 
