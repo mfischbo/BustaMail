@@ -113,14 +113,14 @@ class LandingPagePublisher {
 		VersionedContent pageContent = getMostRecentVersionById(page.getId());
 		
 		// step 2: Content only contains the body. Wrap up in stub HTML document and create a jsoup from it
-		StringBuffer b = new StringBuffer("<!DOCTYPE html><html><head></head><body>").append(pageContent.getContent()).append("</body></html>");
+		StringBuffer b = new StringBuffer(page.getTemplate().getHtmlHead()).append("<body>").append(pageContent.getContent()).append("</body></html>");
 		Document d = Jsoup.parse(b.toString());
 		this.contents.put(page.getId(), d);
 		this.linkMap.put(page.getId(), "index");
 		
 		for (StaticPage subPage : page.getStaticPages()) {
 			VersionedContent content = getMostRecentVersionById(subPage.getId());
-			b = new StringBuffer("<!DOCTYPE html><html><head></head><body>").append(content.getContent()).append("</body></html>");
+			b = new StringBuffer(page.getTemplate().getHtmlHead()).append("<body>").append(content.getContent()).append("</body></html>");
 			Document subD = Jsoup.parse(b.toString());
 			
 			subD = collectImages(subD);
@@ -176,6 +176,9 @@ class LandingPagePublisher {
 			// remove editor stuff
 			c = HTMLSourceProcessor.removeAttributes(c, DefaultTemplateMarkers.getTemplateAttributeMarkers());
 			c = HTMLSourceProcessor.removeClasses(c, DefaultTemplateMarkers.getTemplateClassMarkers());
+			
+			// set an appropriate page title
+			c.select("head title").first().text(page.getName());
 	
 			try {
 				String name = createPageName(linkMap.get(id));
