@@ -39,6 +39,9 @@ public class Template extends BaseDomain {
 	private String		description;
 	
 	@Lob
+	private String		htmlHead;
+	
+	@Lob
 	private String		source;
 
 	@ManyToOne(optional = false)
@@ -92,6 +95,14 @@ public class Template extends BaseDomain {
 
 	public void setSettings(Map<String, String> settings) {
 		this.settings = settings;
+	}
+	
+	public String getHtmlHead() {
+		return htmlHead;
+	}
+
+	public void setHtmlHead(String htmlHead) {
+		this.htmlHead = htmlHead;
 	}
 
 	public String getSource() {

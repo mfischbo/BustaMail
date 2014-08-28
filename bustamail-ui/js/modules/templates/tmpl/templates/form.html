@@ -17,7 +17,8 @@
 
 <div class="col-md-9">
 	<ul class="nav nav-tabs">
-		<li class="active">	<a data-target="#source" data-toggle="tab">Quellcode</a></li>
+		<li class="active">	<a data-target="#source" data-toggle="tab" data-ng-click="switchTab('SOURCE')">Quellcode</a></li>
+		<li>				<a data-target="#htmlHead" data-toggle="tab" data-ng-click="switchTab('HEAD')">HTML Head</a></li>
 		<li>				<a data-target="#images" data-toggle="tab">Bilder</a></li>
 		<li>				<a data-target="#resources" data-toggle="tab">CSS / JS</a></li>
 		<li>				<a data-target="#settings" data-toggle="tab">Einstellungen</a></li>
@@ -31,6 +32,15 @@
 					<div data-ui-codemirror="{onLoad : setupCodeMirror }"></div>
 				</div>
 			</form>	
+		</div>
+		
+		<div class="tab-pane" id="htmlHead">
+			<form data-role="form">
+				<div class="form-group">
+					<label>HTML Head:</label>	
+					<div data-ui-codemirror="{onLoad : setupHTMLHeadCodeMirror}"></div>
+				</div>
+			</form>
 		</div>
 		
 		<div class="tab-pane" id="images">
@@ -81,7 +91,7 @@
 			</thead>
 			<tbody>
 				<tr data-ng-repeat="i in template.resources">
-					<td width="64px"><i class="{{i.iconClass}}"></i></td>
+					<td>&nbsp;</td>
 					<td>{{i.name}}</td>
 					<td class="tools">
 						<a href="javascript:void('');" data-ng-click="deleteTemplateResource(i.id)"><span class="fa fa-trash-o"></span></a>

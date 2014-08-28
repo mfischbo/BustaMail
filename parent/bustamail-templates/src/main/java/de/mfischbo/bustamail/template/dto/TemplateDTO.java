@@ -10,11 +10,20 @@ public class TemplateDTO extends TemplateIndexDTO {
 
 	private static final long serialVersionUID = -8509651144109797425L;
 
+	private String						htmlHead;
 	private String 						source;
 	private HashMap<String, String>		settings = new HashMap<>();
 	private List<WidgetDTO>				widgets;
 	private List<MediaImageDTO> 		images;
 	private List<MediaDTO>				resources;
+
+	public String getHtmlHead() {
+		return htmlHead;
+	}
+
+	public void setHtmlHead(String htmlHead) {
+		this.htmlHead = htmlHead;
+	}
 
 	public String getSource() {
 		return source;

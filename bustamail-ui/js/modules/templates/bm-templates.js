@@ -72,15 +72,19 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	$scope.templateResources = [];	// contains js/css files for the template
 	
 	var		_tCMEditor;	// instance for template source code
+	var 	_tHeadEditor; // instance for the HTML Header editor
 	var		_wCMEditor; // instance for widget source code
 	
 	$http.get("/api/templates/packs/" + $routeParams.id).success(function(data) {
 		$scope.pack = data;
+		
+		/*
 		for (var i in $scope.pack.templates) {
 			for (var k in $scope.pack.templates[i].resources)
 				if ($scope.pack.templates[i].resources[k].mimetype == 'text/css')
 					$scope.pack.templates[i].resources[k].iconClass = 'flaticon-css5';
 		}
+		*/
 	});
 	
 	$scope.setupCodeMirror = function(_editor) {
@@ -91,13 +95,30 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		_tCMEditor = _editor;
 	};
 	
+	$scope.setupHTMLHeadCodeMirror = function(_editor) {
+		_editor.setOption("lineNumbers", true);
+		_editor.setOption("mode", "htmlmixed");
+		if ($scope.template && $scope.template.htmlHead)
+			_editor.setOption("value", $scope.template.htmlHead);
+		else
+			_editor.setOption("value", "");
+		_tHeadEditor = _editor;
+	}
+	
 	$scope.setupCodeMirrorWidget = function(_editor) {
 		_editor.setOption("lineNumbers", true);
 		_editor.setOption("mode", "htmlmixed");
 		if ($scope.widget && $scope.widget.source)
 			_editor.setOption("value", $scope.widget.source);
 		_wCMEditor = _editor;
-	}
+	};
+	
+	$scope.switchTab = function(tab) {
+		if (tab == 'SOURCE')
+			window.setTimeout(function() { _tCMEditor.refresh(); }, 200);
+		if (tab == 'HEAD')
+			window.setTimeout(function() {_tHeadEditor.refresh(); }, 200);
+	};
 	
 	$scope.dismissForm = function() {
 		if ($scope.tab == 'TEMPLATES') {
@@ -236,6 +257,9 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		$scope.template = t;
 		if (_tCMEditor)
 			_tCMEditor.setValue($scope.template.source);
+		
+		if (_tHeadEditor)
+			_tHeadEditor.setValue($scope.template.htmlHead || "");
 		$scope.widgets = undefined;
 	};
 	
@@ -250,6 +274,8 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	
 	$scope.updateTemplate = function() {
 		$scope.template.source = _tCMEditor.getValue();
+		$scope.template.htmlHead = _tHeadEditor.getValue();
+		
 		$http({
 			method 	:	"PATCH",
 			url		:	"/api/templates/packs/" + $routeParams.id + "/templates/" + $scope.template.id,

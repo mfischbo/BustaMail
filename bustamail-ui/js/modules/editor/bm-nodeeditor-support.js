@@ -310,8 +310,12 @@ BMFragmentControl.prototype.appendFragment = function(w) {
 		this.selectedFragment.after(w.source);
 	} else {
 		// find the last bm-fragment in the document
-		$(".bm-fragment").last().append(w.source);
-		
+		if ($(".bm-fragment").last()) {
+			$(".bm-fragment").last().after(w.source);
+			return;
+		}
+		// if non matches append it to the html wrapping body
+		$("#editor-content").append(w.source);
 		//$("tr.bm-fragment").parents("tbody").append(w.source);
 	}
 };

@@ -45,6 +45,7 @@ public class RestTemplateController extends BaseApiController {
 		t.setDescription(dto.getDescription());
 		t.setName(dto.getName());
 		t.setSource(dto.getSource());
+		t.setHtmlHead(dto.getHtmlHead());
 		t.setSettings(dto.getSettings());
 		
 		TemplatePack tp = service.getTemplatePackById(tpackId);
@@ -62,6 +63,7 @@ public class RestTemplateController extends BaseApiController {
 		t.setName("Copy of " + o.getName());
 		t.setDescription(o.getDescription());
 		t.setSource(o.getSource());
+		t.setHtmlHead(o.getHtmlHead());
 		t.setTemplatePack(o.getTemplatePack());
 		t.setWidgets(new LinkedList<Widget>());
 		
@@ -124,6 +126,7 @@ public class RestTemplateController extends BaseApiController {
 		t.setDescription(dto.getDescription());
 		t.setName(dto.getName());
 		t.setSource(dto.getSource());
+		t.setHtmlHead(dto.getHtmlHead());
 		t.setSettings(dto.getSettings());
 		return asDTO(service.updateTemplate(t), TemplateDTO.class);
 	}

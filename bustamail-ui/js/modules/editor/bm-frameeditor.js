@@ -54,8 +54,10 @@ BMApp.Editor.controller("EditorIndexController",
 			// bind events from the outside world
 			window.addEventListener("message", function(e) {
 				e = e.data;
-				if (e.type == 'appendWidget')
+				if (e.type == 'appendWidget') {
 					nodeEdit.appendWidget(e.data);
+					$scope.reinitMCE();
+				}
 				
 				if (e.type == 'replaceWidget')
 					nodeEdit.replaceWidget(e.data);
@@ -68,17 +70,21 @@ BMApp.Editor.controller("EditorIndexController",
 				
 			}, false);
 			
-			if (mce) mce.remove();
-		
-			// setup tinymce
-			mce = tinymce.init({
-				selector : '[contenteditable="true"]',
-				inline   : true,
-				toolbar	 :	'undo redo | styleselect | bold italic underline',
-				plugins  :  ['link'],
-				link_list : $scope.getMCELinkList()
-			});	
+			$scope.reinitMCE(); 
 		});
+	};
+	
+	$scope.reinitMCE = function() {
+		if (mce) mce.remove();
+		
+		// setup tinymce
+		mce = tinymce.init({
+			selector : '[contenteditable="true"]',
+			inline   : true,
+			toolbar	 :	'undo redo | styleselect | bold italic underline',
+			plugins  :  ['link'],
+			link_list : $scope.getMCELinkList()
+		});	
 	};
 
 

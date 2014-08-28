@@ -168,8 +168,6 @@ class LandingPagePublisher {
 				
 			}
 		}
-		
-		// step 6: remove editor related classes and attributes
 	
 		// step 7 : Write the landing page
 		for (UUID id : contents.keySet()) {
