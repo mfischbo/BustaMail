@@ -131,7 +131,6 @@ BMApp.Editor.controller("EditorIndexController",
 				$("a.bm-hyperlink").each(function() {
 					$scope.hyperlinks.push(HyperlinkService.parseNode($(this)));
 				});
-				console.log($scope.hyperlinks);
 			
 				BMApp.hideSpinner();
 				BMApp.alert("Editor bereit", 'success');

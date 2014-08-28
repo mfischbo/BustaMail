@@ -18,6 +18,8 @@ import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
 
 @RestController
 @RequestMapping("/api/landingpages")
@@ -30,6 +32,16 @@ public class RestStaticPageController extends BaseApiController {
 	public List<StaticPageIndexDTO> getStaticPages(@PathVariable("lpid") UUID lpId) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
 		return asDTO(service.getStaticPages(p), StaticPageIndexDTO.class);
+	}
+	
+	@RequestMapping(value = "/{lpid}/staticpages/{sid}", method = RequestMethod.GET)
+	public StaticPageDTO getStaticPageById(@PathVariable("lpid") UUID lpId, @PathVariable("sid") UUID sid) throws EntityNotFoundException {
+		StaticPage page = service.getStaticPageById(sid);
+		StaticPageDTO p = asDTO(page, StaticPageDTO.class);
+		
+		VersionedContent c = service.getRecentContentVersionByPage(page);
+		p.setHtmlContent(asDTO(c, VersionedContentDTO.class));
+		return p;
 	}
 
 	@RequestMapping(value = "/{lpid}/staticpages", method = RequestMethod.POST)

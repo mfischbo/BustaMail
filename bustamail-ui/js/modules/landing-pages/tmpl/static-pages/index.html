@@ -20,7 +20,7 @@
 				<td>{{s.dateCreated | date: "dd.MM.yyyy HH:mm"}}</td>
 				<td>{{s.userCreated.firstName}} {{s.userCreated.lastName}}</td>
 				<td class="tools">
-					<a href="#/landingpages/{{s.id}}/edit"><span class="fa fa-pencil" title="Inhalt bearbeiten"></span></a>
+					<a href="#/landingpages/{{lp.id}}/staticpages/{{s.id}}/edit"><span class="fa fa-pencil" title="Inhalt bearbeiten"></span></a>
 					<a href="javascript:void('');" data-ng-click="deleteStaticPage(s.id)" title="Entfernen"><span class="fa fa-trash-o"></span></a>	
 				</td>
 			</tr>

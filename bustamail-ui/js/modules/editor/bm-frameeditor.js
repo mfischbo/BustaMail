@@ -23,9 +23,14 @@ BMApp.Editor.controller("EditorIndexController",
 	var nodeEdit   = undefined;
 	
 	// initialize the document and the widgets
-	var id = window.location.href.split('=')[1];
+	var params = BMApp.utils.parseHTTPParams(window.location.href);
+	var id = params.id;
 	
-	$http.get("/api/landingpages/" + id).success(function(data) {
+	var apiPath = '/api/landingpages/' + params.lpid;
+	if (params.sid) 
+		apiPath += '/staticpages/' + params.sid;
+	
+	$http.get(apiPath).success(function(data) {
 		$scope.initializeDocument(data);
 	});
 	
@@ -73,7 +78,6 @@ BMApp.Editor.controller("EditorIndexController",
 				plugins  :  ['link'],
 				link_list : $scope.getMCELinkList()
 			});	
-
 		});
 	};
 
@@ -94,7 +98,7 @@ BMApp.Editor.controller("EditorIndexController",
 			content : content 
 		};
 		
-		$http.post("/api/landingpages/" + $scope.document.id + "/content", d).success(function(data) {
+		$http.post("/api" + apiPath + "/" + $scope.document.id + "/content", d).success(function(data) {
 			BMApp.alert("Inhalt erfolgreich gespeichert", 'success');
 		});
 	};
@@ -104,7 +108,7 @@ BMApp.Editor.controller("EditorIndexController",
 	 * This will reinitialize the editor.
 	 */
 	$scope.rollBackTo = function(contentId) {
-		$http.get("/api/landingpages/" + $scope.document.id + "/content/" + contentId).success(function(data) {
+		$http.get("/api" + apiPath + "/" + $scope.document.id + "/content/" + contentId).success(function(data) {
 			// reinit the editor
 			$scope.html = $sce.trustAsHtml(data.content);
 			nodeEdit.destroy();
@@ -135,7 +139,6 @@ BMApp.Editor.controller("EditorIndexController",
 	
 	$(document).on("_bmTextSelection", function(e, s) {
 		console.log("Text selection occured");
-		
 	});
 	
 	$scope.getMCELinkList = function() {

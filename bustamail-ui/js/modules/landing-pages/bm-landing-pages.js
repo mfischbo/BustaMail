@@ -272,9 +272,11 @@ BMApp.LandingPages.controller('LPDetailsController',
  */
 BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routeParams', '$sce', function($scope, $http, $routeParams, $sce) {
 
-	$scope.pageId = './js/modules/landing-pages/tmpl/frameedit.html?id=' + ($routeParams.id);
+	$scope.pageId = './js/modules/landing-pages/tmpl/frameedit.html?lpid=' + ($routeParams.id);
+	if ($routeParams.sid)
+		$scope.pageId += '&sid=' + $routeParams.sid;
+		
 	$scope.tlink = $sce.trustAsUrl($scope.pageId);
-	console.log($scope.tlink);
 	
 	var dFrame = document.getElementById("documentFrame");
 	
@@ -316,10 +318,11 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 		dFrame.contentWindow.postMessage(m , "http://localhost/bustamail");
 	};
 	
+	/**
+	 * Posts a message to the iframe in order to save the document
+	 */
 	$scope.saveContents = function() {
-		console.log("Saving document");
 		var m = { type : 'saveDocument'};
 		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
 	};
-	
 }]);

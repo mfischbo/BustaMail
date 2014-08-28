@@ -115,44 +115,47 @@ class LandingPagePublisher {
 		// step 2: Content only contains the body. Wrap up in stub HTML document and create a jsoup from it
 		StringBuffer b = new StringBuffer("<!DOCTYPE html><html><head></head><body>").append(pageContent.getContent()).append("</body></html>");
 		Document d = Jsoup.parse(b.toString());
-		
-		// step 3: Add all css/js resources from the template to the html head
-		Element head = d.getElementsByTag("head").first();
-		
-		try {
-			CSSFilePublisher cPub = new CSSFilePublisher(env, cssResources, mService, page.getTemplate());
-			cPub.publish();
-			this.images.addAll(cPub.getImageResources());
-			JSFilePublisher jsPub = new JSFilePublisher(env, jsResources, page.getTemplate());
-			jsPub.publish();
-			
-			for (String cssLink : cPub.getCSSLinks()) 
-				head.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssLink + "\">");
-			for (String jsLink : jsPub.getJSLinks()) 
-				head.append("<script type=\"text/javascript\" src=\"" + jsLink + "\"></script>");
-		} catch (Exception ex) {
-			log.error("Failed to publish static resources. Cause: " + ex.getMessage());
-		}
-		
-		// step 4: Collect all images from the html document and the css files
-		d = collectImages(d);
-		this.linkMap.put(this.page.getId(), "index");
 		this.contents.put(page.getId(), d);
+		this.linkMap.put(page.getId(), "index");
 		
-		// step 5: collect all images from static sub pages
 		for (StaticPage subPage : page.getStaticPages()) {
 			VersionedContent content = getMostRecentVersionById(subPage.getId());
 			b = new StringBuffer("<!DOCTYPE html><html><head></head><body>").append(content.getContent()).append("</body></html>");
 			Document subD = Jsoup.parse(b.toString());
+			
 			subD = collectImages(subD);
-			this.linkMap.put(subPage.getId(), subPage.getName());
 			this.contents.put(subPage.getId(), subD);
+			this.linkMap.put(subPage.getId(), subPage.getName());
 		}
 		
-		// link all documents
-		for (Document c : contents.values()) {
-			c = replaceHyperlinks(c);
+		// step 3: Add all css/js resources from the template to the html head
+		for (UUID id : this.contents.keySet()) {
+			Document c = this.contents.get(id);
+			Element head = c.getElementsByTag("head").first();
+		
+			try {
+				CSSFilePublisher cPub = new CSSFilePublisher(env, cssResources, mService, page.getTemplate());
+				cPub.publish();
+				this.images.addAll(cPub.getImageResources());
+				JSFilePublisher jsPub = new JSFilePublisher(env, jsResources, page.getTemplate());
+				jsPub.publish();
+				
+				for (String cssLink : cPub.getCSSLinks()) 
+					head.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssLink + "\">");
+				for (String jsLink : jsPub.getJSLinks()) 
+					head.append("<script type=\"text/javascript\" src=\"" + jsLink + "\"></script>");
+			} catch (Exception ex) {
+				log.error("Failed to publish static resources. Cause: " + ex.getMessage());
+			}
 		}
+	
+		// step 4: Collect all images from the html document and the css files
+		d = collectImages(d);
+		this.linkMap.put(this.page.getId(), "index");
+		
+		// link all documents
+		for (Document c : contents.values()) 
+			c = replaceHyperlinks(c);
 	
 		// step 5: write all collected image files
 		for (Media m : images) {

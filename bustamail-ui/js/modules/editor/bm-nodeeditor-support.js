@@ -309,7 +309,10 @@ BMFragmentControl.prototype.appendFragment = function(w) {
 	if (this.selectedFragment) {
 		this.selectedFragment.after(w.source);
 	} else {
-		$("tr.bm-fragment").parents("tbody").append(w.source);
+		// find the last bm-fragment in the document
+		$(".bm-fragment").last().append(w.source);
+		
+		//$("tr.bm-fragment").parents("tbody").append(w.source);
 	}
 };
 
