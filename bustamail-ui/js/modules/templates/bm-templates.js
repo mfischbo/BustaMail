@@ -66,6 +66,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	
 	
 	$scope.template = undefined;
+	$scope.resource = undefined;
 	$scope.widgets  = undefined;
 	
 	$scope.templateFiles = [];		// contains images marked for upload
@@ -74,6 +75,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	var		_tCMEditor;	// instance for template source code
 	var 	_tHeadEditor; // instance for the HTML Header editor
 	var		_wCMEditor; // instance for widget source code
+	var		_rCMEditor;	// editor to edit resource files
 	
 	$http.get("/api/templates/packs/" + $routeParams.id).success(function(data) {
 		$scope.pack = data;
@@ -111,6 +113,12 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		if ($scope.widget && $scope.widget.source)
 			_editor.setOption("value", $scope.widget.source);
 		_wCMEditor = _editor;
+	};
+	
+	$scope.setupResourceCodeMirror = function(_editor) {
+		_editor.setOption("lineNumbers", true);
+		_editor.setOption("mode", "htmlmixed");
+		_rCMEditor = _editor;
 	};
 	
 	$scope.switchTab = function(tab) {
@@ -262,6 +270,35 @@ BMApp.Templates.controller("TemplatePacksEditController",
 			_tHeadEditor.setValue($scope.template.htmlHead || "");
 		$scope.widgets = undefined;
 	};
+	
+	
+	$scope.focusResource = function(id) {
+		$http.get("/api/media/" + id + "/content").success(function(data) {
+			$scope.resource = BMApp.utils.find('id', id, $scope.template.resources);
+			if ($scope.resource.mimetype = 'text/css')
+				_rCMEditor.setOption('mode', 'css');
+			if ($scope.resource.mimetype = 'text/javascript')
+				_rCMEditor.setOption('mode', 'javascript');
+			_rCMEditor.setValue(data);
+			window.setTimeout(function() { _rCMEditor.refresh(); }, 200);
+		});
+	};
+	
+	$scope.unfocusResource = function() {
+		$scope.resource = undefined;
+	};
+	
+	$scope.saveResource = function() {
+		$http({
+			url  	: "/api/media/" + $scope.resource.id + "/content",
+			method	: "PATCH",
+			data	:	_rCMEditor.getValue(),
+			headers	:	{"Content-Type" : "text/plain"}
+		}).success(function() {
+			BMApp.alert("Erfolgreich gespeichert");
+		});
+	};
+	
 	
 	$scope.createTemplate = function() {
 		$scope.template.source = _tCMEditor.getValue();

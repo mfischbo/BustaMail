@@ -236,8 +236,15 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 
 	@Override
 	public Media updateMedia(Media media) throws EntityNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		if (media instanceof Media) {
+			media = mRepo.saveAndFlush(media);
+			try {
+				writeToDisk(media, false);
+			} catch (Exception ex) {
+				log.error("Failed writing media contents to disk. Cause: " + ex.getMessage());
+			}
+		}
+		return media;
 	}
 
 	@Override

@@ -81,36 +81,45 @@
 		
 		<div class="tab-pane" id="resources">
 			<h4>CSS / JS Dateien</h4>
-			<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>&nbsp;</th>
-					<th>Name</th>
-					<th>&nbsp;</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr data-ng-repeat="i in template.resources">
-					<td>&nbsp;</td>
-					<td>{{i.name}}</td>
-					<td class="tools">
-						<a href="javascript:void('');" data-ng-click="deleteTemplateResource(i.id)"><span class="fa fa-trash-o"></span></a>
-					</td>
-				</tr>
-			</tbody>
-			</table>
-			
+			<div data-ng-if="!resource.id">
+				<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>&nbsp;</th>
+						<th>Name</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-ng-repeat="i in template.resources">
+						<td>&nbsp;</td>
+						<td>{{i.name}}</td>
+						<td class="tools">
+							<a href="javascript:void('');" data-ng-click="focusResource(i.id)"><span class="fa fa-pencil"></span></a>
+							<a href="javascript:void('');" data-ng-click="deleteTemplateResource(i.id)"><span class="fa fa-trash-o"></span></a>
+						</td>
+					</tr>
+				</tbody>
+				</table>
 				
-			<h5>Weiteres hochladen</h5>
-			<input type="file" data-ng-file-select="onFileSelectResource($files)" multiple class="form-control">
-			
-			<h5>Markiert zum hochladen</h5>
-			<div data-ng-repeat="f in templateResources">
-				{{f.name}}
+				<h5>Weiteres hochladen</h5>
+				<input type="file" data-ng-file-select="onFileSelectResource($files)" multiple class="form-control">
+				
+				<h5>Markiert zum hochladen</h5>
+				<div data-ng-repeat="f in templateResources">
+					{{f.name}}
+				</div>
+				<button class="btn btn-primary pull-right" data-ng-click="uploadTemplateResources()" data-ng-disabled="templateResources.length == 0">
+					{{templateResources.length}} hochladen
+				</button>
 			</div>
-			<button class="btn btn-primary pull-right" data-ng-click="uploadTemplateResources()" data-ng-disabled="templateResources.length == 0">
-				{{templateResources.length}} hochladen
-			</button>
+			
+			<div data-ng-show="resource.id">
+				<div class="btn btn-sm btn-success" title="Datei speichern" data-ng-click="saveResource()"><span class="fa fa-save"></span></div>
+				<div class="btn btn-sm btn-danger pull-right" title="Abbrechen" data-ng-click="unfocusResource()"><span class="fa fa-times"></span></div>
+				<div class="clearfix"></div>
+				<div data-ui-codemirror="{onLoad : setupResourceCodeMirror}"></div>	
+			</div>
 		</div>
 		
 		
