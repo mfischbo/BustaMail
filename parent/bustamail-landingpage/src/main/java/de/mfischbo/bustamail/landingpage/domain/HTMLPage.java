@@ -4,7 +4,7 @@ import java.util.UUID;
 
 /**
  * Interface for html pages like landing pages and static pages
- * @author foobox
+ * @author M.Fischboeck 
  *
  */
 public interface HTMLPage {
