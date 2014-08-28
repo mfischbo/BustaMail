@@ -28,7 +28,7 @@
 		<div class="tab-pane active" id="source">
 			<form data-role="form">	
 				<div class="form-group">
-					<label>Source Code:</label>
+					<h4>Source Code:</h4>
 					<div data-ui-codemirror="{onLoad : setupCodeMirror }"></div>
 				</div>
 			</form>	
@@ -37,7 +37,7 @@
 		<div class="tab-pane" id="htmlHead">
 			<form data-role="form">
 				<div class="form-group">
-					<label>HTML Head:</label>	
+					<h4>HTML Head:</h4>	
 					<div data-ui-codemirror="{onLoad : setupHTMLHeadCodeMirror}"></div>
 				</div>
 			</form>
@@ -87,6 +87,7 @@
 					<tr>
 						<th>&nbsp;</th>
 						<th>Name</th>
+						<th>Typ</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
@@ -94,6 +95,7 @@
 					<tr data-ng-repeat="i in template.resources">
 						<td>&nbsp;</td>
 						<td>{{i.name}}</td>
+						<td>{{i.mimetype}}</td>
 						<td class="tools">
 							<a href="javascript:void('');" data-ng-click="focusResource(i.id)"><span class="fa fa-pencil"></span></a>
 							<a href="javascript:void('');" data-ng-click="deleteTemplateResource(i.id)"><span class="fa fa-trash-o"></span></a>
