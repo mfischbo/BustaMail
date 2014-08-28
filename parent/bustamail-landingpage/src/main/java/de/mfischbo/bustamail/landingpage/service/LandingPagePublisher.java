@@ -170,14 +170,18 @@ class LandingPagePublisher {
 		}
 		
 		// step 6: remove editor related classes and attributes
-		d = HTMLSourceProcessor.removeAttributes(d, DefaultTemplateMarkers.getTemplateAttributeMarkers());
-		d = HTMLSourceProcessor.removeClasses(d, DefaultTemplateMarkers.getTemplateClassMarkers());
-		
+	
 		// step 7 : Write the landing page
 		for (UUID id : contents.keySet()) {
 			Document c = contents.get(id);
+			
+			// remove editor stuff
+			c = HTMLSourceProcessor.removeAttributes(c, DefaultTemplateMarkers.getTemplateAttributeMarkers());
+			c = HTMLSourceProcessor.removeClasses(c, DefaultTemplateMarkers.getTemplateClassMarkers());
+	
 			try {
 				String name = createPageName(linkMap.get(id));
+				log.info("Writing contents for page : " + name);
 				FileOutputStream fOut = new FileOutputStream(new File(basedir.getAbsolutePath() + "/" + name));
 				fOut.write(c.html().getBytes());
 				fOut.flush();
@@ -231,7 +235,7 @@ class LandingPagePublisher {
 	}
 	
 	private VersionedContent getMostRecentVersionById(UUID id) {
-		Specification<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(page.getId()));
+		Specification<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(id));
 		PageRequest preq = new PageRequest(0,1, Sort.Direction.DESC, "dateCreated");
 		VersionedContent pageContent = vcRepo.findAll(specs, preq).getContent().get(0);
 		return pageContent;
