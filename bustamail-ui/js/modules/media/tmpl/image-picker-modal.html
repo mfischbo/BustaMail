@@ -1,5 +1,5 @@
-<div class="row">
-	<div class="col-md-4">
+<div class="row" style="margin-right:-15px; margin-left:-15px;">
+	<div class="col-md-4" style="width:33.333%; float:left; position:relative;min-height:1px;padding-right:15px;padding-left:15px;" >
 		<h4>Verzeichnisse</h4>
 		<div
     		  data-angular-treeview="true"
@@ -11,10 +11,10 @@
     	</div>
 	</div>
 	
-	<div class="col-md-8">
+	<div class="col-md-8" style="width:66.666%;float:left;position:relative;min-height:1px;padding-right:15px;padding-left:15px;">
 		<h4>Bilder in {{cwd.name}}</h4>
 		<small>Enthält {{images.length}} Bilder</small>
-		<ul class="media-list">
+		<ul class="media-list" style="margin-top:0;margin-bottom:10px;padding-left:0;list-style:none;">
 			<li class="media" data-ng-repeat="i in images">
 				<a class="pull-left">
 					<img class="media-object" data-ng-src="{{i.thumbnail}}" width="64">

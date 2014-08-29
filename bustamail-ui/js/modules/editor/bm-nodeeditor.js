@@ -73,3 +73,8 @@ BMNodeEdit.prototype.appendWidget = function(w) {
 BMNodeEdit.prototype.replaceWidget = function(widget) {
 	this.elementControl.replaceElement(widget);
 };
+
+BMNodeEdit.prototype.reloadCSSFile = function(id) {
+	$('link[href="./img/media/'+id+'"]').remove();
+	this.editor.append('<link rel="stylesheet" type="text/css" href="./img/media/'+id+'">');
+};

@@ -32,7 +32,7 @@
 			</div>
 			<div id="resourcesTab" class="panel-collapse collapse">
 				<div class="panel-body">
-					<div data-ng-repeat="r in mailing.template.resources">
+					<div data-ng-repeat="r in document.template.resources">
 						{{r.name}}
 						<a href="javascript:void('');" data-ng-click="editResource(r.id)" class="pull-right" title="Inhalt bearbeiten">
 							<span class="fa fa-pencil" data-ng-click="editResource(r.id)"></span>
@@ -70,6 +70,14 @@
 	<button class="btn btn-primary btn-sm" data-ng-click="sendPreview()">Vorschau senden</button>
 </div>
 
+<div id="resourceConsole" data-ng-show="resource && resource.id">
+	<div style="background-color:#ddd;" class="pull-right">
+		<button class="btn btn-xs btn-danger" data-ng-click="unfocusResource()"><span class="fa fa-chevron-down"></span></button>
+		<button class="btn btn-xs btn-success" data-ng-click="updateResource()"><span class="fa fa-save"></span></button>	
+	</div>
+	<div class="clearfix"></div>
+	<div data-ui-codemirror="{onLoad: setupResourceCM}"></div>
+</div>
 
 <div class="col-md-10" id="editor" style="padding-left:0px; padding-right:0px;">
 	<iframe id="documentFrame" src="{{tlink.toString()}}" style="border:0px; width:100%; height:100vh;"></iframe>

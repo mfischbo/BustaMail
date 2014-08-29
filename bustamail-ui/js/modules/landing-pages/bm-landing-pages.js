@@ -1,4 +1,4 @@
-BMApp.LandingPages = angular.module('LandingPageModule', ['SecurityModule']);
+BMApp.LandingPages = angular.module('LandingPageModule', ['SecurityModule', 'ui.codemirror']);
 BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function($scope, $http) {
 
 	$scope.owner = '';
@@ -262,8 +262,6 @@ BMApp.LandingPages.controller('LPDetailsController',
 			});
 		});
 	};
-	
-	
 }]);
 
 
@@ -272,6 +270,10 @@ BMApp.LandingPages.controller('LPDetailsController',
  */
 BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routeParams', '$sce', function($scope, $http, $routeParams, $sce) {
 
+	// CodeMirror instance for the resource editor
+	var cme = undefined;
+	$scope.resource = undefined; 	// the resource being edited
+	
 	$scope.pageId = './js/modules/landing-pages/tmpl/frameedit.html?lpid=' + ($routeParams.id);
 	if ($routeParams.sid)
 		$scope.pageId += '&sid=' + $routeParams.sid;
@@ -280,25 +282,59 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	
 	var dFrame = document.getElementById("documentFrame");
 	
-	// initialize the mailing and the widgets
+	// initialize the document and the widgets
 	$http.get("/api/landingpages/" + $routeParams.id).success(function(data) {
 	
-		$scope.mailing = data;
+		$scope.document = data;
 		
 		// fetch the full graph for the given template
-		$http.get("/api/templates/templates/" + $scope.mailing.template.id).success(function(data) {
-			$scope.mailing.template = data;
+		$http.get("/api/templates/templates/" + $scope.document.template.id).success(function(data) {
+			$scope.document.template = data;
 			$scope.widgets = data.widgets;
 			for (var i in $scope.widgets) 
 				if ($scope.widgets[i].source.indexOf("bm-on-replace") > 0)
 					$scope.widgets[i].nestable = true;
 		});
 	
-		// fetch all content versions for this mailing
-		$http.get("/api/landingpages/" + $scope.mailing.id + "/content").success(function(data) {
+		// fetch all content versions for this document 
+		$http.get("/api/landingpages/" + $scope.document.id + "/content").success(function(data) {
 			$scope.contentVersions = data;
 		});
 	});
+	
+	/**
+	 * Initializes an code mirror instance
+	 */
+	$scope.setupResourceCM = function(_editor) {
+		_editor.setOption('lineNumbers', true);
+		_editor.setOption('mode', 'css');
+		_editor.setSize('100%',300);
+		cme = _editor;
+	};
+	
+	$scope.editResource = function(id) {
+		$scope.resource = BMApp.utils.find('id', id, $scope.document.template.resources);
+		$http.get('/api/media/' + id + '/content').success(function(data) {
+			cme.setValue(data);
+		});
+	};
+	
+	$scope.unfocusResource = function() {
+		$scope.resource = undefined;
+	};
+	
+	$scope.updateResource = function() {
+		$http({
+			method:		"PATCH",
+			url:		"/api/media/" + $scope.resource.id + "/content",
+			data:		cme.getValue(),
+			headers:	{"Content-Type" : "application/json"}
+		}).success(function(data) {
+			// post a message to the iframe that the css resource has changed
+			var m = { type : 'resourceChanged', data : $scope.resource.id };
+			dFrame.contentWindow.postMessage(m, 'http://localhost/bustamail');
+		});
+	};
 
 	/**
 	 * Posts a message to the iframe containig the widget to be appended
@@ -325,4 +361,8 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 		var m = { type : 'saveDocument'};
 		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
 	};
+	
+	/**
+	 * Posts a message to the iframe in order to edit a certain resource
+	 */
 }]);

@@ -13,7 +13,7 @@ BMApp.Editor.controller("EditorIndexController",
 	
 	// the tinymce instance running
 	var mce = undefined;
-	
+
 	var jE = undefined;
 	
 	// the iframe element
@@ -68,12 +68,16 @@ BMApp.Editor.controller("EditorIndexController",
 				if (e.type == 'rollbackTo')
 					$scope.rollbackTo(e.data);
 				
+				if (e.type == 'resourceChanged')
+					$scope.handleResourceChanged(e.data);
+				
 			}, false);
 			
 			$scope.reinitMCE(); 
 		});
 	};
 	
+
 	$scope.reinitMCE = function() {
 		if (mce) mce.remove();
 		
@@ -129,6 +133,13 @@ BMApp.Editor.controller("EditorIndexController",
 	};
 	
 
+	$scope.handleResourceChanged = function(data) {
+		console.log("Whoww! A resource has changed.... ");
+		console.log(data);
+		nodeEdit.reloadCSSFile(data);
+	};
+	
+	
 	$(document).on("_bmElementSelected", function(event, element) {
 		jE = $(element);
 		$scope.element = $scope.metaDataFor(element);
