@@ -19,7 +19,9 @@ import de.mfischbo.bustamail.landingpage.dto.StaticPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
+import de.mfischbo.bustamail.vc.dto.VersionedContentIndexDTO;
 
 @RestController
 @RequestMapping("/api/landingpages")
@@ -64,38 +66,38 @@ public class RestStaticPageController extends BaseApiController {
 	}
 	
 	
-//	/**
-//	 * Returns a list of content versions for the document with the specified id
-//	 * @param lpId The id of the document
-//	 * @return The list of versions available for this document
-//	 * @throws EntityNotFoundException
-//	 */
-//	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
-//	public List<VersionedContentIndexDTO> getRecentVersionedContent(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
-//		StaticPage p = service.getStaticPageById(lpId);
-//		return asDTO(service.getContentVersions(p), VersionedContentIndexDTO.class);
-//	}
-//	
-//	@RequestMapping(value = "/{id}/content/{cid}", method = RequestMethod.GET)
-//	public VersionedContentDTO getContentById(@PathVariable("id") UUID pageId, @PathVariable("cid") UUID contentId) throws EntityNotFoundException {
-//		StaticPage p = service.getStaticPageById(pageId);
-//		return asDTO(service.getContentVersionById(p, contentId), VersionedContentDTO.class);
-//	}
-//	
-//	/**
-//	 * Saves a new content version for the specified document
-//	 * @param lpId The id of the document to save the version
-//	 * @param dto The DTO containing the data of the version to be saved
-//	 * @return
-//	 * @throws EntityNotFoundException
-//	 */
-//	@RequestMapping(value = "/{id}/content", method = RequestMethod.POST)
-//	public VersionedContentDTO saveContent(@PathVariable("id") UUID lpId, @RequestBody VersionedContentDTO dto) throws EntityNotFoundException {
-//		StaticPage p = service.getStaticPageById(lpId);
-//		
-//		VersionedContent c = new VersionedContent();
-//		c.setType(ContentType.HTML);
-//		c.setContent(dto.getContent());
-//		return asDTO(service.createContentVersion(p, c), VersionedContentDTO.class);
-//	}
+	/**
+	 * Returns a list of content versions for the document with the specified id
+	 * @param lpId The id of the document
+	 * @return The list of versions available for this document
+	 * @throws EntityNotFoundException
+	 */
+	@RequestMapping(value = "/{lpid}/staticpages/{id}/content", method = RequestMethod.GET)
+	public List<VersionedContentIndexDTO> getRecentVersionedContent(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
+		StaticPage p = service.getStaticPageById(lpId);
+		return asDTO(service.getContentVersions(p), VersionedContentIndexDTO.class);
+	}
+	
+	@RequestMapping(value = "/{lpid}/staticpages/{id}/content/{cid}", method = RequestMethod.GET)
+	public VersionedContentDTO getContentById(@PathVariable("id") UUID pageId, @PathVariable("cid") UUID contentId) throws EntityNotFoundException {
+		StaticPage p = service.getStaticPageById(pageId);
+		return asDTO(service.getContentVersionById(p, contentId), VersionedContentDTO.class);
+	}
+	
+	/**
+	 * Saves a new content version for the specified document
+	 * @param lpId The id of the document to save the version
+	 * @param dto The DTO containing the data of the version to be saved
+	 * @return
+	 * @throws EntityNotFoundException
+	 */
+	@RequestMapping(value = "/{lpid}/staticpages/{id}/content", method = RequestMethod.POST)
+	public VersionedContentDTO saveContent(@PathVariable("id") UUID lpId, @RequestBody VersionedContentDTO dto) throws EntityNotFoundException {
+		StaticPage p = service.getStaticPageById(lpId);
+		
+		VersionedContent c = new VersionedContent();
+		c.setType(ContentType.HTML);
+		c.setContent(dto.getContent());
+		return asDTO(service.createContentVersion(p, c), VersionedContentDTO.class);
+	}
 }
