@@ -134,8 +134,6 @@ BMApp.Editor.controller("EditorIndexController",
 	
 
 	$scope.handleResourceChanged = function(data) {
-		console.log("Whoww! A resource has changed.... ");
-		console.log(data);
 		nodeEdit.reloadCSSFile(data);
 	};
 	

@@ -201,13 +201,17 @@ BMFragmentControl.prototype.setup = function() {
 
 	$("#editor").click(function(e) {
 		var p = $(e.target).parents(".bm-fragment");
-		if (p.length > 0) {
-			var fragment = p.first();
-			if (fragment == that.selectedFragment)
-				that.unselect();
-			else {
-				that.select(p)
-			}
+		var fragment = undefined;
+		
+		if (p.length > 0)
+			fragment = p.first();
+		if (!fragment && $(e.target).hasClass("bm-fragment"))
+			fragment = $(e.target);
+			
+		if (fragment && fragment == that.selectedFragment)
+			that.unselect();
+		else if (fragment) {
+			that.select(fragment);
 		} else {
 			// click was outside of a fragment
 			that.deselect();
@@ -251,7 +255,11 @@ BMFragmentControl.prototype.setup = function() {
 BMFragmentControl.prototype.renderControls = function() {
 	if (this.selectedFragment) {
 		var p = this.selectedFragment.position();
-		var t = p.top  - this.control.height();
+		
+		var t = p.top  ;//- this.control.height();
+		if (p.top < this.control.height())
+			t = 0;
+		
 		var w = p.left+ this.selectedFragment.width() - this.control.width();
 		this.control.css("top", t);
 		this.control.css("left", w);
@@ -277,12 +285,12 @@ BMFragmentControl.prototype.select = function(fragment) {
 		this.deselect();
 
 	// select the incoming fragment
-	if (fragment.hasClass("bm-fragment-hovered")) {
+	if (fragment.hasClass("bm-fragment-hovered")) 
 		fragment.removeClass("bm-fragment-hovered");
-		fragment.addClass("bm-fragment-focused");
-		this.selectedFragment = fragment;
-		this.renderControls();
-	}
+		
+	fragment.addClass("bm-fragment-focused");
+	this.selectedFragment = fragment;
+	this.renderControls();
 };
 
 BMFragmentControl.prototype.deselect = function() {
