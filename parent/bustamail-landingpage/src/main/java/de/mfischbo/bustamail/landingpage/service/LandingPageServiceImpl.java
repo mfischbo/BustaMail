@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
+import de.mfischbo.bustamail.landingpage.domain.HTMLPage;
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LPFormEntry;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
@@ -38,7 +39,6 @@ import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.service.TemplateService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
-import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
 import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 import de.mfischbo.bustamail.vc.repo.VersionedContentSpecification;
 
@@ -142,9 +142,27 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.PREVIEW);
 		publisher.publish();
 	}
+	
+	@Override
+	public List<VersionedContent> getContentVersions(HTMLPage page) {
+		Specifications<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(page.getId()));
+		PageRequest preq = new PageRequest(0, 20, Sort.Direction.DESC, "dateCreated");
+		Page<VersionedContent> result = vcRepo.findAll(specs, preq);
+		if (result.getTotalElements() == 0)
+			return new ArrayList<VersionedContent>(0);
+		else
+			return result.getContent();
+	}
+	
+	@Override
+	public VersionedContent getContentVersionById(HTMLPage page, UUID contentId) throws EntityNotFoundException {
+		VersionedContent retval = vcRepo.findOne(contentId);
+		checkOnNull(retval);
+		return retval;
+	}
 
 	@Override
-	public VersionedContent getRecentContentVersionByPage(LandingPage page) {
+	public VersionedContent getRecentContentVersionByPage(HTMLPage page) {
 		Specifications<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(page.getId()));
 		PageRequest preq = new PageRequest(0, 1, Sort.Direction.DESC, "dateCreated");
 		Page<VersionedContent> result = vcRepo.findAll(specs, preq);
@@ -155,7 +173,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	
 	
 	@Override
-	public VersionedContent createContentVersion(LandingPage page, VersionedContent content) {
+	public VersionedContent createContentVersion(HTMLPage page, VersionedContent content) {
 		User current = (User) auth.getPrincipal();
 		
 		content.setMailingId(page.getId());
@@ -223,30 +241,6 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public VersionedContent getRecentContentVersionByPage(StaticPage page) {
-		Specifications<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(page.getId()));
-		PageRequest preq  = new PageRequest(0, 1, Sort.Direction.DESC, "dateCreated");
-		Page<VersionedContent> result = vcRepo.findAll(specs, preq);
-		if (result.getTotalElements() == 0)
-			return null;
-		else return result.getContent().get(0);
-	}
-
-	@Override
-	public VersionedContent createContentVersion(StaticPage page,
-			VersionedContentDTO content) {
-	
-		VersionedContent c = new VersionedContent();
-		c.setContent(content.getContent());
-		c.setDateCreated(DateTime.now());
-		c.setMailingId(page.getId());
-		c.setType(ContentType.HTML);
-		c.setUserCreated((User) auth.getPrincipal());
-		return vcRepo.saveAndFlush(c);
-	}
-
 
 	@Override
 	public LPForm getFormById(UUID id) throws EntityNotFoundException {

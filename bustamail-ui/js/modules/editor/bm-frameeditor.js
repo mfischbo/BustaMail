@@ -49,14 +49,18 @@ BMApp.Editor.controller("EditorIndexController",
 			nodeEdit = new BMNodeEdit(data);
 			window.setTimeout(function() {
 				nodeEdit.setup();
+				$scope.reinitMCE(); 
 			}, 1000);
-	
+
+			
 			// bind events from the outside world
 			window.addEventListener("message", function(e) {
 				e = e.data;
 				if (e.type == 'appendWidget') {
 					nodeEdit.appendWidget(e.data);
-					$scope.reinitMCE();
+					window.setTimeout(function() {
+						$scope.reinitMCE();
+					}, 200);
 				}
 				
 				if (e.type == 'replaceWidget')
@@ -65,30 +69,36 @@ BMApp.Editor.controller("EditorIndexController",
 				if (e.type == 'saveDocument') 
 					$scope.saveContents();
 				
-				if (e.type == 'rollbackTo')
-					$scope.rollbackTo(e.data);
+				if (e.type == 'rollBackTo')
+					$scope.rollBackTo(e.data);
 				
 				if (e.type == 'resourceChanged')
 					$scope.handleResourceChanged(e.data);
 				
 			}, false);
-			
-			$scope.reinitMCE(); 
 		});
 	};
 	
 
 	$scope.reinitMCE = function() {
-		if (mce) mce.remove();
-		
+		for (id in tinymce.editors) {
+			console.log("Removing editor with id : " + id);
+			tinymce.editors[id].remove();
+		}
+	
+		console.log("Setting up new editors");
 		// setup tinymce
-		mce = tinymce.init({
-			selector : '[contenteditable="true"]',
+		tinymce.init({
+			//selector : '[contenteditable="true"]',
+			selector : ".bm-fragment",
 			inline   : true,
+			browser_spellcheck : false,
 			toolbar	 :	'undo redo | styleselect | bold italic underline',
 			plugins  :  ['link'],
 			link_list : $scope.getMCELinkList()
 		});	
+		
+		console.log("Created " + tinymce.editors.length + " new instances");
 	};
 
 
@@ -97,6 +107,11 @@ BMApp.Editor.controller("EditorIndexController",
 	 * Copies the content of the editor node and removes all editor markers before saving it
 	 */
 	$scope.saveContents = function() {
+		for (id in tinymce.editors) {
+			tinymce.editors[id].remove();
+		}
+		
+		
 		var content = $("#editor-content").html();
 		content = content.replace(/bm-fragment-hovered/g, "");
 		content = content.replace(/bm-fragment-focused/g, "");
@@ -108,8 +123,8 @@ BMApp.Editor.controller("EditorIndexController",
 			content : content 
 		};
 		
-		$http.post("/api" + apiPath + "/" + $scope.document.id + "/content", d).success(function(data) {
-			BMApp.alert("Inhalt erfolgreich gespeichert", 'success');
+		$http.post(apiPath + "/content", d).success(function(data) {
+			$scope.reinitMCE();
 		});
 	};
 	
@@ -118,16 +133,19 @@ BMApp.Editor.controller("EditorIndexController",
 	 * This will reinitialize the editor.
 	 */
 	$scope.rollBackTo = function(contentId) {
-		$http.get("/api" + apiPath + "/" + $scope.document.id + "/content/" + contentId).success(function(data) {
+		$http.get(apiPath + "/content/" + contentId).success(function(data) {
+			
+			for (var i in tinymce.editors)
+				tinymce.editors[i].remove();
+			
 			// reinit the editor
 			$scope.html = $sce.trustAsHtml(data.content);
 			nodeEdit.destroy();
+			
 			nodeEdit = new BMNodeEdit($scope.document.template);
-			BMApp.showSpinner();
 			window.setTimeout(function() {
 				nodeEdit.setup();
-				BMApp.hideSpinner();
-				BMApp.alert("Version wiederhergestellt");
+				$scope.reinitMCE();
 			}, 1000);
 		});
 	};
@@ -171,10 +189,6 @@ BMApp.Editor.controller("EditorIndexController",
 		$scope.$apply();
 	});
 
-	$scope.replaceVar = function() {
-		var txt = '${' + $scope.textVar + '}';
-		$scope.textSelection.text(txt);
-	};
 
 	
 	$scope.applySettings = function() {

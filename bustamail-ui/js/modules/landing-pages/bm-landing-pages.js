@@ -361,6 +361,11 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 		var m = { type : 'saveDocument'};
 		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
 	};
+	
+	$scope.rollBackTo = function(id) {
+		var m = {type : 'rollBackTo', data : id};
+		dFrame.contentWindow.postMessage(m, 'http://localhost/bustamail');
+	};
 
 	/**
 	 * Creates a preview of the landing page
@@ -370,8 +375,4 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 			window.open("http://previews.localhost/preview_" + $routeParams.id + "/index.html", "_blank");
 		});
 	};
-	
-	/**
-	 * Posts a message to the iframe in order to edit a certain resource
-	 */
 }]);

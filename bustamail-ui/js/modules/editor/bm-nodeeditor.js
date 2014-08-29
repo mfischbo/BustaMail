@@ -63,7 +63,6 @@ BMNodeEdit.prototype.destroy = function() {
 	this.fragControl.destroy();
 	this.elementControl.destroy();
 	this.imageControl.remove();
-	this.slider.remove();
 };
 
 BMNodeEdit.prototype.appendWidget = function(w) {

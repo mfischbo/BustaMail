@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.landingpage.web;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ import de.mfischbo.bustamail.landingpage.service.LandingPageService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
+import de.mfischbo.bustamail.vc.dto.VersionedContentIndexDTO;
 
 @RestController
 @RequestMapping("/api/landingpages")
@@ -51,6 +53,12 @@ public class RestLandingPageController extends BaseApiController {
 		return retval;
 	}
 	
+	/**
+	 * Creates a new landing page
+	 * @param page The page to be created
+	 * @return
+	 * @throws EntityNotFoundException
+	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public LandingPageIndexDTO createLandingPage(@RequestBody LandingPageIndexDTO page) throws EntityNotFoundException {
 		return asDTO(service.createLandingPage(page), LandingPageIndexDTO.class);
@@ -67,13 +75,33 @@ public class RestLandingPageController extends BaseApiController {
 		service.deleteLandingPage(p);
 	}
 	
+	
+	/**
+	 * Returns a list of content versions for the document with the specified id
+	 * @param lpId The id of the document
+	 * @return The list of versions available for this document
+	 * @throws EntityNotFoundException
+	 */
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
-	public VersionedContentDTO getRecentVersionedContent(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
+	public List<VersionedContentIndexDTO> getRecentVersionedContent(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
-		checkOnNull(p);
-		return asDTO(service.getRecentContentVersionByPage(p), VersionedContentDTO.class);
+		return asDTO(service.getContentVersions(p), VersionedContentIndexDTO.class);
 	}
 	
+	@RequestMapping(value = "/{id}/content/{cid}", method = RequestMethod.GET)
+	public VersionedContentDTO getContentById(@PathVariable("id") UUID pageId, @PathVariable("cid") UUID contentId) throws EntityNotFoundException {
+		LandingPage p = service.getLandingPageById(pageId);
+		return asDTO(service.getContentVersionById(p, contentId), VersionedContentDTO.class);
+		
+	}
+
+	/**
+	 * Saves a new content version for the specified document
+	 * @param lpId The id of the document to save the version
+	 * @param dto The DTO containing the data of the version to be saved
+	 * @return
+	 * @throws EntityNotFoundException
+	 */
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.POST)
 	public VersionedContentDTO saveContent(@PathVariable("id") UUID lpId, @RequestBody VersionedContentDTO dto) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
@@ -85,26 +113,15 @@ public class RestLandingPageController extends BaseApiController {
 		return asDTO(service.createContentVersion(p, c), VersionedContentDTO.class);
 	}
 
+	
+	/**
+	 * Creates a preview for the specified landing page
+	 * @param pageId The page
+	 * @throws EntityNotFoundException
+	 */
 	@RequestMapping(value = "/{id}/preview", method = RequestMethod.PUT)
 	public void publishPreview(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(pageId);
 		service.publishPreview(page);
 	}
-	
-	
-	/*
-	@RequestMapping(value = "/{id}/statics", method = RequestMethod.GET)
-	public Collection<StaticPageIndexDTO> getStaticPages(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
-		LandingPage p = service.getLandingPageById(lpId);
-		return asDTO(service.getStaticPages(p), StaticPageIndexDTO.class);
-	}
-	
-	@RequestMapping(value = "/{id}/statics/{sid}", method = RequestMethod.GET)
-	public StaticPageDTO getStaticPageById(@PathVariable("id") UUID pageId, @PathVariable("sid") UUID sid) throws EntityNotFoundException {
-		StaticPage page = service.getStaticPageById(sid);
-		StaticPageDTO retval = asDTO(page, StaticPageDTO.class);
-		retval.setContent(asDTO(service.getRecentContentVersionByPage(page), VersionedContentDTO.class));
-		return retval;
-	}
-	*/
 }

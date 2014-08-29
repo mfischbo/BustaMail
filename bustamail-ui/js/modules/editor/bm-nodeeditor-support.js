@@ -169,6 +169,10 @@ BMImageControl.prototype.hideControls = function() {
 	this.imageControl.hide();
 };
 
+BMImageControl.prototype.remove = function() {
+	
+};
+
 
 /**
  * Fragment controller
