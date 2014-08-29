@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LPFormEntry;
+import de.mfischbo.bustamail.landingpage.domain.LPFormSubmission;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
 
 @Controller
@@ -28,6 +31,9 @@ public class LPFormWebController {
 
 	@Inject
 	private LandingPageService		service;
+	
+	@Inject
+	private ObjectMapper			mapper;
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
@@ -50,6 +56,13 @@ public class LPFormWebController {
 			// validate for required
 			List<LPFormEntry> requiredEmpties = getRequiredUnsubmittedFields(fieldVals);
 			
+		
+			// on success create a form submission and store it
+			LPFormSubmission sub = new LPFormSubmission();
+			sub.setForm(form);
+			sub.setSourceIP(request.getRemoteAddr());
+			sub.setData(mapper.writeValueAsString(request.getParameterMap()));
+			service.createFormSubmission(sub);
 			
 			// what to do after successfull processing?
 			

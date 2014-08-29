@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.HTMLPage;
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
+import de.mfischbo.bustamail.landingpage.domain.LPFormSubmission;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.landingpage.dto.LPFormDTO;
@@ -42,4 +43,6 @@ public interface LandingPageService {
 	LPForm				createForm(LandingPage page, LPFormDTO form) throws EntityNotFoundException;
 	LPForm				updateForm(LPFormDTO form) throws EntityNotFoundException;
 	void				deleteForm(LPForm form);
+	
+	LPFormSubmission	createFormSubmission(LPFormSubmission submission);
 }

@@ -21,6 +21,7 @@ import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.HTMLPage;
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LPFormEntry;
+import de.mfischbo.bustamail.landingpage.domain.LPFormSubmission;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.landingpage.dto.LPFormDTO;
@@ -28,6 +29,7 @@ import de.mfischbo.bustamail.landingpage.dto.LPFormEntryDTO;
 import de.mfischbo.bustamail.landingpage.dto.LandingPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.repo.LPFormRepo;
+import de.mfischbo.bustamail.landingpage.repo.LPFormSubmissionRepo;
 import de.mfischbo.bustamail.landingpage.repo.LandingPageRepo;
 import de.mfischbo.bustamail.landingpage.repo.StaticPageRepo;
 import de.mfischbo.bustamail.landingpage.service.LandingPagePublisher.Mode;
@@ -62,6 +64,9 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	
 	@Inject
 	LPFormRepo			formRepo;
+	
+	@Inject
+	LPFormSubmissionRepo	formSubRepo;
 
 	@Inject
 	Authentication		auth;
@@ -299,5 +304,11 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	@Override
 	public void deleteForm(LPForm form) {
 		formRepo.delete(form);
+	}
+
+	@Override
+	public LPFormSubmission createFormSubmission(LPFormSubmission submission) {
+		submission.setDateCreated(DateTime.now());
+		return formSubRepo.saveAndFlush(submission);
 	}
 }
