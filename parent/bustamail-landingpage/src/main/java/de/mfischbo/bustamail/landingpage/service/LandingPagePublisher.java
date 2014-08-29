@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 
+import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.mailer.util.HTMLSourceProcessor;
@@ -38,6 +39,7 @@ class LandingPagePublisher {
 	};
 
 	private static final String DOCUMENT_ROOT_KEY = "de.mfischbo.bustamail.env.apache.documentRoot";
+	private static final String API_ENDPOINT_KEY  = "de.mfischbo.bustamail.env.apiEndpoint";
 	
 	private Environment		env;
 
@@ -115,8 +117,10 @@ class LandingPagePublisher {
 		// step 2: Content only contains the body. Wrap up in stub HTML document and create a jsoup from it
 		StringBuffer b = new StringBuffer(page.getTemplate().getHtmlHead()).append("<body>").append(pageContent.getContent()).append("</body></html>");
 		Document d = Jsoup.parse(b.toString());
+		d = prepareForms(d);
 		this.contents.put(page.getId(), d);
 		this.linkMap.put(page.getId(), "index");
+		
 		
 		for (StaticPage subPage : page.getStaticPages()) {
 			VersionedContent content = getMostRecentVersionById(subPage.getId());
@@ -242,5 +246,26 @@ class LandingPagePublisher {
 		return pageContent;
 	}
 	
-
+	private Document prepareForms(Document d) {
+		Elements elms = d.getElementsByTag("form");
+		for (Element e : elms) {
+			String fName = e.attr("name");
+			if (fName == null || fName.isEmpty())
+				continue;
+			
+			LPForm targetForm = null;
+			for (LPForm form : this.page.getForms()) {
+				if (form.getName().equals(fName)) {
+					targetForm = form;
+					break;
+				}
+			}
+			
+			if (targetForm != null) {
+				e.attr("method", "POST");
+				e.attr("action", env.getProperty(API_ENDPOINT_KEY) + "/forms/" + targetForm.getId());
+			}
+		}
+		return d;
+	}
 }
