@@ -28,6 +28,10 @@ public class AbstractHtmlPage extends OwnedBaseDomain {
 	private String description;
 	
 	@Basic
+	@Column(length = 4096)
+	private String htmlHeader;
+	
+	@Basic
 	@NotNull
 	private DateTime dateCreated;
 	
@@ -61,6 +65,14 @@ public class AbstractHtmlPage extends OwnedBaseDomain {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public String getHtmlHeader() {
+		return htmlHeader;
+	}
+
+	public void setHtmlHeader(String htmlHeader) {
+		this.htmlHeader = htmlHeader;
 	}
 
 	public DateTime getDateCreated() {

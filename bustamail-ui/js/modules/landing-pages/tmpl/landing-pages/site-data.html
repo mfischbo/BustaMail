@@ -11,6 +11,11 @@
 				<label>Beschreibung</label>
 				<textarea data-ng-model="lp.description" class="form-control"></textarea>
 			</div>
+			
+			<div class="form-group">
+				<label>HTML Head</label>
+				<div data-ui-codemirror="{onLoad: createHeadCM}" data-ng-model="lp.htmlHeader"></div>
+			</div>
 		
 			<br/>	
 			<button type="button" class="btn btn-success pull-right" data-ng-click="updateLandingPage()">Speichern</button>

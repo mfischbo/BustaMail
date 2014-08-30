@@ -109,6 +109,9 @@ BMApp.LandingPages.controller('LPDetailsController',
 
 	// the current view mode for the forms tab
 	$scope.formViewMode = 'TABLE';
+	
+	// code mirror instance to edit the HTML Head
+	var _headCM = undefined;
 
 	// initially load the landing page
 	$http.get("/api/landingpages/" + $routeParams.id).success(function(data) {
@@ -133,11 +136,20 @@ BMApp.LandingPages.controller('LPDetailsController',
 			}
 		}).then(BMApp.hideSpinner);
 	});
+	
+	
+	$scope.createHeadCM = function(_editor) {
+		_editor.setOption("lineNumbers", true);
+		_editor.setOption("mode", "htmlmixed");
+		_headCM = _editor;
+	};
+	
 
 	/**
 	 * Updates the given landing pages data
 	 */
 	$scope.updateLandingPage = function() {
+		$scope.lp.htmlHeader = _headCM.getValue();
 		$http({
 			method:		"PATCH",
 			url:		'/api/landingpages/' + $scope.lp.id,

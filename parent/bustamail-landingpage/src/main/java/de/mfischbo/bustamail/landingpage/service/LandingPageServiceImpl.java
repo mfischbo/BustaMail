@@ -26,7 +26,9 @@ import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.landingpage.dto.LPFormDTO;
 import de.mfischbo.bustamail.landingpage.dto.LPFormEntryDTO;
+import de.mfischbo.bustamail.landingpage.dto.LandingPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.LandingPageIndexDTO;
+import de.mfischbo.bustamail.landingpage.dto.StaticPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.repo.LPFormRepo;
 import de.mfischbo.bustamail.landingpage.repo.LPFormSubmissionRepo;
@@ -110,6 +112,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		p.setTemplate(t);
 		p.setUserCreated(current);
 		p.setUserModified(current);
+		p.setHtmlHeader(t.getHtmlHead());
 		
 		// copy all resources from the template as new media
 		p.setResources(new ArrayList<Media>(t.getResources().size()));
@@ -132,7 +135,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	}
 
 	@Override
-	public LandingPage updateLandingPage(LandingPageIndexDTO page)
+	public LandingPage updateLandingPage(LandingPageDTO page)
 			throws EntityNotFoundException {
 		LandingPage p = lpRepo.findOne(page.getId());
 		checkOnNull(p);
@@ -142,6 +145,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		p.setDescription(page.getDescription());
 		p.setName(page.getName());
 		p.setUserModified(current);
+		p.setHtmlHeader(page.getHtmlHeader());
 		return lpRepo.saveAndFlush(p);
 	}
 
@@ -227,6 +231,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		Template t = tService.getTemplateById(staticPage.getTemplate().getId());
 		
 		StaticPage p = new StaticPage();
+		p.setOwner(parent.getOwner());
 		p.setDescription(staticPage.getDescription());
 		p.setName(staticPage.getName());
 		p.setDateCreated(now);
@@ -235,6 +240,8 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		p.setUserModified(current);
 		p.setTemplate(t);
 		p.setParent(parent);
+		p.setHtmlHeader(t.getHtmlHead());
+		
 		p = spRepo.saveAndFlush(p);
 		
 		VersionedContent c = new VersionedContent();
@@ -248,7 +255,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	}
 
 	@Override
-	public StaticPage updateStaticPage(StaticPageIndexDTO staticPage) throws EntityNotFoundException {
+	public StaticPage updateStaticPage(StaticPageDTO staticPage) throws EntityNotFoundException {
 		StaticPage p = spRepo.findOne(staticPage.getId());
 		checkOnNull(p);
 		
@@ -256,6 +263,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		p.setDescription(staticPage.getDescription());
 		p.setDateModified(DateTime.now());
 		p.setUserModified((User) auth.getPrincipal());
+		p.setHtmlHeader(staticPage.getHtmlHeader());
 		return spRepo.saveAndFlush(p);
 	}
 

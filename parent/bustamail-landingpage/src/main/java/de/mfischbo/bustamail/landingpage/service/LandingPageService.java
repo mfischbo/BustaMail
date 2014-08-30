@@ -13,7 +13,9 @@ import de.mfischbo.bustamail.landingpage.domain.LPFormSubmission;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.landingpage.dto.LPFormDTO;
+import de.mfischbo.bustamail.landingpage.dto.LandingPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.LandingPageIndexDTO;
+import de.mfischbo.bustamail.landingpage.dto.StaticPageDTO;
 import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 
@@ -23,7 +25,7 @@ public interface LandingPageService {
 	LandingPage			getLandingPageById(UUID id) throws EntityNotFoundException;
 
 	LandingPage			createLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException;
-	LandingPage			updateLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException;
+	LandingPage			updateLandingPage(LandingPageDTO page) throws EntityNotFoundException;
 	void				deleteLandingPage(LandingPage page); 
 	void				publishPreview(LandingPage page);
 	void				publishLive(LandingPage page);
@@ -37,7 +39,7 @@ public interface LandingPageService {
 	List<StaticPage>	getStaticPages(LandingPage page);
 	StaticPage			getStaticPageById(UUID id) throws EntityNotFoundException;
 	StaticPage			createStaticPage(LandingPage parent, StaticPageIndexDTO staticPage) throws EntityNotFoundException;
-	StaticPage			updateStaticPage(StaticPageIndexDTO staticPage) throws EntityNotFoundException;
+	StaticPage			updateStaticPage(StaticPageDTO staticPage) throws EntityNotFoundException;
 	void				deleteStaticPage(StaticPage page);
 
 	LPForm				getFormById(UUID id) throws EntityNotFoundException;

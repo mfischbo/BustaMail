@@ -7,6 +7,15 @@ public class StaticPageDTO extends StaticPageIndexDTO {
 	private static final long serialVersionUID = 3598978167133094098L;
 
 	private VersionedContentDTO		htmlContent;
+	private String					htmlHeader;
+	
+	public String getHtmlHeader() {
+		return htmlHeader;
+	}
+
+	public void setHtmlHeader(String htmlHeader) {
+		this.htmlHeader = htmlHeader;
+	}
 
 	public VersionedContentDTO getHtmlContent() {
 		return htmlContent;

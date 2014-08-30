@@ -55,7 +55,7 @@ public class RestStaticPageController extends BaseApiController {
 	@RequestMapping(value = "/{lpid}/staticpages/{spid}", method = RequestMethod.PATCH)
 	public StaticPageDTO updateStaticPage(
 			@PathVariable("lpid") UUID parentId, @PathVariable("spid") UUID pageId, 
-			@RequestBody StaticPageIndexDTO dto) throws EntityNotFoundException {
+			@RequestBody StaticPageDTO dto) throws EntityNotFoundException {
 		return asDTO(service.updateStaticPage(dto), StaticPageDTO.class);
 	}
 	

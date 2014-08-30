@@ -9,11 +9,21 @@ public class LandingPageDTO extends LandingPageIndexDTO {
 
 	private static final long serialVersionUID = -4806411259910343701L;
 
+	private String 						htmlHeader;
 	private List<StaticPageDTO>			staticPages;
 	private List<LPFormDTO>				forms;
 	private List<MediaDTO>				resources;
 	private VersionedContentDTO 		htmlContent;
-	
+
+
+	public String getHtmlHeader() {
+		return htmlHeader;
+	}
+
+	public void setHtmlHeader(String htmlHeader) {
+		this.htmlHeader = htmlHeader;
+	}
+
 	public List<StaticPageDTO> getStaticPages() {
 		return staticPages;
 	}
