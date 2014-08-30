@@ -21,7 +21,7 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.security.domain.User;
 
 @Entity
-@Table(name = "Mailing_VersionedContent")
+@Table(name = "VersionedContent_Content")
 public class VersionedContent extends BaseDomain {
 
 	private static final long serialVersionUID = 2960183880457152474L;
@@ -75,11 +75,11 @@ public class VersionedContent extends BaseDomain {
 		this.content = content;
 	}
 
-	public UUID getMailingId() {
+	public UUID getDocumentId() {
 		return mailingId;
 	}
 
-	public void setMailingId(UUID mailingId) {
+	public void setDocumentId(UUID mailingId) {
 		this.mailingId = mailingId;
 	}
 

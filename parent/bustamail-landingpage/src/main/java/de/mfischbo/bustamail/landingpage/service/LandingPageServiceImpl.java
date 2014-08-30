@@ -115,7 +115,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		VersionedContent html = new VersionedContent();
 		html.setContent(t.getSource());
 		html.setDateCreated(p.getDateCreated());
-		html.setMailingId(p.getId());
+		html.setDocumentId(p.getId());
 		html.setUserCreated(current);
 		html.setType(ContentType.HTML);
 		vcRepo.saveAndFlush(html);
@@ -181,7 +181,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	public VersionedContent createContentVersion(HTMLPage page, VersionedContent content) {
 		User current = (User) auth.getPrincipal();
 		
-		content.setMailingId(page.getId());
+		content.setDocumentId(page.getId());
 		content.setDateCreated(DateTime.now());
 		content.setUserCreated(current);
 		content.setType(ContentType.HTML);
@@ -222,7 +222,7 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		VersionedContent c = new VersionedContent();
 		c.setContent(t.getSource());
 		c.setDateCreated(now);
-		c.setMailingId(p.getId());
+		c.setDocumentId(p.getId());
 		c.setType(ContentType.HTML);
 		c.setUserCreated(current);
 		vcRepo.saveAndFlush(c);

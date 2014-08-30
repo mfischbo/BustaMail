@@ -109,7 +109,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		VersionedContent html = new VersionedContent();
 		html.setContent(m.getTemplate().getSource());
 		html.setDateCreated(m.getDateCreated());
-		html.setMailingId(m.getId());
+		html.setDocumentId(m.getId());
 		html.setUserCreated(m.getUserCreated());
 		html.setType(ContentType.HTML);
 		html = vcRepo.saveAndFlush(html);
@@ -230,7 +230,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 			VersionedContent c) {
 		
 		User current = (User) auth.getPrincipal();
-		c.setMailingId(m.getId());
+		c.setDocumentId(m.getId());
 		c.setDateCreated(DateTime.now());
 		c.setUserCreated(current);
 		return vcRepo.saveAndFlush(c);
