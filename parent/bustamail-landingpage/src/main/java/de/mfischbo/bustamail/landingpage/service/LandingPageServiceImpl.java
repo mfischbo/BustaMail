@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.landingpage.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.service.BaseService;
+import de.mfischbo.bustamail.exception.BustaMailException;
+import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.HTMLPage;
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
@@ -136,10 +139,13 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 
 	@Override
 	public LandingPage updateLandingPage(LandingPageDTO page)
-			throws EntityNotFoundException {
+			throws EntityNotFoundException, DataIntegrityException {
 		LandingPage p = lpRepo.findOne(page.getId());
 		checkOnNull(p);
-	
+
+		if (p.isPublished()) 
+			throw new DataIntegrityException("Unable to change a published landing page");
+		
 		User current = (User) auth.getPrincipal();
 		p.setDateModified(DateTime.now());
 		p.setDescription(page.getDescription());
@@ -150,7 +156,9 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	}
 
 	@Override
-	public void deleteLandingPage(LandingPage page) {
+	public void deleteLandingPage(LandingPage page) throws DataIntegrityException {
+		if (page.isPublished())
+			throw new DataIntegrityException("Unable to delete a published site");
 		lpRepo.delete(page);
 	}
 	
@@ -167,7 +175,21 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		page.setUserPublished((User) auth.getPrincipal());
 		page.setDatePublished(DateTime.now());
 		page.setPageUrl(publisher.getPageUrl());
+		page.setPublished(true);
 		return lpRepo.saveAndFlush(page);
+	}
+	
+	@Override
+	public LandingPage unpublishLive(LandingPage page) throws BustaMailException {
+		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.LIVE);
+		try {
+			publisher.unpublish();
+			page.setPublished(false);
+			return lpRepo.saveAndFlush(page);
+		} catch (IOException ex) {
+			log.error("Caught exception when unpublishing the site. Cause: " + ex.getMessage());
+			throw new BustaMailException("Unable to unpublish site. Cause was error in publisher.");
+		}
 	}
 	
 	@Override

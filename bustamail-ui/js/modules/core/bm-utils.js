@@ -30,12 +30,7 @@ BMApp.utils = {
 					array.splice(i,1);
 			}
 		},
-		
-		replace : function(property, value, array, newVal) {
-			var t = this.find(property, value, array);
-			t = newVal;
-		},
-		
+	
 		find:	function(property, value, array) {
 			for (var i in array)
 				if (array[i][property] == value)

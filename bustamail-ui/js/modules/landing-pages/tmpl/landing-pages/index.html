@@ -26,8 +26,8 @@
 						<td>{{p.name}}</td>
 						<td>{{p.description}}</td>
 						<td>
-							<span data-ng-if="!p.datePublished" style="background-color:#d43f3a; cursor:pointer;" class="badge" data-ng-click="publishLive(p.id)"><span class="fa fa-times"></span></span>
-							<span data-ng-if="p.datePublished" style="background-color:#4cae4c;" class="badge" data-ng-click="unpublishSite(p.id)"><span class="fa fa-check"></span></span>
+							<span data-ng-if="!p.published" style="background-color:#d43f3a; cursor:pointer;" class="badge" data-ng-click="publishLive(p.id)"><span class="fa fa-times"></span></span>
+							<span data-ng-if="p.published" style="background-color:#4cae4c; cursor:pointer;" class="badge" data-ng-click="unpublishSite(p.id)"><span class="fa fa-check"></span></span>
 						</td>
 						<td>
 							<span data-ng-if="p.userPublished">
@@ -38,7 +38,8 @@
 							<a href="#/landingpages/{{p.id}}/details" title="Details bearbeiten"><span class="fa fa-pencil-square"></span></a>
 							<a href="#/landingpages/{{p.id}}/edit" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
 							<a href="javascript:void('');" title="Preview" data-ng-click="createPreview(p.id)"><span class="fa fa-eye"></span></a>
-							<a href="javascript:void('');" tilte="Seite veröffentlichen" data-ng-click="publishLive(p.id)" title="Seite veröffentlichen"><span class="fa fa-paper-plane-o"></span></a>
+							<a href="javascript:void('');" data-ng-if="!p.published" title="Seite veröffentlichen" data-ng-click="publishLive(p.id)" title="Seite veröffentlichen"><span class="fa fa-paper-plane-o"></span></a>
+							<a href="{{p.pageUrl}}" target="_blank" data-ng-if="p.published" title="Zur Seite"><span class="fa fa-share"></span></a>
 							<a href="javascript:void('');" title="Entfernen" data-ng-click="deleteLandingPage(p.id)"><span class="fa fa-trash-o"></span></a>
 						</td>
 					</tr>

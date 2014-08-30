@@ -47,6 +47,21 @@ BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function(
 			});
 		});
 	};
+	
+	$scope.unpublishSite = function(id) {
+		BMApp.confirm("Achtung! Die Seite wird aus dem Live Betrieb genommen!", function() {
+			$http({
+				method:		"DELETE",
+				url:		"/api/landingpages/" + id + "/publish"
+			}).success(function(data) {
+				BMApp.alert("Die Seite wurde erfolgreich aus dem Live Betrieb genommen");
+				for (var i in $scope.pages.content) {
+					if ($scope.pages.content[i].id == id)
+						$scope.pages.content[i] = data;
+				}
+			});
+		});
+	};
 }]);
 
 

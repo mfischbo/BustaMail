@@ -12,6 +12,7 @@ public class LandingPageIndexDTO extends OwnedBaseDTO {
 	private String name;
 	private String description;
 	private String pageUrl;
+	private boolean published;
 	
 	private TemplateIndexDTO	template;
 	private UserDTO userCreated;
@@ -33,12 +34,17 @@ public class LandingPageIndexDTO extends OwnedBaseDTO {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
 	public String getPageUrl() {
 		return pageUrl;
 	}
 	public void setPageUrl(String pageUrl) {
 		this.pageUrl = pageUrl;
+	}
+	public boolean isPublished() {
+		return published;
+	}
+	public void setPublished(boolean published) {
+		this.published = published;
 	}
 	public TemplateIndexDTO getTemplate() {
 		return template;

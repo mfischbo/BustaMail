@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import de.mfischbo.bustamail.exception.BustaMailException;
+import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.HTMLPage;
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
@@ -25,10 +27,11 @@ public interface LandingPageService {
 	LandingPage			getLandingPageById(UUID id) throws EntityNotFoundException;
 
 	LandingPage			createLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException;
-	LandingPage			updateLandingPage(LandingPageDTO page) throws EntityNotFoundException;
-	void				deleteLandingPage(LandingPage page); 
+	LandingPage			updateLandingPage(LandingPageDTO page) throws EntityNotFoundException, DataIntegrityException;
+	void				deleteLandingPage(LandingPage page) throws DataIntegrityException; 
 	void				publishPreview(LandingPage page);
 	LandingPage			publishLive(LandingPage page);
+	LandingPage			unpublishLive(LandingPage page) throws BustaMailException;
 
 	List<VersionedContent>
 						getContentVersions(HTMLPage page);

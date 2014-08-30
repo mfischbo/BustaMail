@@ -2,12 +2,14 @@ package de.mfischbo.bustamail.landingpage.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -85,6 +87,14 @@ class LandingPagePublisher {
 			this.pageUrl = env.getProperty(PREVIEW_URL_KEY) + "/preview_" + page.getId();
 		}
 		publishInternal();
+	}
+	
+	
+	public void unpublish() throws IOException {
+		this.basedir = new File(env.getProperty(DOCUMENT_ROOT_KEY) + "/" + createPageName(page.getName()));
+		if (this.basedir.exists()) {
+			FileUtils.deleteDirectory(this.basedir);
+		}
 	}
 
 	public String getPageUrl() {

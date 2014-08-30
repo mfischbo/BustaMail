@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.mfischbo.bustamail.common.web.BaseApiController;
+import de.mfischbo.bustamail.exception.BustaMailException;
+import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.dto.LandingPageDTO;
@@ -65,12 +67,12 @@ public class RestLandingPageController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public LandingPageDTO updateLandingPage(@RequestBody LandingPageDTO page) throws EntityNotFoundException {
+	public LandingPageDTO updateLandingPage(@RequestBody LandingPageDTO page) throws EntityNotFoundException, DataIntegrityException {
 		return asDTO(service.updateLandingPage(page), LandingPageDTO.class);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteLandingPage(@PathVariable("id") UUID id) throws EntityNotFoundException {
+	public void deleteLandingPage(@PathVariable("id") UUID id) throws EntityNotFoundException, DataIntegrityException {
 		LandingPage p = service.getLandingPageById(id);
 		service.deleteLandingPage(p);
 	}
@@ -129,5 +131,11 @@ public class RestLandingPageController extends BaseApiController {
 	public LandingPageIndexDTO publishLive(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(pageId);
 		return asDTO(service.publishLive(page), LandingPageIndexDTO.class);
+	}
+	
+	@RequestMapping(value = "/{id}/publish", method = RequestMethod.DELETE)
+	public LandingPageIndexDTO unpublishLive(@PathVariable("id") UUID pageId) throws BustaMailException {
+		LandingPage page = service.getLandingPageById(pageId);
+		return asDTO(service.unpublishLive(page), LandingPageIndexDTO.class);
 	}
 }

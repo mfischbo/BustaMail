@@ -11,6 +11,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.joda.time.DateTime;
 
@@ -18,7 +19,9 @@ import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.security.domain.User;
 
 @Entity
-@Table(name = "LandingPage_LandingPage")
+@Table(name = "LandingPage_LandingPage", uniqueConstraints = { 
+		@UniqueConstraint(columnNames = {"name"}) 
+})
 public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 
 	private static final long serialVersionUID = 1686708887179244769L;
@@ -28,6 +31,9 @@ public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 
 	@Basic
 	private String		pageUrl;
+
+	@Basic
+	private boolean		published;
 	
 	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<StaticPage>	staticPages;
@@ -45,7 +51,15 @@ public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 	@ManyToOne
 	@JoinColumn(name = "UserPublished_id", referencedColumnName = "id", nullable = true)
 	private User		userPublished;
+
 	
+	public boolean isPublished() {
+		return published;
+	}
+
+	public void setPublished(boolean published) {
+		this.published = published;
+	}
 
 	public User getUserPublished() {
 		return userPublished;
