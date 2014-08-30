@@ -161,13 +161,13 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	}
 	
 	@Override
-	public void publishLive(LandingPage page) {
+	public LandingPage publishLive(LandingPage page) {
 		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.LIVE);
 		publisher.publish();
 		page.setUserPublished((User) auth.getPrincipal());
 		page.setDatePublished(DateTime.now());
 		page.setPageUrl(publisher.getPageUrl());
-		lpRepo.saveAndFlush(page);
+		return lpRepo.saveAndFlush(page);
 	}
 	
 	@Override

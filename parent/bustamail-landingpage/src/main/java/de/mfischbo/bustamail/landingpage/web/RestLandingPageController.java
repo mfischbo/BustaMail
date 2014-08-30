@@ -126,8 +126,8 @@ public class RestLandingPageController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}/publish", method = RequestMethod.PUT)
-	public void publishLive(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
+	public LandingPageIndexDTO publishLive(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(pageId);
-		service.publishLive(page);
+		return asDTO(service.publishLive(page), LandingPageIndexDTO.class);
 	}
 }
