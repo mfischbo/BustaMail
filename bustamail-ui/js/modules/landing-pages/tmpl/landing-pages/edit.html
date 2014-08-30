@@ -16,7 +16,7 @@
 						<a href="javascript:void('');" class="pull-right" data-ng-click="replaceElement(w.id)" data-ng-if="w.nestable && element" title="Markiertes Element ersetzen">
 							<span class="fa fa-refresh"></span>
 						</a>
-						{{w.name}}<br/>
+						{{w.name}} <small data-ng-if="w.nestable">(einbettbar)</small><br/>
 						<small>{{w.description}}</small>
 						<hr/>
 					</div>

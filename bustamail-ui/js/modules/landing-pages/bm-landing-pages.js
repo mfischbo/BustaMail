@@ -281,6 +281,18 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	$scope.tlink = $sce.trustAsUrl($scope.pageId);
 	
 	var dFrame = document.getElementById("documentFrame");
+	window.addEventListener("message", function(e) {
+	
+		if (e.data.type == 'elementSelected') {
+			$scope.element = e.data.data;
+			$scope.$apply();
+		}
+		
+		if (e.data.type == 'elementUnselected') {
+			$scope.element = undefined;
+			$scope.$apply();
+		}
+	});
 	
 	// initialize the document and the widgets
 	$http.get("/api/landingpages/" + $routeParams.id).success(function(data) {

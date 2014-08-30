@@ -2,7 +2,7 @@ BMApp.Editor = angular.module("BMEditorModule", ['ui.bootstrap', 'MediaModule'])
 
 BMApp.Editor.controller("EditorIndexController", 
 		['$scope', '$http', '$routeParams', '$sce',
-          function($scope, $http, $routeParams, $sce, HyperlinkService) {
+          function($scope, $http, $routeParams, $sce) {
 
 
 	// The Mailing in question + initialization
@@ -44,6 +44,11 @@ BMApp.Editor.controller("EditorIndexController",
 		// fetch the full graph for the given template
 		$http.get("/api/templates/templates/" + $scope.document.template.id).success(function(data) {
 
+			$scope.widgets = data.widgets;
+			for (var i in $scope.widgets)
+				if ($scope.widgets[i].source.indexOf("bm-on-replace") > 0)
+					$scope.widgets[i].nestable = true;
+			
 			// create the editor
 			// bind editor after content is inserted into DOM
 			nodeEdit = new BMNodeEdit(data);
@@ -160,14 +165,25 @@ BMApp.Editor.controller("EditorIndexController",
 		jE = $(element);
 		$scope.element = $scope.metaDataFor(element);
 		$scope.$apply();
+		console.log("Selected an element");
+		console.log($scope.element);
+		
 		if (element.tagName == "IMG")
 			$scope.$broadcast("setCurrentImage", element);
+		
+		// broadcast that up to the content frame window
+		var m = {type : 'elementSelected', data : $scope.element};
+		window.parent.postMessage(m, "http://localhost/bustamail");
 	});
 	
 	$(document).on("_bmElementUnselected", function(e) {
 		jE = undefined;
 		$scope.element = undefined;
 		$scope.$apply();
+		
+		// broadcast that up to the content frame window
+		var m = {type : 'elementUnselected'};
+		window.parent.postMessage(m, "http://localhost/bustamail");
 	});
 	
 	$(document).on("_bmTextSelection", function(e, s) {
