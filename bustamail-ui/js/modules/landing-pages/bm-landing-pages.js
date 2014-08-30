@@ -313,7 +313,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	};
 	
 	$scope.editResource = function(id) {
-		$scope.resource = BMApp.utils.find('id', id, $scope.document.template.resources);
+		$scope.resource = BMApp.utils.find('id', id, $scope.document.resources);
 		$http.get('/api/media/' + id + '/content').success(function(data) {
 			cme.setValue(data);
 		});

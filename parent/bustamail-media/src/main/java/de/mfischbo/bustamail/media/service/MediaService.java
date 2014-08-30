@@ -27,13 +27,16 @@ public interface MediaService {
 	Media			createMedia(@P("m") Media media);
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
+	Media			createCopy(@P("m") Media media, String filename);
+	
+	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	MediaImage		createMediaImage(@P("m") MediaImage media);
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			updateMedia(@P("m") Media media) throws EntityNotFoundException;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
-	void				deleteMedia(@P("m") Media media) throws EntityNotFoundException;
+	void			deleteMedia(@P("m") Media media) throws EntityNotFoundException;
 	
 	
 	

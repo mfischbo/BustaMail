@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.landingpage.dto;
 
 import java.util.List;
 
+import de.mfischbo.bustamail.media.dto.MediaDTO;
 import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
 
 public class LandingPageDTO extends LandingPageIndexDTO {
@@ -10,6 +11,7 @@ public class LandingPageDTO extends LandingPageIndexDTO {
 
 	private List<StaticPageDTO>			staticPages;
 	private List<LPFormDTO>				forms;
+	private List<MediaDTO>				resources;
 	private VersionedContentDTO 		htmlContent;
 	
 	public List<StaticPageDTO> getStaticPages() {
@@ -34,5 +36,13 @@ public class LandingPageDTO extends LandingPageIndexDTO {
 
 	public void setHtmlContent(VersionedContentDTO content) {
 		this.htmlContent = content;
+	}
+
+	public List<MediaDTO> getResources() {
+		return resources;
+	}
+
+	public void setResources(List<MediaDTO> resources) {
+		this.resources = resources;
 	}
 }

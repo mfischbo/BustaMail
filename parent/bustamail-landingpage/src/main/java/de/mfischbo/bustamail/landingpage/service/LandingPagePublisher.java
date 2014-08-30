@@ -138,10 +138,10 @@ class LandingPagePublisher {
 			Element head = c.getElementsByTag("head").first();
 		
 			try {
-				CSSFilePublisher cPub = new CSSFilePublisher(env, cssResources, mService, page.getTemplate());
+				CSSFilePublisher cPub = new CSSFilePublisher(env, cssResources, mService, page);
 				cPub.publish();
 				this.images.addAll(cPub.getImageResources());
-				JSFilePublisher jsPub = new JSFilePublisher(env, jsResources, page.getTemplate());
+				JSFilePublisher jsPub = new JSFilePublisher(env, jsResources, page);
 				jsPub.publish();
 				
 				for (String cssLink : cPub.getCSSLinks()) 

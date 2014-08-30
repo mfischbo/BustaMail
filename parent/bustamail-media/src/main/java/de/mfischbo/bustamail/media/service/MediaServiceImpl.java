@@ -121,6 +121,24 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 	
 	@Override
+	public Media createCopy(Media media, String filename) {
+		Media m2 = new Media();
+		m2.setData(media.getData());
+		m2.setDescription(media.getDescription());
+		m2.setDirectory(media.getDirectory());
+		m2.setMimetype(media.getMimetype());
+		m2.setOwner(media.getOwner());
+	
+		if (filename != null && !filename.isEmpty()) 
+			m2.setName(filename);
+		else
+			m2.setName(media.getName());
+		
+		return createMedia(m2);
+	}
+	
+	
+	@Override
 	@Transactional
 	public MediaImage createMediaImage(MediaImage image) {
 		String mimetype = tika.detect(image.getData()).toLowerCase();

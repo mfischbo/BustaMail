@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
+import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
-import de.mfischbo.bustamail.template.domain.Template;
 
 class CSSFilePublisher {
 	
@@ -26,7 +26,7 @@ class CSSFilePublisher {
 	private File 				cssResources;
 	private MediaService		mService;
 	private List<Media>			images;
-	private Template			template;
+	private LandingPage			page;
 	
 	private Map<UUID, String>	cssSources;
 	private List<String>		cssLinks;
@@ -34,13 +34,13 @@ class CSSFilePublisher {
 	
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
-	public CSSFilePublisher(Environment env, File cssResources, MediaService mService, Template template) {
+	public CSSFilePublisher(Environment env, File cssResources, MediaService mService, LandingPage page) {
 		this.cssResources = cssResources;
 		this.mService = mService;
 		this.images = new LinkedList<>();
 		this.cssSources = new HashMap<>();
 		this.cssLinks = new LinkedList<>();
-		this.template = template;
+		this.page = page;
 		this.concatenationEnabled = Boolean.parseBoolean(env.getProperty(CSS_CONCATENATION_KEY));
 	}
 
@@ -49,7 +49,7 @@ class CSSFilePublisher {
 		// get all css resources from the landing page
 		StringBuffer b = new StringBuffer();
 		
-		for (Media m : template.getResources()) {
+		for (Media m : page.getResources()) {
 			if (m.getMimetype().equalsIgnoreCase("text/css") || m.getExtension().equalsIgnoreCase("css")) {
 				
 				// concat to one single script or append in a list

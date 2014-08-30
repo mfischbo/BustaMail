@@ -11,32 +11,32 @@ import java.util.UUID;
 
 import org.springframework.core.env.Environment;
 
+import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.template.domain.Template;
 
 class JSFilePublisher {
 
 	private static final String JS_CONCATENATION_KEY = "de.mfischbo.bustamail.landingpages.publisher.enableJSConcatenation";
 	
 	private File		jsResources;
-	private Template	template;
 	private List<String> jsLinks;
 	private Map<UUID, String> sources;
+	private LandingPage	page;
 	private boolean		concatEnabled;
 	
-	public JSFilePublisher(Environment env, File jsResources, Template template) {
+	public JSFilePublisher(Environment env, File jsResources, LandingPage page) {
 		this.jsResources = jsResources;
 		this.jsLinks = new LinkedList<>();
 		this.concatEnabled = Boolean.parseBoolean(env.getProperty(JS_CONCATENATION_KEY));
 		this.sources = new HashMap<>();
-		this.template = template;
+		this.page = page;
 	}
 	
 	public void publish() throws IOException {
 		
 		StringBuffer b = new StringBuffer();
 		
-		for (Media m : template.getResources()) {
+		for (Media m : page.getResources()) {
 			if (m.getMimetype().equalsIgnoreCase("text/javascript") || m.getExtension().equalsIgnoreCase("js")) {
 				if (concatEnabled) {
 					b.append(new String(m.getData())).append("\n\n");

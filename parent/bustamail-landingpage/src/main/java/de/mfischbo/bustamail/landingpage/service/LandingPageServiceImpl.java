@@ -33,6 +33,7 @@ import de.mfischbo.bustamail.landingpage.repo.LPFormSubmissionRepo;
 import de.mfischbo.bustamail.landingpage.repo.LandingPageRepo;
 import de.mfischbo.bustamail.landingpage.repo.StaticPageRepo;
 import de.mfischbo.bustamail.landingpage.service.LandingPagePublisher.Mode;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.domain.User;
@@ -109,6 +110,13 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		p.setTemplate(t);
 		p.setUserCreated(current);
 		p.setUserModified(current);
+		
+		// copy all resources from the template as new media
+		p.setResources(new ArrayList<Media>(t.getResources().size()));
+		for (Media m : t.getResources()) {
+			Media m2 = mediaService.createCopy(m, null);
+			p.getResources().add(m2);
+		}
 		p = lpRepo.saveAndFlush(p);
 		
 		// create a versioned content
