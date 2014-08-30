@@ -1,20 +1,10 @@
 package de.mfischbo.bustamail.exception;
 
-public class EntityNotFoundException extends Exception {
+public class EntityNotFoundException extends BustaMailException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -8638113746053370384L;
 	
-	private String message;
-	
 	public EntityNotFoundException(String message) {
-		this.message = message;
+		super(message);
 	}
-	
-	public String getMessage() {
-		return this.message;
-	}
-
 }
