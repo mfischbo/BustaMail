@@ -18,6 +18,16 @@
 	</div>
 	
 	<div class="col-md-6">
+		<div data-ng-if="lp.datePublished">
+			<h4>Veröffentlichungsdetails</h4>
+			<a href="{{lp.pageUrl}}/index.html" target="_blank">Seite anzeigen</a><br/>
+			
+			<strong>Code zum einbetten als iFrame:</strong><br/>
+			<code>
+				&lt;iframe src="{{lp.pageUrl}}/index.html" style="border:none;width:100%;height:100%;"&gt;
+			</code>
+		</div>
+	
 		<h4>Einstellungen</h4>
 		As soon as we have it...
 	</div>

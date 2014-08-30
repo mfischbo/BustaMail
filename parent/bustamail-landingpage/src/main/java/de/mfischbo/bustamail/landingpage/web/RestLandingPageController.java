@@ -124,4 +124,10 @@ public class RestLandingPageController extends BaseApiController {
 		LandingPage page = service.getLandingPageById(pageId);
 		service.publishPreview(page);
 	}
+	
+	@RequestMapping(value = "/{id}/publish", method = RequestMethod.PUT)
+	public void publishLive(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
+		LandingPage page = service.getLandingPageById(pageId);
+		service.publishLive(page);
+	}
 }

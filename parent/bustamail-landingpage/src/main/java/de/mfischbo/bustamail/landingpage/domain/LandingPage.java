@@ -25,6 +25,9 @@ public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 
 	@Basic
 	private DateTime	datePublished;
+
+	@Basic
+	private String		pageUrl;
 	
 	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<StaticPage>	staticPages;
@@ -82,5 +85,13 @@ public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 
 	public void setResources(List<Media> resources) {
 		this.resources = resources;
+	}
+
+	public String getPageUrl() {
+		return pageUrl;
+	}
+
+	public void setPageUrl(String pageUrl) {
+		this.pageUrl = pageUrl;
 	}
 }

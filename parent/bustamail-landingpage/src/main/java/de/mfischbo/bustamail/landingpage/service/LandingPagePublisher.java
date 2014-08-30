@@ -40,6 +40,8 @@ class LandingPagePublisher {
 
 	private static final String DOCUMENT_ROOT_KEY = "de.mfischbo.bustamail.env.apache.documentRoot";
 	private static final String API_ENDPOINT_KEY  = "de.mfischbo.bustamail.env.apiEndpoint";
+	private static final String PREVIEW_URL_KEY   = "de.mfischbo.bustamail.env.previewUrl";
+	private static final String LIVE_URL_KEY	  = "de.mfischbo.bustamail.env.liveUrl";
 	
 	private Environment		env;
 
@@ -58,6 +60,8 @@ class LandingPagePublisher {
 	private Map<UUID, String>	linkMap;
 	private Map<UUID, Document>	contents;
 	
+	private String				pageUrl;
+	
 	Logger log = LoggerFactory.getLogger(getClass());
 	
 	public LandingPagePublisher(Environment env, VersionedContentRepository vcRepo, MediaService mService,
@@ -73,22 +77,24 @@ class LandingPagePublisher {
 	}
 	
 	public void publish() {
-		if (this.publishingMode == Mode.PREVIEW)
-			this.publishPreview();
-		else 
-			this.publishLive();
-		
+		if (this.publishingMode == Mode.LIVE) {
+			this.basedir = new File(env.getProperty(DOCUMENT_ROOT_KEY) + "/" + createPageName(page.getName()));
+			this.pageUrl = env.getProperty(LIVE_URL_KEY) + "/" + createPageName(page.getName());
+		} else {
+			basedir = new File(env.getProperty(DOCUMENT_ROOT_KEY) + "/preview_" + page.getId());
+			this.pageUrl = env.getProperty(PREVIEW_URL_KEY) + "/preview_" + page.getId();
+		}
+		publishInternal();
 	}
 
-	private void publishLive() {
-		
+	public String getPageUrl() {
+		return this.pageUrl;
 	}
 	
-	private void publishPreview() {
+	private void publishInternal() {
 		
 		// step 0 : Create a directory in the document root
 		log.debug("Creating initial preview basedirectory for landing page : " + page.getName());
-		basedir = new File(env.getProperty(DOCUMENT_ROOT_KEY) + "/preview_" + page.getId());
 		
 		if (basedir.exists()) {
 			// if directory exits wipe it
@@ -185,7 +191,7 @@ class LandingPagePublisher {
 			c.select("head title").first().text(page.getName());
 	
 			try {
-				String name = createPageName(linkMap.get(id));
+				String name = createPageName(linkMap.get(id) + ".html");
 				log.info("Writing contents for page : " + name);
 				FileOutputStream fOut = new FileOutputStream(new File(basedir.getAbsolutePath() + "/" + name));
 				fOut.write(c.html().getBytes());
@@ -222,7 +228,7 @@ class LandingPagePublisher {
 		for (Element e : els) {
 			try {
 				UUID id = UUID.fromString(e.attr("href"));
-				e.attr("href", createPageName(linkMap.get(id)));
+				e.attr("href", createPageName(linkMap.get(id) + ".html"));
 			} catch (Exception ex) {
 				// this is a external link... ignore it
 			}
@@ -235,7 +241,7 @@ class LandingPagePublisher {
 		uiName = uiName.toLowerCase();
 		uiName = uiName.replaceAll(" ", "-");
 		uiName = uiName.replaceAll("[^\\x20-\\x7e]", "");
-		uiName += ".html";
+		//uiName += ".html";
 		return uiName;
 	}
 	

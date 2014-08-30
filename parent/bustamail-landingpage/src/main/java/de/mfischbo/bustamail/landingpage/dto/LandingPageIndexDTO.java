@@ -11,6 +11,7 @@ public class LandingPageIndexDTO extends OwnedBaseDTO {
 	private static final long serialVersionUID = -7933166616560293119L;
 	private String name;
 	private String description;
+	private String pageUrl;
 	
 	private TemplateIndexDTO	template;
 	private UserDTO userCreated;
@@ -19,6 +20,7 @@ public class LandingPageIndexDTO extends OwnedBaseDTO {
 	private DateTime dateCreated;
 	private DateTime dateModified;
 	private DateTime datePublished;
+	
 	public String getName() {
 		return name;
 	}
@@ -30,6 +32,13 @@ public class LandingPageIndexDTO extends OwnedBaseDTO {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public String getPageUrl() {
+		return pageUrl;
+	}
+	public void setPageUrl(String pageUrl) {
+		this.pageUrl = pageUrl;
 	}
 	public TemplateIndexDTO getTemplate() {
 		return template;

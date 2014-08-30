@@ -35,6 +35,14 @@ BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function(
 			window.open("http://previews.localhost/preview_" + id + "/index.html", "_blank");
 		});
 	};
+	
+	$scope.publishLive = function(id) {
+		BMApp.confirm("Soll die Seite in Betrieb genommen werden?", function() {
+			$http.put("/api/landingpages/" + id + "/publish").success(function() {
+				BMApp.alert("Die Seite wurde erfolgreich in Betrieb genommen");
+			});
+		});
+	};
 }]);
 
 

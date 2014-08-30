@@ -13,6 +13,8 @@
 					<tr>
 						<th>Landing Page</th>
 						<th>Beschreibung</th>
+						<th>Online</th>
+						<th>Veröffentlicht von</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
@@ -23,10 +25,20 @@
 					<tr data-ng-repeat="p in pages.content">
 						<td>{{p.name}}</td>
 						<td>{{p.description}}</td>
+						<td>
+							<span data-ng-if="!p.datePublished" style="background-color:red;" class="badge"><span class="fa fa-times"></span></span>
+							<span data-ng-if="p.datePublished" style="background-color:green;" class="badge"><span class="fa fa-check"></span></span>
+						</td>
+						<td>
+							<span data-ng-if="p.userPublished">
+								{{p.userPublished.firstName}} {{p.userPublished.lastName}} <small>({{p.datePublished|date:"dd.MM.yyyy HH:mm"}})</small>
+							</span>
+						</td>
 						<td class="tools">
 							<a href="#/landingpages/{{p.id}}/details" title="Details bearbeiten"><span class="fa fa-pencil-square"></span></a>
 							<a href="#/landingpages/{{p.id}}/edit" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
 							<a href="javascript:void('');" title="Preview" data-ng-click="createPreview(p.id)"><span class="fa fa-eye"></span></a>
+							<a href="javascript:void('');" tilte="Seite veröffentlichen" data-ng-click="publishLive(p.id)"><span class="fa fa-paper-plane-o"></span></a>
 							<a href="javascript:void('');" title="Entfernen" data-ng-click="deleteLandingPage(p.id)"><span class="fa fa-trash-o"></span></a>
 						</td>
 					</tr>
