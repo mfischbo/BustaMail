@@ -51,7 +51,7 @@ BMApp.Editor.controller("EditorIndexController",
 			
 			// create the editor
 			// bind editor after content is inserted into DOM
-			nodeEdit = new BMNodeEdit(data);
+			nodeEdit = new BMNodeEdit($scope.document, data);
 			window.setTimeout(function() {
 				nodeEdit.setup();
 				$scope.reinitMCE(); 
@@ -147,7 +147,7 @@ BMApp.Editor.controller("EditorIndexController",
 			$scope.html = $sce.trustAsHtml(data.content);
 			nodeEdit.destroy();
 			
-			nodeEdit = new BMNodeEdit($scope.document.template);
+			nodeEdit = new BMNodeEdit($scope.document, $scope.document.template);
 			window.setTimeout(function() {
 				nodeEdit.setup();
 				$scope.reinitMCE();

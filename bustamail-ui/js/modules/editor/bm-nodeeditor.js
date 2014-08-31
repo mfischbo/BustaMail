@@ -1,5 +1,6 @@
-function BMNodeEdit(template) {
+function BMNodeEdit(doc, template) {
 	this.editor			  = undefined;
+	this.doc			  = doc;
 	this.template 		  = template;
 	this.templateSettings = template.settings; 
 };
@@ -26,8 +27,8 @@ BMNodeEdit.prototype.setup = function() {
 	this.textSelectionControl.setup();
 	
 	// append stylesheets and scripts to the editor
-	for (var i in this.template.resources) {
-		var r = this.template.resources[i];
+	for (var i in this.doc.resources) {
+		var r = this.doc.resources[i];
 		if (r.mimetype == 'text/css')
 			this.editor.append('<link rel="stylesheet" type="text/css" href="./img/media/' + r.id + '">');
 		
