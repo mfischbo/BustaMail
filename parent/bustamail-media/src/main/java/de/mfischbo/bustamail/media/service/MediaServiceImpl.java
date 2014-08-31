@@ -47,6 +47,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 
 	public static final UUID GLOBAL_ROOT_DIRECTORY_ID = UUID.fromString("15f812fb-c25c-45ab-ab5b-1fdb7d2dce33");
 	
+	public static final String UI_DOCUMENT_ROOT_KEY = "de.mfischbo.bustamail.ui.documentRoot";
+	public static final String UI_MEDIA_DIRECTORY_KEY = "de.mfischbo.bustamail.ui.mediadir";
+	
 	@Autowired
 	private MediaRepository			mRepo;
 	
@@ -68,9 +71,16 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Autowired
 	private Environment				env;
 	
+	private File					mediaDir;
+	
 	public MediaServiceImpl() {
 		MediaModulePermissionProvider mmpp = new MediaModulePermissionProvider();
 		PermissionRegistry.registerPermissions(mmpp.getModulePermissions());
+		
+		String dirname = env.getProperty(UI_DOCUMENT_ROOT_KEY) + env.getProperty(UI_MEDIA_DIRECTORY_KEY);
+		this.mediaDir = new File(dirname);
+		if (!this.mediaDir.exists())
+			this.mediaDir.mkdirs();
 	}
 	
 	@Override
@@ -155,10 +165,8 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 	
 	private void writeToDisk(Media image, boolean includeVariants) throws IOException {
-		File outputDir = new File(env.getProperty("de.mfischbo.bustamail.media.documentroot"));
-		if (!outputDir.exists())
-			outputDir.mkdirs();
-		
+		File outputDir = this.mediaDir;
+	
 		File f = new File(outputDir.getAbsolutePath() + "/" + image.getId());
 		FileOutputStream fout = new FileOutputStream(f);
 		fout.write(image.getData());

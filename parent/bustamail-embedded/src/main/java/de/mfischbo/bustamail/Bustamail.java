@@ -18,6 +18,8 @@ public class Bustamail extends SpringBootServletInitializer {
 	
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder app) {
-		return app.sources(Bustamail.class);
+		
+		SpringApplicationBuilder retval = app.sources(Bustamail.class);
+		return retval;
 	}
 }
