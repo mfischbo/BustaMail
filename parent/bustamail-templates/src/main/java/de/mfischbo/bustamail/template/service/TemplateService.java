@@ -1,10 +1,13 @@
 package de.mfischbo.bustamail.template.service;
 
+import java.io.OutputStream;
 import java.util.UUID;
+import java.util.zip.ZipInputStream;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
@@ -17,6 +20,9 @@ public interface TemplateService {
 	public Page<TemplatePack>		getAllTemplatePacks(UUID owner, Pageable page);
 	public TemplatePack				getTemplatePackById(UUID id) throws EntityNotFoundException;
 	public TemplatePack				createTemplatePack(TemplatePack pack) throws EntityNotFoundException;
+	public TemplatePack				importTemplatePack(UUID owner, ZipInputStream stream) throws BustaMailException;
+	public void						exportTemplatePack(TemplatePack pack, OutputStream stream) throws BustaMailException;
+	public TemplatePack				cloneTemplatePack(TemplatePack  pack) throws EntityNotFoundException;
 	public TemplatePack				updateTemplatePack(TemplatePack pack) throws EntityNotFoundException;
 	public void						deleteTemplatePack(TemplatePack pack) throws EntityNotFoundException;
 	public void						exportAsZip(UUID owner, TemplatePack tp);

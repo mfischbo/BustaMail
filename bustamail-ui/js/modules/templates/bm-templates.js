@@ -2,7 +2,7 @@ BMApp.Templates = angular.module("TemplatesModule",
 		['SecurityModule', 'ui.codemirror', 'angularFileUpload']);
 
 
-BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', function($http, $scope) {
+BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', '$upload', function($http, $scope, $upload) {
 
 	$scope.owner = undefined;
 	$scope.packs = {};
@@ -24,10 +24,6 @@ BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', f
 		});
 	};
 	
-	$scope.downloadPack = function() {
-		
-	};
-	
 	$scope.deletePack = function(id) {
 		BMApp.confirm("Soll der Template Pack und alle seine Inhalte wirklich entfernt werden?", function() {
 			$http({
@@ -37,6 +33,21 @@ BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', f
 				BMApp.utils.remove("id", id, $scope.packs.content);
 			});
 		});
+	};
+	
+	$scope.onZipFileSelect = function($files) {
+		BMApp.showSpinner();
+		$scope.upload = $upload.upload({
+			url		:	"/api/templates/"+ $scope.owner +"/packs/upload",
+			method	:	"POST",
+			file	:	$files[0]
+		}).success(function(data) {
+			BMApp.hideSpinner();
+			$scope.packs.content.push(data);
+			BMApp.alert("Das Template Pack wurde erfolgreich hochgeladen");
+		}).error(function() {
+			BMApp.hideSpinner();
+		});	
 	};
 }]);
 

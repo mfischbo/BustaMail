@@ -1,11 +1,8 @@
 package de.mfischbo.bustamail.template.web;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.io.ByteArrayInputStream;
 import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.zip.ZipInputStream;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -21,14 +18,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.mfischbo.bustamail.common.web.BaseApiController;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.dto.MediaImageDTO;
-import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
-import de.mfischbo.bustamail.template.domain.Widget;
 import de.mfischbo.bustamail.template.dto.TemplatePackDTO;
 import de.mfischbo.bustamail.template.dto.TemplatePackIndexDTO;
 import de.mfischbo.bustamail.template.service.TemplateService;
@@ -40,9 +33,6 @@ public class RestTemplatePackController extends BaseApiController {
 	@Inject
 	private TemplateService		service;
 
-	@Inject
-	private ObjectMapper		jacksonMapper;
-	
 	@RequestMapping(value = "/{owner}/packs", method = RequestMethod.GET)
 	public Page<TemplatePackIndexDTO> getAllTemplatePacks(@PathVariable("owner") UUID owner, @PageableDefault(page =0, size=30, sort="name") Pageable page) {
 		return asDTO(service.getAllTemplatePacks(owner, page), TemplatePackIndexDTO.class, page);
@@ -68,50 +58,7 @@ public class RestTemplatePackController extends BaseApiController {
 	@RequestMapping(value = "/packs/{id}/clone", method = RequestMethod.PUT)
 	public TemplatePackDTO cloneTemplatePack(@PathVariable("id") UUID id) throws Exception {
 		TemplatePack o = service.getTemplatePackById(id);
-		TemplatePack n = new TemplatePack();
-		n.setDescription(o.getDescription());
-		n.setName("Copy of " + o.getName());
-		n.setOwner(o.getOwner());
-		n.setTemplates(new LinkedList<Template>());
-		
-		for (Template to : o.getTemplates()) {
-			Template tn = new Template();
-			tn.setDescription(to.getDescription());
-			tn.setName(to.getName());
-			tn.setSource(to.getSource());
-			tn.setWidgets(new LinkedList<Widget>());
-			tn.setTemplatePack(n);
-			
-			for (Widget wo : to.getWidgets()) {
-				Widget wn = new Widget();
-				wn.setDescription(wo.getDescription());
-				wn.setName(wo.getName());
-				wn.setSource(wo.getSource());
-				wn.setTemplate(tn);
-				tn.getWidgets().add(wn);
-			}
-			
-			tn.setImages(new LinkedList<MediaImage>());
-			for (MediaImage mo : to.getImages()) {
-				MediaImage m = new MediaImage();
-				m.setAwtColorSpace(mo.getAwtColorSpace());
-				m.setData(mo.getData());
-				m.setDescription(mo.getDescription());
-				m.setName(mo.getName());
-				m.setOwner(mo.getOwner());
-				tn.getImages().add(m);
-			}
-			
-			tn.setSettings(new LinkedHashMap<String, String>());
-			to.getSettings().forEach(new BiConsumer<String, String>() {
-				@Override
-				public void accept(String t, String u) {
-					tn.getSettings().put(t, u);
-				}
-			});
-			n.getTemplates().add(tn);
-		}
-		return asDTO(service.createTemplatePack(n), TemplatePackDTO.class);
+		return asDTO(service.cloneTemplatePack(o), TemplatePackDTO.class);
 	}
 	
 	@RequestMapping(value = "/packs", method = RequestMethod.POST)
@@ -142,37 +89,19 @@ public class RestTemplatePackController extends BaseApiController {
 	
 	@RequestMapping(value = "/packs/{id}/download", method = RequestMethod.GET)
 	public void downloadTemplatePack(@PathVariable("id") UUID id, HttpServletResponse response) throws Exception {
+
 		TemplatePack t = service.getTemplatePackById(id);
 		checkOnNull(t);
-	
 		response.setHeader("Content-Type", "application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment;filename=" + t.getName() + ".zip");
 		response.setHeader("Content-Transfer-Encoding", "binary");
-		
-		// map the pack to a dto
-		TemplatePackDTO d = asDTO(t, TemplatePackDTO.class);
-	
-		ZipOutputStream zip = new ZipOutputStream(response.getOutputStream());
-		zip.putNextEntry(new ZipEntry("manifest.json"));
-		zip.write(jacksonMapper.writeValueAsBytes(d));
-		
-		zip.putNextEntry(new ZipEntry(t.getThemeImage().getId().toString()));
-		zip.write(t.getThemeImage().getData());
-
-		for (Template tm : t.getTemplates()) {
-			for (MediaImage i : tm.getImages()) {
-				zip.putNextEntry(new ZipEntry(i.getId().toString()));
-				zip.write(i.getData());
-			}
-		}
-		zip.flush();
-		zip.close();
-		response.getOutputStream().flush();
-		response.getOutputStream().close();
+		service.exportTemplatePack(t, response.getOutputStream());
 	}
 	
-	@RequestMapping(value = "/packs/upload", method = RequestMethod.POST)
-	public void uploadTemplatePack(MultipartFile file) throws Exception {
-		
+	@RequestMapping(value = "/{owner}/packs/upload", method = RequestMethod.POST)
+	public TemplatePackIndexDTO uploadTemplatePack(@PathVariable("owner") UUID owner, MultipartFile file) throws Exception {
+		ByteArrayInputStream bin = new ByteArrayInputStream(file.getBytes());
+		ZipInputStream zipin = new ZipInputStream(bin);
+		return asDTO(service.importTemplatePack(owner, zipin), TemplatePackIndexDTO.class);
 	}
 }
