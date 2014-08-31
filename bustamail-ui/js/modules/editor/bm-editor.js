@@ -122,7 +122,7 @@ BMApp.Editor.controller("EditorIndexController",
 			
 			// create the editor
 			// bind editor after content is inserted into DOM
-			nodeEdit = new BMNodeEdit($scope.mailing.template);
+			nodeEdit = new BMNodeEdit($scope.mailing, $scope.mailing.template);
 			BMApp.showSpinner();
 			window.setTimeout(function() {
 				nodeEdit.setup();
@@ -175,7 +175,7 @@ BMApp.Editor.controller("EditorIndexController",
 			// reinit the editor
 			$scope.html = $sce.trustAsHtml(data.content);
 			nodeEdit.destroy();
-			nodeEdit = new BMNodeEdit($scope.mailing.template);
+			nodeEdit = new BMNodeEdit($socpe.mailing, $scope.mailing.template);
 			BMApp.showSpinner();
 			window.setTimeout(function() {
 				nodeEdit.setup();
