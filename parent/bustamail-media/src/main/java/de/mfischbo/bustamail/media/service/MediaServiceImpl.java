@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
 
@@ -77,6 +78,11 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		MediaModulePermissionProvider mmpp = new MediaModulePermissionProvider();
 		PermissionRegistry.registerPermissions(mmpp.getModulePermissions());
 		
+	
+	}
+	
+	@PostConstruct
+	public void init() {
 		String dirname = env.getProperty(UI_DOCUMENT_ROOT_KEY) + env.getProperty(UI_MEDIA_DIRECTORY_KEY);
 		this.mediaDir = new File(dirname);
 		if (!this.mediaDir.exists())
