@@ -32,7 +32,7 @@ BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function(
 	 */
 	$scope.createPreview = function(id) {
 		$http.put("/api/landingpages/" + id + "/preview").success(function() {
-			window.open("http://previews.localhost/preview_" + id + "/index.html", "_blank");
+			window.open(BMApp.uiConfig.previewURL + "/preview_" + id + "/index.html", "_blank");
 		});
 	};
 	
@@ -313,7 +313,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	var cme = undefined;
 	$scope.resource = undefined; 	// the resource being edited
 	
-	$scope.pageId = './js/modules/landing-pages/tmpl/frameedit.html?lpid=' + ($routeParams.id);
+	$scope.pageId = './frameedit.html?lpid=' + ($routeParams.id);
 	if ($routeParams.sid)
 		$scope.pageId += '&sid=' + $routeParams.sid;
 		
@@ -383,7 +383,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 		}).success(function(data) {
 			// post a message to the iframe that the css resource has changed
 			var m = { type : 'resourceChanged', data : $scope.resource.id };
-			dFrame.contentWindow.postMessage(m, 'http://localhost/bustamail');
+			dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
 		});
 	};
 
@@ -393,7 +393,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	$scope.appendWidget = function(id) {
 		var w = BMApp.utils.find('id', id, $scope.widgets);
 		var m = { type : 'appendWidget', data : w };
-		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
+		dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
 	};
 
 	/**
@@ -402,7 +402,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	$scope.replaceElement = function(id) {
 		var w = BMApp.utils.find("id", id, $scope.widgets);
 		var m = { type : 'replaceWidget', data : w };
-		dFrame.contentWindow.postMessage(m , "http://localhost/bustamail");
+		dFrame.contentWindow.postMessage(m , BMApp.uiConfig.uiURL);
 	};
 	
 	/**
@@ -410,12 +410,12 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	 */
 	$scope.saveContents = function() {
 		var m = { type : 'saveDocument'};
-		dFrame.contentWindow.postMessage(m, "http://localhost/bustamail");
+		dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
 	};
 	
 	$scope.rollBackTo = function(id) {
 		var m = {type : 'rollBackTo', data : id};
-		dFrame.contentWindow.postMessage(m, 'http://localhost/bustamail');
+		dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
 	};
 
 	/**
@@ -423,7 +423,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	 */
 	$scope.createPreview = function() {
 		$http.put("/api/landingpages/" + $routeParams.id + "/preview").success(function() {
-			window.open("http://previews.localhost/preview_" + $routeParams.id + "/index.html", "_blank");
+			window.open(BMApp.uiConfig.previewURL + "/preview_" + $routeParams.id + "/index.html", "_blank");
 		});
 	};
 }]);

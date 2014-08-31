@@ -178,6 +178,12 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 		});
 }]);
 
+BMApp.run(function($http) {
+	$http.get("/api/configuration").success(function(data) {
+		BMApp.uiConfig = data;
+	});
+});
+
 
 BMApp.controller("BMAppLogoutController", ['$scope', '$http', function($scope, $http) {
 	

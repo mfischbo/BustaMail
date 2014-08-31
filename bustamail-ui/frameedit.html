@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html data-ng-app="BMFrameEdit">
+<head>
+	<link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="./css/frameedit-style.css">
+</head>
+
+<body style="background-color:#FFF; margin:0px; padding:0px;">
+		<script type="text/javascript" src="./js/lib/jquery-2.1.1.min.js"></script>	
+		<script type="text/javascript" src="./js/lib/angular-fileupload-shim.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular.min.js"></script>
+		<script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+		
+
+		<script type="text/javascript" src="./js/lib/angular-route.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-treeview.js"></script>
+		<script type="text/javascript" src="./js/lib/ui-bootstrap/ui-bootstrap-custom-0.10.0.min.js"></script>
+		<script type="text/javascript" src="./js/lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-fileupload-shim.min.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-treeview.js"></script>
+		<script type="text/javascript" src="./js/lib/angular-file-upload.min.js"></script>
+		<script type="text/javascript" src="./js/lib/rangy-1.2.3/rangy-core.js"></script>
+		<script type="text/javascript" src="./js/lib/rangy-1.2.3/rangy-cssclassapplier.js"></script>
+
+		<script type="text/javascript">
+			var BMApp = angular.module("BMFrameEdit", ['ngRoute', 'BMEditorModule']);
+			BMApp.run(function($http) {
+				$http.get("/api/configuration").success(function(data) {
+					BMApp.uiConfig = data;
+				});
+			});
+		</script>
+		<script type="text/javascript" src="./js/modules/core/bm-utils.js"></script>
+		<script type="text/javascript" src="./js/modules/media/bm-media.js"></script>
+		<script type="text/javascript" src="./js/modules/editor/bm-nodeeditor-support.js"></script>
+		<script type="text/javascript" src="./js/modules/editor/bm-nodeeditor.js"></script>
+		<script type="text/javascript" src="./js/modules/editor/bm-frameeditor.js"></script>
+		
+		<div data-ng-controller="EditorIndexController">
+			<div id="editor" style="height:100vh;">
+				<div id="slider" data-ng-controller="ImagePickerModalController">
+					<div class="wrapper" data-ng-include data-src="'./js/modules/media/tmpl/image-picker-modal.html'"></div>
+				</div>
+				<div id="editor-content" data-ng-bind-html="html">
+				
+				</div>
+			</div>
+		</div>
+</body>
+</html>

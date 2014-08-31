@@ -173,7 +173,7 @@ BMApp.Editor.controller("EditorIndexController",
 		
 		// broadcast that up to the content frame window
 		var m = {type : 'elementSelected', data : $scope.element};
-		window.parent.postMessage(m, "http://localhost/bustamail");
+		window.parent.postMessage(m, BMApp.uiConfig.uiURL);
 	});
 	
 	$(document).on("_bmElementUnselected", function(e) {
@@ -183,7 +183,7 @@ BMApp.Editor.controller("EditorIndexController",
 		
 		// broadcast that up to the content frame window
 		var m = {type : 'elementUnselected'};
-		window.parent.postMessage(m, "http://localhost/bustamail");
+		window.parent.postMessage(m, BMApp.uiConfig.uiURL);
 	});
 	
 	$(document).on("_bmTextSelection", function(e, s) {
