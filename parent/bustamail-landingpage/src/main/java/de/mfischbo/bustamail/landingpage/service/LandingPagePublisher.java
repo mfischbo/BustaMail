@@ -131,7 +131,7 @@ class LandingPagePublisher {
 		VersionedContent pageContent = getMostRecentVersionById(page.getId());
 		
 		// step 2: Content only contains the body. Wrap up in stub HTML document and create a jsoup from it
-		StringBuffer b = new StringBuffer(page.getTemplate().getHtmlHead()).append("<body>").append(pageContent.getContent()).append("</body></html>");
+		StringBuffer b = new StringBuffer(page.getHtmlHeader()).append("<body>").append(pageContent.getContent()).append("</body></html>");
 		Document d = Jsoup.parse(b.toString());
 		d = prepareForms(d);
 		this.contents.put(page.getId(), d);
@@ -140,7 +140,7 @@ class LandingPagePublisher {
 		
 		for (StaticPage subPage : page.getStaticPages()) {
 			VersionedContent content = getMostRecentVersionById(subPage.getId());
-			b = new StringBuffer(page.getTemplate().getHtmlHead()).append("<body>").append(content.getContent()).append("</body></html>");
+			b = new StringBuffer(page.getHtmlHeader()).append("<body>").append(content.getContent()).append("</body></html>");
 			Document subD = Jsoup.parse(b.toString());
 			
 			subD = collectImages(subD);
