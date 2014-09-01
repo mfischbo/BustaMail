@@ -1,8 +1,10 @@
 package de.mfischbo.bustamail.landingpage.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
+import org.zeroturnaround.zip.ZipUtil;
 
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
@@ -37,7 +40,8 @@ class LandingPagePublisher {
 
 	public enum Mode {
 		PREVIEW,
-		LIVE
+		LIVE,
+		EXPORT
 	};
 
 	private static final String DOCUMENT_ROOT_KEY = "de.mfischbo.bustamail.env.apache.documentRoot";
@@ -80,11 +84,17 @@ class LandingPagePublisher {
 	
 	public void publish() {
 		if (this.publishingMode == Mode.LIVE) {
+		
 			this.basedir = new File(env.getProperty(DOCUMENT_ROOT_KEY) + "/" + createPageName(page.getName()));
 			this.pageUrl = env.getProperty(LIVE_URL_KEY) + "/" + createPageName(page.getName());
-		} else {
+	
+		} else if (this.publishingMode == Mode.PREVIEW) {
+		
 			basedir = new File(env.getProperty(DOCUMENT_ROOT_KEY) + "/preview_" + page.getId());
 			this.pageUrl = env.getProperty(PREVIEW_URL_KEY) + "/preview_" + page.getId();
+		
+		} else if (this.publishingMode == Mode.EXPORT) {
+			basedir = new File("/tmp/" + page.getId());
 		}
 		publishInternal();
 	}
@@ -99,6 +109,20 @@ class LandingPagePublisher {
 
 	public String getPageUrl() {
 		return this.pageUrl;
+	}
+
+	/**
+	 * Returns a zip file for the whole landing page
+	 * @return
+	 * @throws IOException
+	 */
+	public InputStream getZippedFileStream() throws IOException {
+		if (this.publishingMode != Mode.EXPORT)
+			return null;
+		
+		File zipFile = new File("/tmp/" + page.getId() + ".zip");
+		ZipUtil.pack(basedir, zipFile);
+		return new FileInputStream(zipFile);
 	}
 	
 	private void publishInternal() {

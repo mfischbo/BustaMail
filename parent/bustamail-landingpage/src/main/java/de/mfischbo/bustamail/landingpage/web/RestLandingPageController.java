@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +54,22 @@ public class RestLandingPageController extends BaseApiController {
 		LandingPageDTO retval = asDTO(page, LandingPageDTO.class);
 		retval.setHtmlContent(asDTO(service.getRecentContentVersionByPage(page), VersionedContentDTO.class));
 		return retval;
+	}
+	
+	@RequestMapping(value = "/{id}/export", method = RequestMethod.GET)
+	public void exportLandingPage(@PathVariable("id") UUID id, HttpServletResponse response) throws BustaMailException {
+	
+		LandingPage p = service.getLandingPageById(id);
+		response.setHeader("Content-Type", "application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment;filename=" + p.getName() + ".zip");
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		try {
+			service.exportLandingPage(p, response.getOutputStream());
+		} catch (Exception ex) {
+			log.error("Unable to export landing page. Cause: " + ex.getMessage());
+			ex.printStackTrace();
+			throw new BustaMailException(ex.getMessage());
+		}
 	}
 	
 	/**

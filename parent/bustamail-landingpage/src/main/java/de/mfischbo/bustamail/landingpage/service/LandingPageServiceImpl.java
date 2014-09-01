@@ -1,6 +1,8 @@
 package de.mfischbo.bustamail.landingpage.service;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.BustaMailException;
@@ -189,6 +192,23 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		} catch (IOException ex) {
 			log.error("Caught exception when unpublishing the site. Cause: " + ex.getMessage());
 			throw new BustaMailException("Unable to unpublish site. Cause was error in publisher.");
+		}
+	}
+	
+	@Override
+	public void exportLandingPage(LandingPage page, OutputStream stream) throws BustaMailException {
+		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.EXPORT);
+		try {
+			publisher.publish();
+			InputStream zipStream = publisher.getZippedFileStream();
+			if (zipStream != null) {
+				StreamUtils.copy(zipStream, stream);
+				stream.flush();
+				stream.close();
+			}
+		} catch (Exception ex) {
+			log.error("Caught exception while publishing the page in mode EXPORT. Cause: " + ex.getMessage());
+			throw new BustaMailException(ex.getMessage());
 		}
 	}
 	

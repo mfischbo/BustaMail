@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.landingpage.service;
 
+import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ public interface LandingPageService {
 	void				publishPreview(LandingPage page);
 	LandingPage			publishLive(LandingPage page);
 	LandingPage			unpublishLive(LandingPage page) throws BustaMailException;
+	void				exportLandingPage(LandingPage page, OutputStream stream) throws BustaMailException;
 
 	List<VersionedContent>
 						getContentVersions(HTMLPage page);

@@ -40,6 +40,7 @@
 							<a href="javascript:void('');" title="Preview" data-ng-click="createPreview(p.id)"><span class="fa fa-eye"></span></a>
 							<a href="javascript:void('');" data-ng-if="!p.published" title="Seite veröffentlichen" data-ng-click="publishLive(p.id)" title="Seite veröffentlichen"><span class="fa fa-paper-plane-o"></span></a>
 							<a href="{{p.pageUrl}}" target="_blank" data-ng-if="p.published" title="Zur Seite"><span class="fa fa-share"></span></a>
+							<a href="/api/landingpages/{{p.id}}/export" title="Als .zip Datei downloaden"><span class="fa fa-download"></span></a>
 							<a href="javascript:void('');" title="Entfernen" data-ng-click="deleteLandingPage(p.id)"><span class="fa fa-trash-o"></span></a>
 						</td>
 					</tr>
