@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.mfischbo.bustamail.common.dto.BaseDTO;
 import de.mfischbo.bustamail.landingpage.domain.LPForm.SubmissionAction;
+import de.mfischbo.bustamail.template.dto.TemplateIndexDTO;
 
 public class LPFormDTO extends BaseDTO {
 	
@@ -14,6 +15,10 @@ public class LPFormDTO extends BaseDTO {
 	private String				redirectTarget;
 	private boolean				isConversion;
 	private List<LPFormEntryDTO>	fields;
+	
+	private boolean				triggersMail;
+	private TemplateIndexDTO	mailTemplate;
+	private List<String>		recipients;
 
 	public String getName() {
 		return name;
@@ -44,5 +49,23 @@ public class LPFormDTO extends BaseDTO {
 	}
 	public void setFields(List<LPFormEntryDTO> fields) {
 		this.fields = fields;
+	}
+	public boolean isTriggersMail() {
+		return triggersMail;
+	}
+	public void setTriggersMail(boolean triggersMail) {
+		this.triggersMail = triggersMail;
+	}
+	public TemplateIndexDTO getMailTemplate() {
+		return mailTemplate;
+	}
+	public void setMailTemplate(TemplateIndexDTO mailTemplate) {
+		this.mailTemplate = mailTemplate;
+	}
+	public List<String> getRecipients() {
+		return recipients;
+	}
+	public void setRecipients(List<String> recipients) {
+		this.recipients = recipients;
 	}
 }

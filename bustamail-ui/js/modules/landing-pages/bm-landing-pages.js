@@ -12,6 +12,7 @@ BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function(
 		}).then(BMApp.hideSpinner);
 	});
 	
+	
 	/**
 	 * Deletes the landing page specified by the id
 	 */
@@ -133,15 +134,19 @@ BMApp.LandingPages.controller('LPDetailsController',
 
 	// the current view mode for the forms tab
 	$scope.formViewMode = 'TABLE';
+
+	// the owner of the mailing template to be selected when editing a form
+	$scope.owner = '';
 	
 	// code mirror instance to edit the HTML Head
 	var _headCM = undefined;
-
+	
 	// initially load the landing page
 	$http.get("/api/landingpages/" + $routeParams.id).success(function(data) {
 		$scope.lp = data;
 		$scope.staticPages = data.staticPages;
 		$scope.forms = data.forms;
+		$scope.forms.recipients;
 	});
 
 	// watch expression on the static pages owner to load the appropriated templates.
@@ -159,6 +164,20 @@ BMApp.LandingPages.controller('LPDetailsController',
 				}
 			}
 		}).then(BMApp.hideSpinner);
+	});
+	
+	$scope.$watch('form.mailTemplateOwner', function(val) {
+		if (!val || val == '') return;
+		$http.get("/api/templates/" + val + "/packs").success(function(data) {
+			$scope.mailingTemplates = [];
+			for (var i in data.content) {
+				var p = data.content[i].name;
+				for (var t in data.content[i].templates) {
+					data.content[i].templates[t].pack = p;
+					$scope.mailingTemplates.push(data.content[i].templates[t]);
+				}
+			}
+		});
 	});
 	
 	
@@ -201,6 +220,8 @@ BMApp.LandingPages.controller('LPDetailsController',
 	$scope.focusForm = function(id) {
 		$scope.form = BMApp.utils.find('id', id, $scope.forms);
 		$scope.formViewMode = 'FORM';
+		if (!$scope.form.recipients || $scope.form.recipients.length == 0)
+			$scope.form.recipients.push('');
 	};
 
 	/**
@@ -236,6 +257,8 @@ BMApp.LandingPages.controller('LPDetailsController',
 	};
 	
 	$scope.createForm = function() {
+		$scope.form.mailTemplateOwner = undefined;
+		$scope.form.mailTemplate = { id : $scope.form.mailTemplate };
 		$http.post("/api/landingpages/" + $scope.lp.id + "/forms", $scope.form).success(function(data) {
 			$scope.forms.push(data);
 			$scope.formViewMode = 'TABLE';
@@ -245,6 +268,8 @@ BMApp.LandingPages.controller('LPDetailsController',
 	};
 	
 	$scope.updateForm = function() {
+		$scope.form.mailTemplateOwner = undefined;
+		$scope.form.mailTemplate = { id : $scope.form.mailTemplate };
 		$http({
 			method:		"PATCH",
 			url:		"/api/landingpages/" + $scope.lp.id + "/forms/" + $scope.form.id,

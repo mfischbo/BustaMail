@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
+import de.mfischbo.bustamail.template.domain.Template;
 
 @Entity
 @Table(name = "LandingPage_LPForm")
@@ -55,6 +56,17 @@ public class LPForm extends BaseDomain {
 	// states if a successful submission should be counted as conversion
 	@Basic
 	private boolean				isConversion;
+	
+	// states if a submission triggers a mail
+	@Basic
+	private boolean				triggersMail;
+	
+	@ElementCollection
+	private List<String>		recipients;
+	
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "MailTemplate_id", referencedColumnName = "id", nullable = true)
+	private Template			mailTemplate;
 
 	// the landing page the form belongs to
 	@ManyToOne(optional = false)
@@ -107,5 +119,29 @@ public class LPForm extends BaseDomain {
 
 	public void setLandingPage(LandingPage landingPage) {
 		this.landingPage = landingPage;
+	}
+
+	public boolean isTriggersMail() {
+		return triggersMail;
+	}
+
+	public void setTriggersMail(boolean triggersMail) {
+		this.triggersMail = triggersMail;
+	}
+	
+	public List<String> getRecipients() {
+		return recipients;
+	}
+
+	public void setRecipients(List<String> recipients) {
+		this.recipients = recipients;
+	}
+
+	public Template getMailTemplate() {
+		return mailTemplate;
+	}
+
+	public void setMailTemplate(Template mailTemplate) {
+		this.mailTemplate = mailTemplate;
 	}
 }

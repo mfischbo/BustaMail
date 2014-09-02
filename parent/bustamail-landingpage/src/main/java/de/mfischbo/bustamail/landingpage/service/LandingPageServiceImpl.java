@@ -325,7 +325,8 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	@Override
 	public LPForm createForm(LandingPage page, LPFormDTO form)
 			throws EntityNotFoundException {
-	
+
+
 		LPForm f = new LPForm();
 		f.setConversion(form.isConversion());
 		f.setName(form.getName());
@@ -342,6 +343,15 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 			e.setValidationType(d.getValidationType());
 			f.getFields().add(e);
 		}
+		f.setTriggersMail(form.isTriggersMail());
+		f.setRecipients(form.getRecipients());
+	
+		if (form.isTriggersMail()) {
+			Template t = tService.getTemplateById(form.getMailTemplate().getId());
+			checkOnNull(t);
+			f.setMailTemplate(t);
+		}
+		
 		return formRepo.saveAndFlush(f);
 	}
 
@@ -366,6 +376,16 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 			fields.add(e);
 		}
 		f.setFields(fields);
+		f.setTriggersMail(form.isTriggersMail());
+		f.setRecipients(form.getRecipients());
+	
+		if (form.isTriggersMail()) {
+			Template t = tService.getTemplateById(form.getMailTemplate().getId());
+			checkOnNull(t);
+			f.setMailTemplate(t);
+		}
+		
+		
 		return formRepo.saveAndFlush(f);
 	}
 

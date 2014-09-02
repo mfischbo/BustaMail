@@ -8,7 +8,7 @@
 
 <form data-role="form">
 	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-6">
 			<div class="form-group">
 				<label>Name</label>
 				<input type="text" data-ng-model="form.name" class="form-control">
@@ -31,13 +31,42 @@
 				<input type="text" data-ng-model="form.redirectTarget" class="form-control" placeholder="http://www.example.com">
 			</div>
 		
+
+		</div>
+		
+		<div class="col-md-6">
 			<div class="checkbox">
 				<label>
 					<input type="checkbox" data-ng-model="form.conversion">
 					Übermittlung wird als conversion gerechnet
 				</label>
 			</div>	
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" data-ng-model="form.triggersMail"> Daten per E-Mail versenden
+				</label>
+			</div>	
+			
+			<div class="form-group form-inline">
+				<div class="form-inline" data-ng-repeat="r in form.recipients track by $index">
+					<input type="text" data-ng-model="form.recipients[$index]" placeholder="max@exaple.com" class="form-control col-md-8">
+					<button class="btn btn-danger" data-ng-click="form.recipients.splice($index,1)"><span class="fa fa-trash-o"></span></button>
+					<button class="btn btn-primary" data-ng-click="form.recipients.push('')" data-ng-if="$last"><span class="fa fa-plus"></span></button>
+					<br/><br/>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label>Mail Template aus Organisationseinheit</label>
+				<div data-ou-selector data-select-as="form.mailTemplateOwner"></div>
+			</div>
+			
+			<div class="form-group">
+				<label>Mailing Template</label>
+				<select data-ng-model="form.mailTemplate" class="form-control" data-ng-options="t.id as t.name group by t.pack for t in mailingTemplates"></select>	
+			</div>
 		</div>
+		
 	</div>
 	<div class="row">
 		<div class="col-md-12">	
