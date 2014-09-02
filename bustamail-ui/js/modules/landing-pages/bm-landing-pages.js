@@ -16,6 +16,11 @@ BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function(
 	 * Deletes the landing page specified by the id
 	 */
 	$scope.deleteLandingPage = function(id) {
+		var p = BMApp.utils.find('id', id, $scope.pages.content);
+		if (p && p.published) {
+			BMApp.alert("Die Seite kann nicht entfernt werden, da sie noch online ist!", 'warning');
+			return;
+		}
 		BMApp.confirm("Soll die Landing Page wirklich entfernt werden?", function() {
 			$http({
 				method:		"DELETE",

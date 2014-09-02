@@ -137,6 +137,8 @@ BMApp.alert = function(message, status) {
 		t = t.addClass("alert-success")
 	if (status == 'error')
 		t = t.addClass("alert-danger");
+	if (status == 'warning')
+		t = t.addClass("alert-warning");
 	t.html(message);
 	p.show();
 	window.setTimeout(function() {
