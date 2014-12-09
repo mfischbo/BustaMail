@@ -1,6 +1,5 @@
 package de.mfischbo.bustamail.landingpage.web;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LPFormEntry;
-import de.mfischbo.bustamail.landingpage.domain.LPFormSubmission;
+import de.mfischbo.bustamail.landingpage.dto.ValidationError;
+import de.mfischbo.bustamail.landingpage.service.FormSubmissionService;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
 
 @Controller
@@ -31,6 +31,9 @@ public class LPFormWebController {
 
 	@Inject
 	private LandingPageService		service;
+	
+	@Inject
+	private FormSubmissionService	formService;
 	
 	@Inject
 	private ObjectMapper			mapper;
@@ -52,21 +55,16 @@ public class LPFormWebController {
 				if (entry != null)
 					fieldVals.put(entry, value);
 			}
+			List<ValidationError> errors = formService.processFormSubmission(form, fieldVals, request.getRemoteAddr());
+			if (errors.size() == 0) {
+				// redirect or so
+			}
 		
-			// validate for required
-			List<LPFormEntry> requiredEmpties = getRequiredUnsubmittedFields(fieldVals);
-			
 		
-			// on success create a form submission and store it
-			LPFormSubmission sub = new LPFormSubmission();
-			sub.setForm(form);
-			sub.setSourceIP(request.getRemoteAddr());
-			sub.setData(mapper.writeValueAsString(request.getParameterMap()));
-			service.createFormSubmission(sub);
-			
+		
+		
 			// what to do after successfull processing?
-			
-			
+		
 			
 		} catch (Exception ex) {
 			log.error("Caught exception processing form. Cause: " + ex.getMessage());
@@ -80,38 +78,5 @@ public class LPFormWebController {
 				return e;
 		}
 		return null;
-	}
-	
-	private List<LPFormEntry> getRequiredUnsubmittedFields(Map<LPFormEntry, String> map) {
-		
-		List<LPFormEntry> retval = new ArrayList<>(map.size());
-		for (LPFormEntry e : map.keySet()) {
-			if (e.isRequired() && map.get(e).isEmpty())
-				retval.add(e);
-		}
-		return retval;
-	}
-	
-	
-	private List<LPFormEntry> validate(Map<LPFormEntry, String> map) {
-		List<LPFormEntry> retval = new ArrayList<>(map.size());
-		
-		for (LPFormEntry e : map.keySet()) {
-		
-			switch (e.getValidationType()) {
-			case EMAIL:
-				System.out.println("Do something");
-			case DATE:
-				System.out.println("Validate date");
-			case REGEXP:
-				System.out.println("Regex validation");
-			case INTEGER:
-				System.out.println("Integer validation");
-			case FLOAT:
-				System.out.println("Float validation");
-			}
-		}
-		
-		return retval;
 	}
 }
