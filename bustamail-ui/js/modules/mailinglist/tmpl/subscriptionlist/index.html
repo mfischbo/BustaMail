@@ -14,6 +14,7 @@
 					<tr>
 						<th>Name der Liste</th>
 						<th>Beschreibung</th>
+						<th>Öffentlich</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
@@ -24,6 +25,10 @@
 					<tr data-ng-repeat="sl in subscriptionLists.content">
 						<td>{{sl.name}}</td>
 						<td>{{sl.description}}</td>
+						<td>
+							<span data-ng-if="sl.publiclyAvailable == true">Ja</span>
+							<span data-ng-if="!sl.publiclyAvailable">Nein</span>
+						</td>
 						<td class="tools">
 							<a href="#/subscription-lists/{{sl.id}}/edit" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
 							<a href="#/subscription-lists/{{sl.id}}/import" title="CSV / XLSX Importieren"><span class="fa fa-database"></span></a>

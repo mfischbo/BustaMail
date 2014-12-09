@@ -120,6 +120,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		checkOnNull(l);
 		l.setName(list.getName());
 		l.setDescription(list.getDescription());
+		l.setPubliclyAvailable(list.isPubliclyAvailable());
 		return sListRepo.saveAndFlush(l);
 	}
 

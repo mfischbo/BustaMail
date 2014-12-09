@@ -5,6 +5,13 @@
 	<label>Beschreibung</label>
 	<textarea data-ng-model="list.description" class="form-control" rows="4"></textarea>
 	
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" data-ng-model="list.publiclyAvailable"> Öffentlich Zugänglich
+		</label>
+	</div>
+	
+	
 	<label>Besitzer</label>
 	<div data-ou-selector data-select-as="list.owner"></div>
 </div>

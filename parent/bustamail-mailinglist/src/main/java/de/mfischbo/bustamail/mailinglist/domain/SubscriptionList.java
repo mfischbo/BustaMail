@@ -27,6 +27,10 @@ public class SubscriptionList extends OwnedBaseDomain {
 	@Column(length = 4095)
 	private String			description;
 	
+	@Basic
+	private boolean			publiclyAvailable;
+	
+	
 	@OneToMany(mappedBy = "subscriptionList")
 	private Set<Subscription>	subscriptions;
 
@@ -44,6 +48,14 @@ public class SubscriptionList extends OwnedBaseDomain {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isPubliclyAvailable() {
+		return publiclyAvailable;
+	}
+
+	public void setPubliclyAvailable(boolean publiclyAvailable) {
+		this.publiclyAvailable = publiclyAvailable;
 	}
 
 	public Set<Subscription> getSubscriptions() {

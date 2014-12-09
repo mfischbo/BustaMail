@@ -8,11 +8,19 @@ public class SubscriptionListDTO extends OwnedBaseDTO {
 
 	private String			name;
 	private String			description;
+	private boolean			publiclyAvailable;
+	
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public boolean isPubliclyAvailable() {
+		return publiclyAvailable;
+	}
+	public void setPubliclyAvailable(boolean publiclyAvailable) {
+		this.publiclyAvailable = publiclyAvailable;
 	}
 	public String getDescription() {
 		return description;
