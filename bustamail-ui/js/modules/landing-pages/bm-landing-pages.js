@@ -222,6 +222,7 @@ BMApp.LandingPages.controller('LPDetailsController',
 		$scope.formViewMode = 'FORM';
 		if (!$scope.form.recipients || $scope.form.recipients.length == 0)
 			$scope.form.recipients.push('');
+		$scope.form.mailTemplate = $scope.form.mailTemplate.id;
 	};
 
 	/**

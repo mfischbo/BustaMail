@@ -46,24 +46,27 @@
 					<input type="checkbox" data-ng-model="form.triggersMail"> Daten per E-Mail versenden
 				</label>
 			</div>	
-			
-			<div class="form-group form-inline">
-				<div class="form-inline" data-ng-repeat="r in form.recipients track by $index">
-					<input type="text" data-ng-model="form.recipients[$index]" placeholder="max@exaple.com" class="form-control col-md-8">
-					<button class="btn btn-danger" data-ng-click="form.recipients.splice($index,1)"><span class="fa fa-trash-o"></span></button>
-					<button class="btn btn-primary" data-ng-click="form.recipients.push('')" data-ng-if="$last"><span class="fa fa-plus"></span></button>
-					<br/><br/>
+			<div data-ng-if="form.triggersMail">
+				<div class="form-group">
+					<div data-ng-repeat="r in form.recipients track by $index">
+						<div class="col-md-8">
+							<input type="text" data-ng-model="form.recipients[$index]" placeholder="max@exaple.com" class="form-control col-md-8">
+						</div>
+						<button class="btn btn-danger" data-ng-click="form.recipients.splice($index,1)"><span class="fa fa-trash-o"></span></button>
+						<button class="btn btn-primary" data-ng-click="form.recipients.push('')" data-ng-if="$last"><span class="fa fa-plus"></span></button>
+						<br/><br/>
+					</div>
 				</div>
-			</div>
-			
-			<div class="form-group">
-				<label>Mail Template aus Organisationseinheit</label>
-				<div data-ou-selector data-select-as="form.mailTemplateOwner"></div>
-			</div>
-			
-			<div class="form-group">
-				<label>Mailing Template</label>
-				<select data-ng-model="form.mailTemplate" class="form-control" data-ng-options="t.id as t.name group by t.pack for t in mailingTemplates"></select>	
+				
+				<div class="form-group">
+					<label>Mail Template aus Organisationseinheit</label>
+					<div data-ou-selector data-select-as="form.mailTemplateOwner"></div>
+				</div>
+				
+				<div class="form-group">
+					<label>Mailing Template</label>
+					<select data-ng-model="form.mailTemplate" class="form-control" data-ng-options="t.id as t.name group by t.pack for t in mailingTemplates"></select>	
+				</div>
 			</div>
 		</div>
 		
