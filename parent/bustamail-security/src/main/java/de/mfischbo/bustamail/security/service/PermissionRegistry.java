@@ -8,6 +8,8 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import de.mfischbo.bustamail.security.domain.Permission;
@@ -19,11 +21,14 @@ public class PermissionRegistry {
 
 	@Inject
 	private List<PermissionProvider> providers;
+	
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	
 	@PostConstruct
 	public void initializePermissions() {
 		for (PermissionProvider p : providers) {
+			log.info("Adding persmissions from provider : " + p.getClass().getCanonicalName());
 			sysPerms.addAll(p.getModulePermissions());
 		}
 	}
