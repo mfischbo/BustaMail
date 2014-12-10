@@ -40,7 +40,6 @@ import de.mfischbo.bustamail.media.repository.MediaRepository;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.dto.OrgUnitDTO;
 import de.mfischbo.bustamail.security.event.OrgUnitCreatedEvent;
-import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.security.service.SecurityService;
 
 @Service
@@ -73,13 +72,6 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	private Environment				env;
 	
 	private File					mediaDir;
-	
-	public MediaServiceImpl() {
-		MediaModulePermissionProvider mmpp = new MediaModulePermissionProvider();
-		PermissionRegistry.registerPermissions(mmpp.getModulePermissions());
-		
-	
-	}
 	
 	@PostConstruct
 	public void init() {

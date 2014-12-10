@@ -83,8 +83,8 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 
 	
 	public SecurityServiceImpl() {
-		SecurityModulePermissionProvider smp = new SecurityModulePermissionProvider();
-		PermissionRegistry.registerPermissions(smp.getModulePermissions());
+		//SecurityModulePermissionProvider smp = new SecurityModulePermissionProvider();
+		//PermissionRegistry.registerPermissions(smp.getModulePermissions());
 	}
 	
 	

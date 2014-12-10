@@ -33,7 +33,6 @@ import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.service.MediaService;
-import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.domain.Widget;
@@ -60,11 +59,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	@Inject
 	private ObjectMapper			jacksonMapper;
 	
-	public TemplateServiceImpl() {
-		TemplateModulePermissionProvider tmpp = new TemplateModulePermissionProvider();
-		PermissionRegistry.registerPermissions(tmpp.getModulePermissions());
-	}
-	
+
 	@Override
 	@PreAuthorize("hasPermission(#owner, 'Templates.USE_TEMPLATES')")
 	public Page<TemplatePack> getAllTemplatePacks(UUID owner, Pageable page) {

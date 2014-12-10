@@ -38,7 +38,6 @@ import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.reader.IndexedPropertyHolder;
 import de.mfischbo.bustamail.reader.TableDataReader;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
-import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.security.service.SecurityService;
 import de.mfischbo.bustamail.subscriber.domain.Address;
 import de.mfischbo.bustamail.subscriber.domain.Contact;
@@ -67,9 +66,6 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	 * Default constructor
 	 */
 	public MailingListServiceImpl() {
-		MailingListPermissionProvider mlpp = new MailingListPermissionProvider();
-		PermissionRegistry.registerPermissions(mlpp.getModulePermissions());
-		
 		this.importCache = new HashMap<UUID, ParsedImport>();
 	}
 	
@@ -344,7 +340,12 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	private Contact getPersistedContact(Contact c, SubscriptionImportDTO settings, ImportResultDTO result) {
 	
 		EMailAddress lookup = c.getEmailAddresses().iterator().next();
-		Contact pers = subService.getContactByEMailAddress(lookup);
+		Contact pers = null;
+		try {
+			pers = subService.getContactByEMailAddress(lookup);
+		} catch (EntityNotFoundException ex) {
+			log.error(ex.getMessage());
+		}
 		
 		if (pers != null) {
 			if (settings.isOverride()) {
@@ -370,8 +371,14 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 					pers.getEmailAddresses().add(lookup);
 					lookup.setContact(pers);
 				} 
-				c = subService.updateContact(pers);
-				result.setContactsUpdated(result.getContactsUpdated() + 1);
+				
+				try {
+					c = subService.updateContact(pers);
+					result.setContactsUpdated(result.getContactsUpdated() + 1);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					log.error(ex.getMessage());
+				}
 			} else {
 				c = pers;
 			}

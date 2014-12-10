@@ -104,4 +104,12 @@ public class BaseApiController {
 		}
 		return new PageImpl<T>(result, pageable, page.getTotalElements());
 	}
+	
+	protected <S, T> T fromDTO(S dto, Class<T> target) {
+		return mapper.map(dto, target);
+	}
+	
+	protected void fromDTO(Object dto, Object target) {
+		mapper.map(dto, target);
+	}
 }

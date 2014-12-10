@@ -4,9 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
+
 import de.mfischbo.bustamail.security.domain.Permission;
 import de.mfischbo.bustamail.security.service.PermissionProvider;
 
+@Component
 public class MediaModulePermissionProvider implements PermissionProvider {
 
 	@Override
@@ -19,6 +22,4 @@ public class MediaModulePermissionProvider implements PermissionProvider {
 				"Medien", "Media.MANAGE_MEDIA", "Medieninhalte verwalten", "Darf Medieninhalte hochladen, bearbeiten und entfernen"));
 		return perms;
 	}
-
-	
 }

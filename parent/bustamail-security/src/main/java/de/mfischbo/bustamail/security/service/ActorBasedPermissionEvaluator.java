@@ -3,9 +3,10 @@ package de.mfischbo.bustamail.security.service;
 import java.io.Serializable;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
@@ -23,12 +24,15 @@ public class ActorBasedPermissionEvaluator implements PermissionEvaluator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
-	@Autowired
+	@Inject
 	private ActorRepository		actorRepo;
 	
-	@Autowired
+	@Inject
 	private OrgUnitRepository	orgUnitRepo;
 
+	@Inject
+	private PermissionRegistry	registry;
+	
 	@Override
 	public boolean hasPermission(Authentication arg0, Object arg1, Object arg2) {
 
@@ -54,7 +58,7 @@ public class ActorBasedPermissionEvaluator implements PermissionEvaluator {
 			return isMemberOf(owner, u);
 		}
 		
-		Permission perm = PermissionRegistry.getPermissionByIdentificator((String) arg2);
+		Permission perm = registry.getPermissionByIdentificator((String) arg2);
 		if (owner != null && perm != null && u != null) {
 			log.debug("Checking permission " + perm.getIdentificator() + " on user : " + u.getEmail() + " with expected membership in OrgUnit " + owner.getName());;
 			Specifications<Actor> specs = 

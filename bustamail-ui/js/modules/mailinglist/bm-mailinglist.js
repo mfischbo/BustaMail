@@ -143,7 +143,10 @@ BMApp.MailingList.controller("MailingListSubscriberController",
 	 */
 	$scope.unsubscribe = function(subscription) {
 		BMApp.confirm("Soll der Abonnent wirklich aus der Liste entfernt werden?", function() {
-			$http.delete('/api/subscription-lists/' + $routeParams.id + '/subscriptions/' + subscription.id).success(function() {
+			$http({
+				url : '/api/subscription-lists/' + $routeParams.id + '/subscriptions/' + subscription.id,
+				method: 'DELETE'
+			}).success(function() {
 				BMApp.alert("Der Abonnent wurde als abgemeldet markiert");
 				subscription.state = 'INACTIVE';
 				$scope.summary.subscriptionsActive--;

@@ -33,7 +33,6 @@ import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailing.repository.MailingRepository;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
-import de.mfischbo.bustamail.security.service.PermissionRegistry;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
@@ -67,11 +66,6 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	@Autowired
 	private		Environment				env;
 	
-	
-	public MailingServiceImpl() {
-		MailingModulePermissionProvider mmpp = new MailingModulePermissionProvider();
-		PermissionRegistry.registerPermissions(mmpp.getModulePermissions());
-	}
 
 	/*
 	 * (non-Javadoc)

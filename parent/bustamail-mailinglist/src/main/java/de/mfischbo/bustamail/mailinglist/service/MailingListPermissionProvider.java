@@ -4,9 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
+
 import de.mfischbo.bustamail.security.domain.Permission;
 import de.mfischbo.bustamail.security.service.PermissionProvider;
 
+@Component
 public class MailingListPermissionProvider implements PermissionProvider {
 
 	@Override
