@@ -4,6 +4,9 @@
 	<div class="col-md-10">
 		<div class="panel panel-default">
 			<div class="panel-heading">
+				<div class="col-md-4 input-group pull-left">
+					<input type="search" data-ng-model="query" data-ng-change="search()" class="form-control input-sm col-md-4" placeholder="Verteiler suchen">
+				</div>
 				<div data-ou-selector data-select-as="owner" class="pull-right"></div>
 				<div class="clearfix"></div>
 			</div>
@@ -31,6 +34,7 @@
 						</td>
 						<td class="tools">
 							<a href="#/subscription-lists/{{sl.id}}/edit" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
+							<a href="#/subscription-lists/{{sl.id}}/subscribers" title="Abonnenten anzeigen"><span class="fa fa-users"></span></a>
 							<a href="#/subscription-lists/{{sl.id}}/import" title="CSV / XLSX Importieren"><span class="fa fa-database"></span></a>
 							<a href="javascript:void('');" data-ng-click="deleteSubscriptionList(sl.id)" title="Entfernen"><span class="fa fa-trash-o"></span></a>
 						</td>

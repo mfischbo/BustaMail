@@ -65,6 +65,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 		SubscriptionListDTO list = new SubscriptionListDTO();
 		list.setName("Test List");
 		list.setDescription("Test Description");
+		list.setPubliclyAvailable(true);
 		list.setOwner(TEST_OWNER_ID);
 		
 		mock.perform(post(BASE + API_PATH)
@@ -74,7 +75,10 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 			.content(mapper.writeValueAsString(list)))
 			.andExpect(status().is2xxSuccessful())
 			.andExpect(content().contentType(mtJson))
-			.andExpect(jsonPath("$.id").exists());
+			.andExpect(jsonPath("$.id").exists())
+			.andExpect(jsonPath("$.name").value(list.getName()))
+			.andExpect(jsonPath("$.description").value(list.getDescription()))
+			.andExpect(jsonPath("$.publiclyAvailable").value(true));
 	}
 	
 	@Test
@@ -82,6 +86,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 		SubscriptionListDTO list = new SubscriptionListDTO();
 		list.setName("Test List");
 		list.setDescription("Test description");
+		list.setPubliclyAvailable(true);
 		list.setOwner(TEST_OWNER_ID);
 		
 		mock.perform(post(BASE + API_PATH)
@@ -113,6 +118,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 		list.setId(TEST_LIST_ID);
 		list.setName("Test for update list");
 		list.setDescription("Test for update list");
+		list.setPubliclyAvailable(false);
 		list.setOwner(TEST_OWNER_ID);
 		
 		mock.perform(patch(BASE + API_PATH + "/{id}", TEST_LIST_ID.toString())
@@ -125,7 +131,8 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 				.andExpect(jsonPath("$.id").exists())
 				.andExpect(jsonPath("$.id").value(TEST_LIST_ID.toString()))
 				.andExpect(jsonPath("$.name").value("Test for update list"))
-				.andExpect(jsonPath("$.description").value("Test for update list"));
+				.andExpect(jsonPath("$.description").value("Test for update list"))
+				.andExpect(jsonPath("$.publiclyAvailable").value(false));
 	}
 	
 	@Test
@@ -134,6 +141,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 		list.setId(TEST_LIST_ID);
 		list.setName("New Name that will not be set");
 		list.setDescription("New description");
+		list.setPubliclyAvailable(false);
 		
 		mock.perform(patch(BASE + API_PATH + "/{id}", TEST_LIST_ID.toString())
 				.session(getUnpermittedSession())
@@ -149,6 +157,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 		list.setId(TEST_LIST_ID);
 		list.setName("New Name that will not be set");
 		list.setDescription("New description");
+		list.setPubliclyAvailable(false);
 		
 		mock.perform(patch(BASE + API_PATH + "/{id}", TEST_LIST_ID.toString())
 				.session(getForeignSession())
@@ -157,7 +166,6 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 				.content(mapper.writeValueAsString(list)))
 			.andExpect(status().isUnauthorized());
 	}
-	
 
 	@Test
 	public void canDeleteSubscriptionListWhenHavingPermission() throws Exception {

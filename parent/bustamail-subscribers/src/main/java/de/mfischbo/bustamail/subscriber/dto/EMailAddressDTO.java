@@ -8,6 +8,7 @@ public class EMailAddressDTO extends BaseDTO {
 	
 	private String		localPart;
 	private String		domainPart;
+	
 	public String getLocalPart() {
 		return localPart;
 	}

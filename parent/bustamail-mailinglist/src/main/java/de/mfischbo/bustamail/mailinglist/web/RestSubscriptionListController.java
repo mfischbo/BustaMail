@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.mfischbo.bustamail.annotation.IntegrationTested;
 import de.mfischbo.bustamail.common.web.BaseApiController;
+import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
+import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListSummaryDTO;
 import de.mfischbo.bustamail.mailinglist.service.MailingListService;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.service.SecurityService;
@@ -54,6 +56,15 @@ public class RestSubscriptionListController extends BaseApiController {
 		return asDTO(service.getAllMailingLists(owner, page), SubscriptionListDTO.class, page);
 	}
 	
+	@RequestMapping(value = "/search", method = RequestMethod.GET)
+	public Page<SubscriptionListDTO> findSubscriptionLists(
+			@RequestParam(value = "owner", required = true) UUID ownerId,
+			@RequestParam(value = "q", required = true) String query,
+			@PageableDefault(page = 0, size = 30, sort = "name") Pageable page) throws Exception {
+		OrgUnit owner = secService.getOrgUnitById(ownerId);
+		return asDTO(service.findSubscriptionLists(owner, query, page), SubscriptionListDTO.class, page);
+	}
+	
 	
 	/**
 	 * Creates a new subscription list
@@ -78,6 +89,17 @@ public class RestSubscriptionListController extends BaseApiController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public SubscriptionListDTO getSubscriptionListById(@PathVariable("id") UUID id) throws Exception {
 		return asDTO(service.getSubscriptionListById(id), SubscriptionListDTO.class);
+	}
+	
+	
+	@RequestMapping(value = "/{id}/summary", method = RequestMethod.GET)
+	public SubscriptionListSummaryDTO getSummaryBySubscriptionListId(@PathVariable("id") UUID id) throws Exception {
+		SubscriptionList list = service.getSubscriptionListById(id);
+		SubscriptionListSummaryDTO dto = new SubscriptionListSummaryDTO();
+		dto.setSubscriptionsActive(service.getSubscriptionCountByState(list, State.ACTIVE));
+		dto.setSubscriptionsPending(service.getSubscriptionCountByState(list, State.OPTIN));
+		dto.setSubscriptionsInactive(service.getSubscriptionCountByState(list, State.INACTIVE));
+		return dto;
 	}
 	
 	/**

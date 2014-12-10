@@ -4,8 +4,6 @@ import java.util.List;
 
 import de.mfischbo.bustamail.common.domain.Gender;
 import de.mfischbo.bustamail.common.dto.BaseDTO;
-import de.mfischbo.bustamail.subscriber.domain.Address;
-import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
 public class ContactDTO extends BaseDTO {
 
@@ -17,8 +15,8 @@ public class ContactDTO extends BaseDTO {
 	private String 						firstName;
 	private String						lastName;
 	private boolean						formalSalutation;
-	private List<Address>				addresses;
-	private List<EMailAddress>			emailAddresses;
+	private List<AddressDTO>			addresses;
+	private List<EMailAddressDTO>		emailAddresses;
 	
 	public String getTitle() {
 		return title;
@@ -50,18 +48,16 @@ public class ContactDTO extends BaseDTO {
 	public void setFormalSalutation(boolean formalSalutation) {
 		this.formalSalutation = formalSalutation;
 	}
-	public List<Address> getAddresses() {
+	public List<AddressDTO> getAddresses() {
 		return addresses;
 	}
-	public void setAddresses(List<Address> addresses) {
+	public void setAddresses(List<AddressDTO> addresses) {
 		this.addresses = addresses;
 	}
-	public List<EMailAddress> getEmailAddresses() {
+	public List<EMailAddressDTO> getEmailAddresses() {
 		return emailAddresses;
 	}
-	public void setEmailAddresses(List<EMailAddress> emailAddresses) {
+	public void setEmailAddresses(List<EMailAddressDTO> emailAddresses) {
 		this.emailAddresses = emailAddresses;
 	}
-
-	
 }

@@ -29,6 +29,7 @@ import de.mfischbo.bustamail.mailinglist.dto.ParsingResultDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionImportDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionListRepository;
+import de.mfischbo.bustamail.mailinglist.repository.SubscriptionListSpecs;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionSpecs;
 import de.mfischbo.bustamail.mailinglist.validation.ImportValidator;
@@ -96,6 +97,17 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 
 	/*
 	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#findSubscriptionLists(de.mfischbo.bustamail.security.domain.OrgUnit, java.lang.String, org.springframework.data.domain.Pageable)
+	 */
+	@Override
+	public Page<SubscriptionList> findSubscriptionLists(OrgUnit owner, String query, Pageable page) {
+		
+		Specifications<SubscriptionList> specs = Specifications.where(SubscriptionListSpecs.matches(query));
+		return sListRepo.findAllByOwner(owner.getId(), specs, page);
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#createSubscriptionList(de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO)
 	 */
 	@Override
@@ -135,6 +147,17 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 
 	/*
 	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#getSubscriptionCountByState(de.mfischbo.bustamail.mailinglist.domain.SubscriptionList, de.mfischbo.bustamail.mailinglist.domain.Subscription.State)
+	 */
+	@Override
+	public long getSubscriptionCountByState(SubscriptionList list, State state) {
+		Specifications<Subscription> specs = Specifications.where(SubscriptionSpecs.onList(list))
+				.and(SubscriptionSpecs.withState(state));
+		return scRepo.count(specs);
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#getSubscriptionsByList(de.mfischbo.bustamail.mailinglist.domain.SubscriptionList, org.springframework.data.domain.Pageable)
 	 */
 	@Override
@@ -155,6 +178,31 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		checkOnNull(sub);
 		return sub;
 	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#findSubscriptions(de.mfischbo.bustamail.mailinglist.domain.SubscriptionList, java.lang.String, org.springframework.data.domain.Pageable)
+	 */
+	@Override
+	public Page<Subscription> findSubscriptions(SubscriptionList list, String query, Pageable page) {
+	
+		Specifications<Subscription> specs = Specifications.where(SubscriptionSpecs.onList(list))
+				.and(SubscriptionSpecs.withContactMatching(query));
+		return scRepo.findAll(specs, page);
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#unsubscribeSubscription(de.mfischbo.bustamail.mailinglist.domain.SubscriptionList, de.mfischbo.bustamail.mailinglist.domain.Subscription)
+	 */
+	@Override
+	public void unsubscribeSubscription(SubscriptionList list, Subscription subscription) {
+		subscription.setState(State.INACTIVE);
+		scRepo.saveAndFlush(subscription);
+	}
+	
 
 	@Override
 	public SubscriptionImportDTO getEstimatedFileSettings(Media m) throws Exception {
@@ -245,6 +293,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 				s.setSourceType(SourceType.ImportAction);
 				s.setState(State.ACTIVE);
 				s.setSubscriptionList(list);
+				s.setContact(c);
 				scRepo.save(s);
 				imports++;
 			}

@@ -10,6 +10,8 @@ BMApp.MailingList.controller("MailingListIndexController",
 	$scope.owner = undefined;
 	$scope.subscriptionLists = {};
 	
+	var tout = undefined;
+	
 	$scope.$watch('owner', function(val) {
 		if (val) {
 			$http.get("/api/subscription-lists?owner=" + $scope.owner).success(function(data) {
@@ -30,6 +32,25 @@ BMApp.MailingList.controller("MailingListIndexController",
 				BMApp.alert("Beim entfernen der Liste ist ein Fehler aufgetreten", 'error');
 			});
 		});
+	};
+	
+	$scope.search = function() {
+		
+		if (tout)
+			window.clearTimeout(tout);
+		tout = window.setTimeout(function() {
+			if ($scope.query.length == 0) {
+				$http.get('/api/subscription-lists?owner=' + $scope.owner).success(function(data) {
+					$scope.subscriptionLists = data;
+				});
+			}
+			
+			if ($scope.query.length > 2) {
+				$http.get('/api/subscription-lists?owner=' + $scope.owner + '&q=' + $scope.query).success(function(data) {
+					$scope.subscriptionLists = data;
+				});
+			}
+		}, BMApp.uiConfig.searchDelay);
 	};
 }]);
 
@@ -71,6 +92,63 @@ BMApp.MailingList.controller("MailingListEditController",
 		}).success(function(data) {
 			BMApp.alert("Die Liste wurde erfolgreich gespeichert!");
 			$location.path("/subscription-lists/" + $routeParams.id);
+		});
+	};
+}]);
+
+
+/**
+ * Controller to display all subscribers for the given subscription list
+ */
+BMApp.MailingList.controller("MailingListSubscriberController", 
+		['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+
+	$scope.query = '';
+	var tout = undefined;
+			
+	$http.get('/api/subscription-lists/' + $routeParams.id + '/summary').success(function(data) {
+		$scope.summary = data;
+	});
+	
+	$http.get('/api/subscription-lists/' + $routeParams.id + '/subscriptions').success(function(data) {
+		$scope.subscriptions = data;
+	});
+	
+	
+	/**
+	 * Searches for subscriptions, matching the given $scope.query
+	 */
+	$scope.search = function() {
+		if (tout)
+			window.clearTimeout(tout);
+		
+		tout = window.setTimeout(function() {
+			if ($scope.query.length == 0) {
+				$http.get('/api/subscription-lists/' + $routeParams.id + '/subscriptions').success(function(data) {
+					$scope.subscriptions = data;
+				});
+			}
+			if ($scope.query.length > 2) {
+				$http.get('/api/subscription-lists/' + $routeParams.id + '/subscriptions/search?q=' + $scope.query)
+				.success(function(result) {
+					$scope.subscriptions = result;
+				});
+			}
+		}, BMApp.uiConfig.searchDelay);
+	};
+	
+	
+	/**
+	 * @param subscription - The subscription to be unsubscribed
+	 */
+	$scope.unsubscribe = function(subscription) {
+		BMApp.confirm("Soll der Abonnent wirklich aus der Liste entfernt werden?", function() {
+			$http.delete('/api/subscription-lists/' + $routeParams.id + '/subscriptions/' + subscription.id).success(function() {
+				BMApp.alert("Der Abonnent wurde als abgemeldet markiert");
+				subscription.state = 'INACTIVE';
+				$scope.summary.subscriptionsActive--;
+				$scope.summary.subscriptionInactive++;
+			});
 		});
 	};
 }]);

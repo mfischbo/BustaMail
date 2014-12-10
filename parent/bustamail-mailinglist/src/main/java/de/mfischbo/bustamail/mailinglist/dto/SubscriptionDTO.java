@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import de.mfischbo.bustamail.common.dto.BaseDTO;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription.SourceType;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
+import de.mfischbo.bustamail.subscriber.dto.ContactDTO;
 import de.mfischbo.bustamail.subscriber.dto.EMailAddressDTO;
 
 public class SubscriptionDTO extends BaseDTO {
@@ -16,6 +17,7 @@ public class SubscriptionDTO extends BaseDTO {
 	private State			state;
 	private String			ipAddress;
 	private EMailAddressDTO emailAddress;
+	private ContactDTO		contact;
 	
 	public SubscriptionDTO() {
 		
@@ -59,5 +61,13 @@ public class SubscriptionDTO extends BaseDTO {
 
 	public void setEmailAddress(EMailAddressDTO emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+
+	public ContactDTO getContact() {
+		return contact;
+	}
+
+	public void setContact(ContactDTO contact) {
+		this.contact = contact;
 	}
 }

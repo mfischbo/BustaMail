@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
+import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.dto.ImportResultDTO;
 import de.mfischbo.bustamail.mailinglist.dto.ParsingResultDTO;
@@ -31,6 +32,9 @@ public interface MailingListService {
 
 	@PostAuthorize("hasPermission(returnObject.owner, 'Security.IS_ACTOR_OF')")
 	public SubscriptionList			getSubscriptionListById(UUID id) throws EntityNotFoundException;
+	
+	@PostAuthorize("hasPermission(#owner, 'Security.IS_ACTOR_OF')")
+	public Page<SubscriptionList> findSubscriptionLists(OrgUnit owner, String query, Pageable page);
 
 	@Transactional
 	@PreAuthorize("hasPermission(#list.owner, 'MailingList.MANAGE_SUBSCRIPTION_LISTS')")
@@ -43,7 +47,16 @@ public interface MailingListService {
 	@Transactional
 	@PreAuthorize("hasPermission(#list.owner, 'MailingList.MANAGE_SUBSCRIPTION_LISTS')")
 	public void						deleteSubscriptionList(SubscriptionList list) throws EntityNotFoundException;
-	
+
+	/**
+	 * Returns the amount of subscriptions on the given list for the given state
+	 * @param list The mailing list
+	 * @param state The subscription state
+	 * @return The amount of subscriptions
+	 */
+	@PreAuthorize("hasPermission(#list.owner, 'MailingList.MANAGE_SUBSCRIPTION_LISTS')")
+	public long						getSubscriptionCountByState(SubscriptionList list, State state);
+
 	
 	// ----------------------------/
 	// 		Subscriptions		  /
@@ -54,6 +67,12 @@ public interface MailingListService {
 	
 	@PostAuthorize("hasPermission(returnObject.subscriptionList.owner, 'Security.IS_ACTOR_OF')")
 	public Subscription getSubscriptionById(UUID subscriptionId) throws EntityNotFoundException;
+	
+	@PostAuthorize("hasPermission(#list.owner, 'Security.IS_ACTOR_OF')")
+	public Page<Subscription> findSubscriptions(SubscriptionList list, String query, Pageable page);
+	
+	@PostAuthorize("hasPermission(#list.owner, 'Security.IS_ACTOR_OF')")
+	public void unsubscribeSubscription(SubscriptionList list, Subscription subscription);
 	
 	@PostAuthorize("hasPermission(#m.owner, 'Security.IS_ACTOR_OF')")
 	public SubscriptionImportDTO getEstimatedFileSettings(Media m) throws Exception;

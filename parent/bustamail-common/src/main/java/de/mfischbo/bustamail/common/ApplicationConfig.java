@@ -26,6 +26,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Version;
 
 @Configuration
 @EnableAutoConfiguration
@@ -81,7 +82,7 @@ public class ApplicationConfig {
 	@Bean
 	public FreeMarkerConfigurer getFreeMarkerConfigurer() {
 		FreeMarkerConfigurer fmc = new FreeMarkerConfigurer();
-		freemarker.template.Configuration c = new freemarker.template.Configuration();
+		freemarker.template.Configuration c = new freemarker.template.Configuration(new Version("2.3.21"));
 		c.setTemplateLoader(new StringTemplateLoader());
 		fmc.setConfiguration(c);
 		return fmc;

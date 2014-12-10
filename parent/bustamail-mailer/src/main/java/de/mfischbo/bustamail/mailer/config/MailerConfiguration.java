@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import freemarker.template.TemplateExceptionHandler;
+import freemarker.template.Version;
 
 @Configuration
 public class MailerConfiguration {
@@ -35,7 +36,7 @@ public class MailerConfiguration {
 	
 	@Bean
 	public freemarker.template.Configuration getConfiguration() {
-		freemarker.template.Configuration c = new freemarker.template.Configuration();
+		freemarker.template.Configuration c = new freemarker.template.Configuration(new Version("2.3.21"));
 		c.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
 		return c;
 	}

@@ -13,6 +13,7 @@ import javax.persistence.UniqueConstraint;
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
+import de.mfischbo.bustamail.subscriber.domain.Contact;
 import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
 @Entity
@@ -53,6 +54,9 @@ public class Subscription extends BaseDomain {
 	@JoinColumn(name = "SubscriptionList_id", referencedColumnName = "id")
 	private	SubscriptionList		subscriptionList;
 
+	@OneToOne(optional = false)
+	@JoinColumn(name = "Contact_id", referencedColumnName = "id")
+	private Contact					contact;
 	
 	@OneToOne(optional = false)
 	@JoinColumn(name = "EMailAddress_id", referencedColumnName = "id")
@@ -105,5 +109,13 @@ public class Subscription extends BaseDomain {
 
 	public void setEmailAddress(EMailAddress emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+
+	public Contact getContact() {
+		return contact;
+	}
+
+	public void setContact(Contact contact) {
+		this.contact = contact;
 	}
 }

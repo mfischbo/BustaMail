@@ -1,0 +1,55 @@
+<h3>Abonnenten</h3>
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="col-md-8">
+					<span>
+						Aktiv : {{summary.subscriptionsActive}} / 
+						Unbestätigt : {{summary.subscriptionsPending}} /
+						Abgemeldet  : {{summary.subscriptionInactive}}
+					</span>
+				</div>
+				<div class="input-group pull-right col-md-4">
+					<input type="search" data-ng-model="query" placeholder="Kontakt Suche..." data-ng-change="search()" class="form-control input-sm col-md-4">	
+				</div>
+				<div class="clearfix"></div>
+			</div>	
+			
+			<div class="panel-body">
+				<table class="table table-striped table-condensed">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>E-Mail</th>
+						<th>Status</th>
+						<th>Quelle</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-ng-repeat="s in subscriptions.content">
+						<td>{{s.contact.firstName}} {{s.contact.lastName}}</td>	
+						<td>{{s.emailAddress.address}}</td>
+						<td>
+							<span data-ng-if="s.state == 'ACTIVE'">Aktiv</span>
+							<span data-ng-if="s.state == 'OPTIN'">Unbestätigt</span>
+							<span data-ng-if="s.state == 'INACTIVE'">Abgemeldet</span>
+						</td>
+						<td>
+							<span data-ng-if="s.sourceType == 'UserAction'">Manueller Eintrag</span>
+							<span data-ng-if="s.sourceType == 'ImportAction'">Datenimport</span>
+							<span data-ng-if="s.sourceType == 'FormAction'">Anmeldung</span>
+							<span> am {{s.dateCreated|date:'dd.MM.yyyy HH:mm'}}</span>
+						</td>
+						<td class="tools">
+							<a href="#/subscriptions-lists/{{listId}}/subscribers/{{s.id}}/edit" title="Abonnent bearbeiten"><span class="fa fa-pencil"></span></a>
+							<a href="javascript:void('');" data-ng-click="unsubscribe(s)" title="Abonnent abmelden" data-ng-if="s.state != 'INACTIVE'"><span class="fa fa-trash-o"></span></a>
+						</td>
+					</tr>
+				</tbody>
+				</table>	
+			</div>
+		</div>
+	</div>
+</div>

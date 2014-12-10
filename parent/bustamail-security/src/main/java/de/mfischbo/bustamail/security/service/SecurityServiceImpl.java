@@ -518,6 +518,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		*/
 	}
 	
+	/*
 	private boolean isActorIn(OrgUnit parent, List<Actor> actors) {
 		for (Actor a : actors) {
 			if (a.getOrgUnit().getId().equals(parent.getId()))
@@ -539,7 +540,8 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		}
 		return found;
 	}
-
+	*/
+	
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher arg0) {
 		this.publisher = arg0;

@@ -143,6 +143,10 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 		when("/subscription-lists/:id/import", {
 			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/import.html",
 			controller	:	"MailingListImportController"
+		}).
+		when('/subscription-lists/:id/subscribers', {
+			templateUrl :   './js/modules/mailinglist/tmpl/subscriptionlist/subscribers.html',
+			controller	:	'MailingListSubscriberController'
 		})
 		
 		// Landing Pages Module
