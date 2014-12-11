@@ -1,4 +1,18 @@
 BMApp.Media = angular.module("MediaModule", ['angularTreeview', 'angularFileUpload']);
+BMApp.Media.config(['$routeProvider', function($routeProvider) {
+
+	$routeProvider
+		.when("/media", {
+			templateUrl	:	"./js/modules/media/tmpl/index.html",
+			controller	:	"MediaIndexController"
+		})
+		
+		// editor module
+		.when("/editor", {
+			templateUrl	:	"./js/modules/editor/tmpl/editor.html",
+			controller	:	"EditorIndexController"
+		});
+}]);
 
 BMApp.Media.controller("MediaIndexController", ['$scope', '$http', '$upload', function($scope, $http, $upload) {
 

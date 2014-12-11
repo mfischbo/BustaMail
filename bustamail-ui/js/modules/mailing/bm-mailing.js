@@ -1,5 +1,26 @@
 BMApp.Mailing = angular.module("MailingModule", ['SecurityModule']);
 
+BMApp.Mailing.config(['$routeProvider', function($routeProvider) {
+	
+	$routeProvider
+		.when("/mailings", {
+			templateUrl	:	"./js/modules/mailing/tmpl/mailing/index.html",
+			controller	:	"MailingIndexController"
+		})
+		.when("/mailings/create", {
+			templateUrl :	"./js/modules/mailing/tmpl/mailing/create.html",
+			controller	:	"MailingCreateController"
+		})
+		.when("/mailings/:id/edit", {
+			templateUrl : 	"./js/modules/editor/tmpl/editor.html",
+			controller	:	"EditorIndexController"
+		})
+		.when("/mailings/:id/envelope", {
+			templateUrl	:	"./js/modules/mailing/tmpl/mailing/envelope.html",
+			controller	:	"MailingEnvelopeController"
+		});
+}]);
+
 BMApp.Mailing.controller("MailingIndexController", ['$scope', '$http', function($scope, $http) {
 	
 	$scope.mailings = {};

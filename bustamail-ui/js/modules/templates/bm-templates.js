@@ -1,6 +1,23 @@
 BMApp.Templates = angular.module("TemplatesModule", 
 		['SecurityModule', 'ui.codemirror', 'angularFileUpload']);
 
+BMApp.Templates.config(['$routeProvider', function($routeProvider) {
+	
+	$routeProvider
+		.when("/templates/packs", {
+			templateUrl	:	"./js/modules/templates/tmpl/packs/index.html",
+			controller	:	"TemplatePacksIndexController"
+		})
+		.when("/templates/packs/create", {
+			templateUrl :	"./js/modules/templates/tmpl/packs/create.html",
+			controller  :	"TemplatePacksCreateController"
+		})
+		.when("/templates/packs/:id/edit", {
+			templateUrl	:	"./js/modules/templates/tmpl/packs/edit.html",
+			controller	:	"TemplatePacksEditController"
+		});
+}]);
+
 
 BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', '$upload', function($http, $scope, $upload) {
 

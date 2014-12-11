@@ -1,5 +1,32 @@
 BMApp.MailingList = angular.module("MailingListModule", ['SecurityModule', 'angularFileUpload']);
-
+BMApp.MailingList.config(['$routeProvider', function($routeProvider) {
+	
+	$routeProvider
+		.when("/subscription-lists", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/index.html",
+			controller	:	"MailingListIndexController"
+		})
+		.when("/subscription-lists/create", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/create.html",
+			controller	:	"MailingListCreateController"
+		})
+		.when("/subscription-lists/:id", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/details.html",
+			controller	:	"MailingListEditController"
+		})
+		.when("/subscription-lists/:id/edit", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/edit.html",
+			controller	:	"MailingListEditController"
+		}).
+		when("/subscription-lists/:id/import", {
+			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/import.html",
+			controller	:	"MailingListImportController"
+		}).
+		when('/subscription-lists/:id/subscribers', {
+			templateUrl :   './js/modules/mailinglist/tmpl/subscriptionlist/subscribers.html',
+			controller	:	'MailingListSubscriberController'
+		});
+}]);
 
 /**
  * Controller to show the index page of mailing lists
@@ -104,6 +131,7 @@ BMApp.MailingList.controller("MailingListSubscriberController",
 		['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
 
 	$scope.query = '';
+	$scope.listId = $routeParams.id;
 	var tout = undefined;
 			
 	$http.get('/api/subscription-lists/' + $routeParams.id + '/summary').success(function(data) {

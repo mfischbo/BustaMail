@@ -1,5 +1,13 @@
 BMApp.Subscriber = angular.module("SubscriberModule", []);
-//BMApp.Subscriber.service = angular.module("SubscriberServiceModule", []);
+BMApp.Subscriber.config(['$routeProvider', function($routeProvider) {
+	
+	$routeProvider
+		.when("/subscriber", {
+			templateUrl : "./js/modules/subscriber/tmpl/index.html",
+			controller	: "SubscriberIndexController"
+		});
+}]);
+
 
 BMApp.Subscriber.service("Subscriber", ['$http', function($http) {
 	

@@ -1,4 +1,36 @@
 BMApp.Security = angular.module("SecurityModule", ['angularTreeview', 'ngRoute']);
+BMApp.Security.config(['$routeProvider', function($routeProvider) {
+
+	$routeProvider
+		.when("/security/orgUnits", {
+			templateUrl :	"./js/modules/security/tmpl/orgUnits/index.html",
+			controller	:	"SecurityOrgUnitIndexController"
+		})
+		.when("/security/orgUnits/create", {
+			templateUrl :	"./js/modules/security/tmpl/orgUnits/create.html",
+			controller	:	"SecurityOrgUnitCreateController"
+		})
+		.when("/security/users",   {
+			templateUrl : "./js/modules/security/tmpl/users/index.html",
+			controller	: "SecurityUserIndexController"
+		})
+		.when("/security/users/create", {
+			templateUrl	:	"./js/modules/security/tmpl/users/create.html",
+			controller	:	"SecurityUserCreateController"
+		})
+		.when("/security/users/:id/edit", {
+			templateUrl :	"./js/modules/security/tmpl/users/edit.html",
+			controller	:	"SecurityUserEditController"
+		})
+		.when("/security/settings", {
+			templateUrl : "./js/modules/security/tmpl/settings/index.html",
+			controller	:	"SecuritySetttingsIndexController"
+		})
+		.when("/logout", {
+			templateUrl :   "./js/modules/security/tmpl/logout.html",
+			controller	:	"BMAppLogoutController"
+		});
+}]);
 
 BMApp.Security.controller("SecurityOrgUnitIndexController", ['$http', '$scope', function($http, $scope) {
 
