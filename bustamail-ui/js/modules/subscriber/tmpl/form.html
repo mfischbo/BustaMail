@@ -1,0 +1,137 @@
+<form name="contactForm">
+	<h4>Kontaktdaten</h4>
+	<div class="form-group">
+		<div class="row">
+			<div class="col-md-6">
+				<label>Anrede</label>
+				<select data-ng-model="subscriber.gender" class="form-control">
+					<option value="N">Bitte w&auml;hlen</option>
+					<option value="F">Frau</option>
+					<option value="M">Herr</option>
+				</select>
+			</div>
+			
+			<div class="col-md-6">
+				<label>Titel</label>
+				<input type="text" data-ng-model="subscriber.title" class="form-control">
+			</div>
+		</div>
+	</div>
+	
+	<div class="form-group">
+		<div class="checkbox">
+			<label>
+				<input type="checkbox" data-ng-model="subscriber.formalSalutation"> Formelle Anrede
+			</label>
+		</div>
+	</div>
+	
+	<div class="form-group">
+		<div class="row">
+			<div class="col-md-6">
+				<label>Vorname</label>
+				<input type="text" data-ng-model="subscriber.firstName" class="form-control">
+			</div>	
+			
+			<div class="col-md-6">
+				<label>Nachname</label>
+				<input type="text" data-ng-model="subscriber.lastName" class="form-control">
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6">
+			<h4>E-Mail Adressen</h4>
+			
+			<div data-ng-repeat="e in subscriber.emailAddresses">
+				<div class="row">
+					<div class="col-md-10">
+						<input type="email" data-ng-model="e.address" class="form-control">
+					</div>
+					
+					<div class="col-md-2">
+						<button type="button" class="btn btn-xs btn-danger" data-ng-click="subscriber.emailAddresses.splice($index,1)">
+							<span class="fa fa-trash-o"></span>
+						</button>
+						<button type="button" class="btn btn-xs btn-success" data-ng-click="subscriber.emailAddresses.push({address: ''})" data-ng-if="$last">
+							<span class="fa fa-plus"></span>
+						</button>
+					</div>
+					<br/><br/>
+				</div>	
+			</div>
+		</div>
+		
+			
+		<div class="col-md-6" data-ng-if="addressMode == 'view'">
+			<h4>Adressen</h4>
+			<table class="table table-striped">
+			<tbody>
+				<tr data-ng-if="subscriber.addresses.length == 0">
+					<td colspan="2" class="text-center">Keine Adressen hinterlegt</td>
+				</tr>
+				<tr data-ng-repeat="a in subscriber.addresses">
+					<td>
+						<span data-ng-if="a.street.length > 0">{{a.street}} / </span>
+						<span data-ng-if="a.country.length > 0">{{a.country}} -</span> {{a.zipcode}} {{a.city}}				
+					</td>
+					<td class="tools">
+						<a href="javascript:void('');" data-ng-click="editAddress(a)" title="Adresse bearbeiten"><span class="fa fa-pencil"></span></a>
+						<a href="javascript:void('');" data-ng-click="subscriber.addresses.splice($index,1)" title="Adresse entfernen"><span class="fa fa-trash-o"></span></a>			
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			<button class="btn btn-success btn-xs pull-right" data-ng-click="addAddress()"><span class="fa fa-plus"> Hinzufügen</span></button>
+		</div>
+		
+		<div class="col-md-6" data-ng-if="addressMode == 'edit'">
+			<h4>Adresse bearbeiten</h4>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="form-group">
+						<label>Strasse</label>
+						<input type="text" data-ng-model="focusedAddress.street" class="form-control" placeholder="Strasse / Hausnummer">
+					</div>
+				</div>
+			</div>
+
+			<div class="row">	
+				<div class="col-md-4">
+					<div class="form-group">
+						<label>PLZ</label>
+						<input type="text" data-ng-model="focusedAddress.zipcode" class="form-control" placeholder="PLZ">
+					</div>
+				</div>
+					
+				<div class="col-md-8">
+					<div class="form-group">
+						<label>Stadt / Ort</label>
+						<input type="text" data-ng-model="focusedAddress.city" class="form-control" placeholder="Stadt / Ort">
+					</div>
+				</div>
+			</div>	
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="form-group">
+						<label>Land</label>
+						<select data-ng-model="focusedAddress.country" class="form-control">
+							<option value="DE">Deutschland</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="pull-right">
+						<button class="btn btn-danger btn-sm" data-ng-click="cancelEdit()">Abbrechen</button>
+						<button class="btn btn-success btn-sm" data-ng-click="updateAddress()">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>	
+	</div>	
+</form>

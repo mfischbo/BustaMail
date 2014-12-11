@@ -43,7 +43,7 @@
 							<span> am {{s.dateCreated|date:'dd.MM.yyyy HH:mm'}}</span>
 						</td>
 						<td class="tools">
-							<a href="#/subscriptions-lists/{{listId}}/subscribers/{{s.id}}/edit" title="Abonnent bearbeiten"><span class="fa fa-pencil"></span></a>
+							<a href="#/subscriber/{{s.contact.id}}/edit" title="Abonnent bearbeiten"><span class="fa fa-pencil"></span></a>
 							<a href="javascript:void('');" data-ng-click="unsubscribe(s)" title="Abonnent abmelden" data-ng-if="s.state != 'INACTIVE'"><span class="fa fa-trash-o"></span></a>
 						</td>
 					</tr>

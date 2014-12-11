@@ -1,0 +1,26 @@
+<div class="row">
+	<div class="col-md-12">
+		<h3>Abonnent bearbeiten</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">{{::subscriber.firstName}} {{::subscriber.lastName}}</h3>
+			</div>
+			
+			<div class="panel-body">
+				<div data-ng-include data-src="'./js/modules/subscriber/tmpl/form.html'"></div>
+			</div>
+			
+			<div class="panel-footer">
+				<div class="pull-right">
+					<button class="btn btn-success" data-ng-click="saveSubscriber()">Speichern</button>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>
