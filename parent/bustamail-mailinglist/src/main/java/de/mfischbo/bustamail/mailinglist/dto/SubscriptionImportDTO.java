@@ -1,7 +1,8 @@
 package de.mfischbo.bustamail.mailinglist.dto;
 
 import java.util.Arrays;
-import java.util.UUID;
+
+import org.bson.types.ObjectId;
 
 import de.mfischbo.bustamail.reader.TableDataReader.FileType;
 
@@ -9,7 +10,7 @@ public class SubscriptionImportDTO {
 
 	
 	/* The id of the media that has been uploaded for the import */
-	private UUID 			mediaId;
+	private ObjectId		mediaId;
 	
 	private String			encoding;
 	
@@ -32,11 +33,11 @@ public class SubscriptionImportDTO {
 		
 	}
 
-	public UUID getMediaId() {
+	public ObjectId getMediaId() {
 		return mediaId;
 	}
 
-	public void setMediaId(UUID mediaId) {
+	public void setMediaId(ObjectId mediaId) {
 		this.mediaId = mediaId;
 	}
 

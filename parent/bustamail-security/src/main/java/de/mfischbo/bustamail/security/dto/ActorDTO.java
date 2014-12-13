@@ -3,32 +3,28 @@ package de.mfischbo.bustamail.security.dto;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bson.types.ObjectId;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class ActorDTO {
+import de.mfischbo.bustamail.common.dto.BaseDTO;
 
-	private UUID				id;
+public class ActorDTO extends BaseDTO {
+
+	private static final long serialVersionUID = 6427625273688569714L;
 	
 	@JsonIgnore
 	private UserDTO				user;
-	private UUID				userId;
+	private ObjectId			userId;
 
 	@JsonIgnore
 	private OrgUnitDTO			orgUnit;
-	private UUID				orgUnitId;
+	private ObjectId			orgUnitId;
 	
 	private boolean				addToChildren;
 	private boolean				addToFutureChildren;
 	
 	private Set<UUID>			permissions;
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
 
 	public UserDTO getUser() {
 		return user;
@@ -39,13 +35,13 @@ public class ActorDTO {
 		this.userId = user.getId();
 	}
 
-	public UUID getUserId() {
+	public ObjectId getUserId() {
 		if (user != null)
 			return user.getId();
 		return userId;
 	}
 
-	public void setUserId(UUID userId) {
+	public void setUserId(ObjectId userId) {
 		if (userId != null && this.userId == null)
 			this.userId = userId;
 	}
@@ -59,13 +55,13 @@ public class ActorDTO {
 		this.orgUnitId = orgUnit.getId();
 	}
 
-	public UUID getOrgUnitId() {
+	public ObjectId getOrgUnitId() {
 		if (orgUnit != null)
 			return orgUnit.getId();
 		return orgUnitId;
 	}
 
-	public void setOrgUnitId(UUID orgUnitId) {
+	public void setOrgUnitId(ObjectId orgUnitId) {
 		if (orgUnitId != null && this.orgUnitId == null)
 			this.orgUnitId = orgUnitId;
 	}

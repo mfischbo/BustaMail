@@ -1,8 +1,8 @@
 package de.mfischbo.bustamail.media.service;
 
 import java.util.List;
-import java.util.UUID;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
@@ -21,7 +21,7 @@ public interface MediaService {
 	void			flushToDisk() throws Exception;
 
 	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
-	Media			getMediaById(UUID id) throws EntityNotFoundException;
+	Media			getMediaById(ObjectId id) throws EntityNotFoundException;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			createMedia(@P("m") Media media);
@@ -47,10 +47,10 @@ public interface MediaService {
 	List<Directory> getDirectoryRoots();
 	
 	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
-	Directory		getDirectoryById(UUID directory) throws EntityNotFoundException;
+	Directory		getDirectoryById(ObjectId directory) throws EntityNotFoundException;
 	
 	@PreAuthorize("hasPermission(#owner, 'Media.MANAGE_MEDIA')")
-	Directory		createDirectory(UUID owner, Directory directory);
+	Directory		createDirectory(ObjectId owner, Directory directory);
 	
 	@PreAuthorize("hasPermission(#d.owner, 'Media.MANAGE_MEDIA')")
 	Directory		updateDirectory(@P("d") Directory directory);

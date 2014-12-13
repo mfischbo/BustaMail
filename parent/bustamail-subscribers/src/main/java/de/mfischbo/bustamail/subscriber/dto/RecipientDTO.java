@@ -1,27 +1,24 @@
 package de.mfischbo.bustamail.subscriber.dto;
 
-import java.util.UUID;
+import org.bson.types.ObjectId;
 
 import de.mfischbo.bustamail.common.domain.Gender;
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
+import de.mfischbo.bustamail.common.dto.BaseDTO;
 import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
-public class RecipientDTO implements PersonalizedEmailRecipient {
-
-	private UUID			id;
+public class RecipientDTO extends BaseDTO implements PersonalizedEmailRecipient {
+	
+	private static final long serialVersionUID = -5022810620116253645L;
+	
 	private String			firstName;
 	private String			lastName;
 	private Gender			gender;
 	private	String		 	email;
 	private boolean			formalSalutation;
+	private ObjectId		subscriberId;
 
-	public UUID getId() {
-		return id;
-	}
-	public void setSubscriberId(UUID id) {
-		this.id = id;
-	}
-	
+
 	@Override
 	public String getFirstName() {
 		return firstName;
@@ -63,6 +60,14 @@ public class RecipientDTO implements PersonalizedEmailRecipient {
 	}
 	public void setFormalSalutation(boolean formalSalutation) {
 		this.formalSalutation = formalSalutation;
+	}
+	
+	public ObjectId getSubscriberId() {
+		return this.subscriberId;
+	}
+	
+	public void setSubscriberId(ObjectId id) {
+		this.subscriberId = id;
 	}
 	
 	

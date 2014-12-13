@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.mailing.service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +25,8 @@ import de.mfischbo.bustamail.vc.domain.VersionedContent;
 
 public class MailingPreProcessor {
 
-	public static LiveMailing createLiveMailing(Mailing m, VersionedContent html, VersionedContent text, String contentBaseUrl) throws AddressException, MalformedURLException {
+	public static LiveMailing createLiveMailing(Mailing m, Collection<Subscription> subscriptions, VersionedContent html, 
+			VersionedContent text, String contentBaseUrl) throws AddressException, MalformedURLException {
 	
 		Logger log = LoggerFactory.getLogger(MailingPreProcessor.class);
 	
@@ -41,17 +43,17 @@ public class MailingPreProcessor {
 		for (SubscriptionList l : m.getSubscriptionLists()) {
 			
 			log.info("Adding subscribers from subscription list : " + l.getName());
-			for (Subscription s : l.getSubscriptions()) {
+			for (Subscription s : subscriptions) {
 				
 				if (s.getState() != State.ACTIVE)
 					continue;
 				
 				RecipientDTO d = new RecipientDTO();
 				d.setAddress(s.getEmailAddress());
-				d.setFirstName(s.getEmailAddress().getContact().getFirstName());
-				d.setLastName(s.getEmailAddress().getContact().getLastName());
-				d.setFormalSalutation(s.getEmailAddress().getContact().isFormalSalutation());
-				d.setGender(s.getEmailAddress().getContact().getGender());
+				d.setFirstName(s.getContact().getFirstName());
+				d.setLastName(s.getContact().getLastName());
+				d.setFormalSalutation(s.getContact().isFormalSalutation());
+				d.setGender(s.getContact().getGender());
 				d.setSubscriberId(s.getId());
 				recipients.add(d);
 			}

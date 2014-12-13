@@ -1,15 +1,16 @@
 package de.mfischbo.bustamail.security.dto;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.domain.Gender;
+import de.mfischbo.bustamail.common.dto.BaseDTO;
 
-public class UserDTO {
+public class UserDTO extends BaseDTO {
 
-	private	UUID		id;
+	private static final long serialVersionUID = -5214230636220530173L;
+	
 	private String		firstName;
 	private String		lastName;
 	private Gender		gender;
@@ -21,14 +22,6 @@ public class UserDTO {
 	
 	
 	private List<ActorDTO>		actors;
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
 
 	public String getFirstName() {
 		return firstName;

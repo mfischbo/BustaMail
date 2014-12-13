@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -50,7 +51,7 @@ public class RestSubscriptionListController extends BaseApiController {
 	@IntegrationTested
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public Page<SubscriptionListDTO> getAllSubscriptionLists(
-			@RequestParam(value = "owner", required = true) UUID ownerId, 
+			@RequestParam(value = "owner", required = true) ObjectId ownerId, 
 			@PageableDefault(page = 0, size = 30, sort = "name") Pageable page) throws Exception {
 		OrgUnit owner = secService.getOrgUnitById(ownerId);
 		return asDTO(service.getAllMailingLists(owner, page), SubscriptionListDTO.class, page);
@@ -58,7 +59,7 @@ public class RestSubscriptionListController extends BaseApiController {
 	
 	@RequestMapping(value = "/search", method = RequestMethod.GET)
 	public Page<SubscriptionListDTO> findSubscriptionLists(
-			@RequestParam(value = "owner", required = true) UUID ownerId,
+			@RequestParam(value = "owner", required = true) ObjectId ownerId,
 			@RequestParam(value = "q", required = true) String query,
 			@PageableDefault(page = 0, size = 30, sort = "name") Pageable page) throws Exception {
 		OrgUnit owner = secService.getOrgUnitById(ownerId);
@@ -87,13 +88,13 @@ public class RestSubscriptionListController extends BaseApiController {
 	 */
 	@IntegrationTested
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public SubscriptionListDTO getSubscriptionListById(@PathVariable("id") UUID id) throws Exception {
+	public SubscriptionListDTO getSubscriptionListById(@PathVariable("id") ObjectId id) throws Exception {
 		return asDTO(service.getSubscriptionListById(id), SubscriptionListDTO.class);
 	}
 	
 	
 	@RequestMapping(value = "/{id}/summary", method = RequestMethod.GET)
-	public SubscriptionListSummaryDTO getSummaryBySubscriptionListId(@PathVariable("id") UUID id) throws Exception {
+	public SubscriptionListSummaryDTO getSummaryBySubscriptionListId(@PathVariable("id") ObjectId id) throws Exception {
 		SubscriptionList list = service.getSubscriptionListById(id);
 		SubscriptionListSummaryDTO dto = new SubscriptionListSummaryDTO();
 		dto.setSubscriptionsActive(service.getSubscriptionCountByState(list, State.ACTIVE));
@@ -124,7 +125,7 @@ public class RestSubscriptionListController extends BaseApiController {
 	 */
 	@IntegrationTested
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteSubscriptionList(@PathVariable("id") UUID id) throws Exception {
+	public void deleteSubscriptionList(@PathVariable("id") ObjectId id) throws Exception {
 		SubscriptionList l = service.getSubscriptionListById(id);
 		service.deleteSubscriptionList(l);
 	}

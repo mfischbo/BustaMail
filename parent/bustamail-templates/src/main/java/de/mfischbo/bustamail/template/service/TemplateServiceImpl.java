@@ -15,14 +15,15 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,20 +39,12 @@ import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.domain.Widget;
 import de.mfischbo.bustamail.template.dto.TemplatePackDTO;
 import de.mfischbo.bustamail.template.repository.TemplatePackRepository;
-import de.mfischbo.bustamail.template.repository.TemplateRepositiory;
-import de.mfischbo.bustamail.template.repository.WidgetRepository;
 
 @Service
 public class TemplateServiceImpl extends BaseService implements TemplateService {
 
 	@Inject
 	private TemplatePackRepository	tpRepo;
-	
-	@Inject
-	private TemplateRepositiory		templateRepo;
-	
-	@Inject
-	private WidgetRepository		widgetRepo;
 	
 	@Inject
 	private MediaService			mediaService;
@@ -61,14 +54,12 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	
 
 	@Override
-	@PreAuthorize("hasPermission(#owner, 'Templates.USE_TEMPLATES')")
-	public Page<TemplatePack> getAllTemplatePacks(UUID owner, Pageable page) {
+	public Page<TemplatePack> getAllTemplatePacks(ObjectId owner, Pageable page) {
 		return tpRepo.findAllByOwner(owner, page);
 	}
 
 	@Override
-	@PostAuthorize("hasPermission(returnObject.owner, 'Templates.USE_TEMPLATES')")
-	public TemplatePack getTemplatePackById(UUID id)
+	public TemplatePack getTemplatePackById(ObjectId id)
 			throws EntityNotFoundException {
 		TemplatePack tp = tpRepo.findOne(id);
 		checkOnNull(tp);
@@ -98,7 +89,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				}
 			}
 		}
-		return tpRepo.saveAndFlush(pack);
+		return tpRepo.save(pack);
 	}
 	
 	@Override
@@ -140,7 +131,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	
 	@Override
 	@PreAuthorize("hasPermission(#owner, 'Templates.MANAGE_TEMPLATES')")
-	public TemplatePack importTemplatePack(UUID owner, ZipInputStream stream) throws BustaMailException {
+	public TemplatePack importTemplatePack(ObjectId owner, ZipInputStream stream) throws BustaMailException {
 	
 		// read all entries into a data structure
 		TemplatePack tin = null;
@@ -174,7 +165,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		nPack.setTemplates(new ArrayList<Template>(tin.getTemplates().size()));
 	
 		// perist the pack
-		nPack = tpRepo.saveAndFlush(nPack);
+		nPack = tpRepo.save(nPack);
 	
 		for (Template t : tin.getTemplates()) {
 			Template nt = new Template();
@@ -196,7 +187,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			}
 			
 			// checkpoint for a single template
-			nt = templateRepo.save(nt);
+			//nt = templateRepo.save(nt);
 			
 			// copy all images and resources for this template
 			for (MediaImage image : t.getImages()) {
@@ -218,7 +209,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				m = mediaService.createMedia(m);
 				nt.getResources().add(m);
 			}
-			templateRepo.saveAndFlush(nt);
+			//templateRepo.save(nt);
 		}
 		return tin;
 	}
@@ -278,7 +269,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public TemplatePack updateTemplatePack(@P("pack") TemplatePack pack)
 			throws EntityNotFoundException {
-		return tpRepo.saveAndFlush(pack);
+		return tpRepo.save(pack);
 	}
 
 	@Override
@@ -288,21 +279,23 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	}
 	
 	@Override
-	public void exportAsZip(UUID owner, TemplatePack pack) {
+	public void exportAsZip(ObjectId owner, TemplatePack pack) {
 		
 	}
-	
+
 	@Override
-	@PostAuthorize("hasPermission(returnObject.templatePack.owner, 'Templates.USE_TEMPLATES')")
-	public Template getTemplateById(UUID templateId) throws EntityNotFoundException {
-		Template t = templateRepo.findOne(templateId);
-		checkOnNull(t);
-		return t;
+	public Template getTemplateById(ObjectId templateId) throws EntityNotFoundException {
+		TemplatePack tp = tpRepo.findByTemplateWithId(templateId);
+		checkOnNull(tp);
+		
+		for (Template t : tp.getTemplates()) {
+			if (t.getId().equals(templateId)) return t;
+		}
+		throw new EntityNotFoundException("Unable to find template for id : " + templateId);
 	}
-	
+
 	@Override
-	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Template createTemplate(@P("template") Template template) {
+	public Template createTemplate(TemplatePack pack, Template template) {
 	
 		// copy media resources
 		if (template.getImages() != null) {
@@ -313,26 +306,32 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			}
 			template.setImages(persisted);
 		}
-		return templateRepo.saveAndFlush(template);
+		pack.getTemplates().add(template);
+		tpRepo.save(pack);
+		return template;
 	}
 	
 	@Override
 	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public Template updateTemplate(@P("template") Template template) {
-		return templateRepo.saveAndFlush(template);
+		//return templateRepo.saveAndFlush(template);
+		return null;
+		// TODO: Reimplement this
 	}
 	
 	@Override
 	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public void deleteTemplate(Template template) {
-		templateRepo.delete(template);
+		//templateRepo.delete(template);
+		//TODO: Reimplement this
 	}
 	
 	@Override
 	@Transactional
 	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public MediaImage createTemplateImage(Template template, MediaImage image) {
-		
+	
+		/*
 		image.setOwner(template.getTemplatePack().getOwner());
 		MediaImage retval = mediaService.createMediaImage(image);
 		
@@ -341,6 +340,8 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		template.getImages().add(retval);
 		templateRepo.saveAndFlush(template);
 		return retval;
+		*/
+		return null; // TODO: Reimplement this
 	}
 	
 	@Override
@@ -348,13 +349,18 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public Media createTemplateResource(Template template, Media resource) {
 		
+		/*
 		resource.setOwner(template.getTemplatePack().getOwner());
 		Media retval = mediaService.createMedia(resource);
 		if (template.getResources() == null)
 			template.setResources(new LinkedList<Media>());
 		template.getResources().add(retval);
 		templateRepo.saveAndFlush(template);
+		
 		return retval;
+		*/
+		// TODO: Reimplement this
+		return null;
 	}
 	
 	
@@ -365,34 +371,42 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		image.setOwner(pack.getOwner());
 		MediaImage retval = mediaService.createMediaImage(image);
 		pack.setThemeImage(retval);
-		tpRepo.saveAndFlush(pack);
+		tpRepo.save(pack);
 		return retval;
 	}
 	
 
 	@Override
 	@PostAuthorize("hasPermission(returnObject.template.templatePack.owner, 'Templates.USE_TEMPLATES')")
-	public Widget getWidgetById(UUID widget) throws EntityNotFoundException {
-		Widget w = widgetRepo.findOne(widget);
-		checkOnNull(w);
-		return w;
+	public Widget getWidgetById(ObjectId widget) throws EntityNotFoundException {
+
+		TemplatePack tp = tpRepo.findByWidgetWithId(widget);
+		checkOnNull(tp);
+		for (Template t : tp.getTemplates()) {
+			for (Widget w : t.getWidgets()) {
+				if (w.getId().equals(widget)) return w;
+			}
+		}
+		throw new EntityNotFoundException("Unable to find widget with id : " + widget);
 	}
 	
 	@Override
 	@PreAuthorize("hasPermission(#widget.template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Widget createWidget(@P("widget") Widget w) {
-		return widgetRepo.saveAndFlush(w);
+	public Widget createWidget(Widget w) {
+		tpRepo.save(w.getTemplate().getTemplatePack());
+		return w;
 	}
 
 	@Override
 	@PreAuthorize("hasPermission(#widget.template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public Widget updateWidget(@P("widget") Widget w) {
-		return widgetRepo.saveAndFlush(w);
+		tpRepo.save(w.getTemplate().getTemplatePack());
+		return w;
 	}
 
 	@Override
 	@PreAuthorize("hasPermission(#widget.template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public void deleteWidget(@P("widget") Widget w) {
-		widgetRepo.delete(w);
+		tpRepo.save(w.getTemplate().getTemplatePack());
 	}
 }

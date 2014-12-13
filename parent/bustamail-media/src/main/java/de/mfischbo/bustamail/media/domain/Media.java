@@ -3,45 +3,27 @@ package de.mfischbo.bustamail.media.domain;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 
-@Entity
-@Table(name = "Media_Media")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Document(collection = "Media")
 public class Media extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = 2299514868852775624L;
 
-	@Basic
+	@Indexed
 	private String name;
 	
-	@Basic
-	@Column(length = 4095)
 	private String description;
 	
-	@Basic
 	private String mimetype;
 	
-	@Lob
-	@Fetch(FetchMode.SELECT)
 	private byte[] data;
 	
-	@ManyToOne
-	@JoinColumn(name = "Directory_id", referencedColumnName = "id", nullable = true)
+	@DBRef
 	private	Directory	directory;
 
 	public String getName() {
@@ -84,12 +66,10 @@ public class Media extends OwnedBaseDomain {
 		this.directory = directory;
 	}
 	
-	@Transient
 	public InputStream getDataStream() {
 		return new ByteArrayInputStream(this.data);
 	}
 	
-	@Transient
 	public String getExtension() {
 		if (this.name != null && this.name.contains(".")) {
 			return this.name.substring(this.name.lastIndexOf(".") +1);

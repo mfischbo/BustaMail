@@ -1,23 +1,14 @@
 package de.mfischbo.bustamail.security.domain;
 
 import java.util.Collection;
-import java.util.Set;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -25,55 +16,37 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.common.domain.Gender;
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 
-@Entity
-@Table(name = "Security_User")
+@Document(collection = "User")
 public class User extends BaseDomain implements UserDetails, PersonalizedEmailRecipient {
 
 	private static final long serialVersionUID = 6348512582303776397L;
 
-	@Basic
 	private String firstName;
 	
-	@Basic
 	private String lastName;
 	
-	@Basic
-	@Enumerated(EnumType.STRING)
 	private Gender	gender;
 	
-	@Basic
 	@NotBlank
 	@Email
-	@Column(name = "email", nullable = false, unique = true)
+	@Indexed
 	private String email;
 	
-	@Basic
 	@NotBlank
-	@Column(name = "password", nullable = false)
 	private String password;
 	
-	@Basic
 	@NotNull
-	@Column(name = "dateCreated", nullable = false)
 	private DateTime	dateCreated;
 	
-	@Basic
 	@NotNull
-	@Column(name = "dateModified", nullable = false)
 	private DateTime	dateModified;
 	
-	@Basic
 	private boolean		locked;
 	
-	@Basic
 	private boolean		deleted;
 	
-	@Basic
 	private boolean		hidden;
 
-	@ManyToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Set<Actor>		actors;
-	
 	
 	public String getFirstName() {
 		return firstName;
@@ -117,12 +90,6 @@ public class User extends BaseDomain implements UserDetails, PersonalizedEmailRe
 	public void setDateModified(DateTime dateModified) {
 		this.dateModified = dateModified;
 	}
-	public Set<Actor> getActors() {
-		return actors;
-	}
-	public void setActors(Set<Actor> actors) {
-		this.actors = actors;
-	}
 	public boolean isLocked() {
 		return locked;
 	}
@@ -142,38 +109,32 @@ public class User extends BaseDomain implements UserDetails, PersonalizedEmailRe
 		this.hidden = hidden;
 	}
 	
-	@Transient
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Transient
 	@Override
 	public String getUsername() {
 		return email;
 	}
 
-	@Transient
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
-
-	@Transient
+	
 	@Override
 	public boolean isAccountNonLocked() {
 		return !locked;
 	}
 
-	@Transient
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
 
-	@Transient
 	@Override
 	public boolean isEnabled() {
 		return !locked;

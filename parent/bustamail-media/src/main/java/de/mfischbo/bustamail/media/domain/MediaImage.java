@@ -2,34 +2,22 @@ package de.mfischbo.bustamail.media.domain;
 
 import java.util.List;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Entity
-@Table(name = "Media_MediaImage")
 public class MediaImage extends Media {
 
 	private static final long serialVersionUID = -2954918522384485908L;
 
-	@Basic
 	private int		width;
 	
-	@Basic
 	private int		height;
 	
-	@Basic
 	private int		awtColorSpace;
 	
-	@ManyToOne(optional = true)
-	@JoinColumn(name = "Parent_id", referencedColumnName = "id")
+	@DBRef
 	private MediaImage				parent;
 	
-	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+	@DBRef
 	private List<MediaImage>		variants;
 
 	public int getWidth() {

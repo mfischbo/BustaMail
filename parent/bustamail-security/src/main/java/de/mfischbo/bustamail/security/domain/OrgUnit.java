@@ -1,56 +1,35 @@
 package de.mfischbo.bustamail.security.domain;
 
 import java.util.List;
-import java.util.Set;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 
-@Entity
-@Table(name = "Security_OrgUnit")
+@Document(collection = "OrgUnit")
 public class OrgUnit extends BaseDomain {
 
 	private static final long serialVersionUID = 1410454016750659990L;
 
-	@Basic
 	@NotBlank
+	@Indexed
 	private String			name;
 	
-	@Basic
-	@Column(length = 4096)
 	private	String			description;
 
-	@Basic(fetch = FetchType.EAGER)
-	@Column(name = "dateCreated", nullable = false)
-	private DateTime	dateCreated;
+	private DateTime		dateCreated;
 	
-	@Basic(fetch = FetchType.EAGER)
-	@Column(name = "dateModified", nullable = false)
-	private DateTime 	dateModified;
+	private DateTime 		dateModified;
 	
-	@Basic(fetch = FetchType.EAGER)
-	@Column(name = "deleted", nullable = false)
-	private boolean		deleted;
+	private boolean			deleted;
 	
-	@ManyToOne
-	@JoinColumn(name = "ParentGroup_id", referencedColumnName = "id")
+	@DBRef
 	private OrgUnit		parent;
 	
-	@OneToMany(mappedBy = "parent")
-	private Set<OrgUnit>	children;
-	
-	@OneToMany(mappedBy = "orgUnit")
 	private List<Actor> 	actors;
 	
 
@@ -100,14 +79,6 @@ public class OrgUnit extends BaseDomain {
 
 	public void setParent(OrgUnit parent) {
 		this.parent = parent;
-	}
-
-	public Set<OrgUnit> getChildren() {
-		return children;
-	}
-
-	public void setChildren(Set<OrgUnit> children) {
-		this.children = children;
 	}
 
 	public List<Actor> getActors() {

@@ -2,54 +2,27 @@ package de.mfischbo.bustamail.landingpage.domain;
 
 import java.util.List;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.security.domain.User;
 
-@Entity
-@Table(name = "LandingPage_LandingPage", uniqueConstraints = { 
-		@UniqueConstraint(columnNames = {"name"}) 
-})
 public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 
 	private static final long serialVersionUID = 1686708887179244769L;
 
-	@Basic
 	private DateTime	datePublished;
 
-	@Basic
 	private String		pageUrl;
 
-	@Basic
 	private boolean		published;
 	
-	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<StaticPage>	staticPages;
 	
-	@OneToMany(mappedBy = "landingPage", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<LPForm>	forms;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(name = "LandingPage_LP_Resources",
-		joinColumns 		= { @JoinColumn(name = "LandingPage_id", referencedColumnName = "id") },
-		inverseJoinColumns  = { @JoinColumn(name = "Media_id", 		 referencedColumnName = "id") }
-	)
 	private List<Media>	resources;
 	
-	@ManyToOne
-	@JoinColumn(name = "UserPublished_id", referencedColumnName = "id", nullable = true)
 	private User		userPublished;
 
 	

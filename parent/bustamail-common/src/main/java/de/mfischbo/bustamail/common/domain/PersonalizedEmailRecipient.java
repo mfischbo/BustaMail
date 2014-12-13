@@ -1,10 +1,10 @@
 package de.mfischbo.bustamail.common.domain;
 
-import java.util.UUID;
+import org.bson.types.ObjectId;
 
 public interface PersonalizedEmailRecipient {
 
-	UUID	getId();
+	ObjectId	getId();
 	
 	Gender	getGender();
 	

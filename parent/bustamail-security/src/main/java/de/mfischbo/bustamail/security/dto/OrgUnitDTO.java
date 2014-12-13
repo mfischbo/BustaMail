@@ -2,13 +2,16 @@ package de.mfischbo.bustamail.security.dto;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.joda.time.DateTime;
 
-public class OrgUnitDTO {
+import de.mfischbo.bustamail.common.dto.BaseDTO;
 
-	private		UUID				id;
+public class OrgUnitDTO extends BaseDTO {
+
+	
+	private static final long serialVersionUID = -6308592467692762523L;
+	
 	private		String				name;
 	private		String				description;
 	private		DateTime			dateCreated;
@@ -17,12 +20,6 @@ public class OrgUnitDTO {
 	private		Set<OrgUnitDTO>		children;
 	private		List<ActorDTO>		actors;
 
-	public UUID getId() {
-		return id;
-	}
-	public void setId(UUID id) {
-		this.id = id;
-	}
 	public String getName() {
 		return name;
 	}

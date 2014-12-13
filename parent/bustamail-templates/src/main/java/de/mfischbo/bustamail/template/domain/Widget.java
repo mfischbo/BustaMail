@@ -1,33 +1,17 @@
 package de.mfischbo.bustamail.template.domain;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 
-@Entity
-@Table(name = "Templates_Widget")
 public class Widget extends BaseDomain {
 
 	private static final long serialVersionUID = 7619850045491333396L;
 
-	@Basic
 	private String		name;
 	
-	@Basic
-	@Column(length = 4095)
 	private String		description;
 	
-	@Lob
 	private String		source;
 	
-	@ManyToOne
-	@JoinColumn(name = "Template_id", referencedColumnName = "id", nullable = true)
 	private Template	template;
 
 	public String getName() {

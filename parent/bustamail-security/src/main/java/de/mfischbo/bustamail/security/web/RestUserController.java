@@ -2,8 +2,8 @@ package de.mfischbo.bustamail.security.web;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,12 +42,12 @@ public class RestUserController extends BaseApiController {
 	
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public UserDTO getUserById(@PathVariable("id") UUID userId) throws Exception {
+	public UserDTO getUserById(@PathVariable("id") ObjectId userId) throws Exception {
 		return service.getUserById(userId);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public UserDTO updateUser(@PathVariable("id") UUID userId, @RequestBody UserDTO user) throws Exception {
+	public UserDTO updateUser(@PathVariable("id") ObjectId userId, @RequestBody UserDTO user) throws Exception {
 		user.setId(userId);
 		return service.updateUser(user);
 	}
@@ -58,22 +58,22 @@ public class RestUserController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}/actors", method = RequestMethod.POST)
-	public List<ActorDTO> updateActors(@PathVariable("id") UUID userId, @RequestBody List<ActorDTO> actors) throws Exception {
+	public List<ActorDTO> updateActors(@PathVariable("id") ObjectId userId, @RequestBody List<ActorDTO> actors) throws Exception {
 		return service.updateActors(userId, actors);
 	}
 
 	@RequestMapping(value = "/{id}/password", method = RequestMethod.POST)
-	public void setPassword(@PathVariable("id") UUID userId, @RequestBody UserPasswordDTO dto) throws Exception {
+	public void setPassword(@PathVariable("id") ObjectId userId, @RequestBody UserPasswordDTO dto) throws Exception {
 		service.setUserPassword(userId, dto);
 	}
 	
 	@RequestMapping(value = "/{id}/lock", method = RequestMethod.PUT)
-	public UserDTO lockUser(@PathVariable("id") UUID userId) throws Exception {
+	public UserDTO lockUser(@PathVariable("id") ObjectId userId) throws Exception {
 		return service.lockUser(userId);
 	}
 	
 	@RequestMapping(value = "/{id}/lock", method = RequestMethod.DELETE)
-	public UserDTO unlockUser(@PathVariable("id") UUID userId) throws Exception {
+	public UserDTO unlockUser(@PathVariable("id") ObjectId userId) throws Exception {
 		return service.unlockUser(userId);
 	}
 	
@@ -83,7 +83,7 @@ public class RestUserController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteUser(@PathVariable("id") UUID userId) throws Exception {
+	public void deleteUser(@PathVariable("id") ObjectId userId) throws Exception {
 		service.deleteUser(userId);
 	}
 }

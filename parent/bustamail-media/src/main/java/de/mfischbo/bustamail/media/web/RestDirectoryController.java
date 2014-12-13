@@ -1,8 +1,8 @@
 package de.mfischbo.bustamail.media.web;
 
 import java.util.List;
-import java.util.UUID;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +42,7 @@ public class RestDirectoryController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public List<MediaImageDTO> getDirectoryById(@PathVariable("id") UUID directoryId) throws Exception {
+	public List<MediaImageDTO> getDirectoryById(@PathVariable("id") ObjectId directoryId) throws Exception {
 		Directory d = service.getDirectoryById(directoryId);
 		return asDTO(d.getFiles(), MediaImageDTO.class);
 		//return asDTO(service.getDirectoryById(directoryId), DirectoryDTO.class);
@@ -50,7 +50,7 @@ public class RestDirectoryController extends BaseApiController {
 	
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public DirectoryDTO createDirectory(@PathVariable("id") UUID parentDirectoryId, @RequestBody DirectoryDTO dto) throws Exception {
+	public DirectoryDTO createDirectory(@PathVariable("id") ObjectId parentDirectoryId, @RequestBody DirectoryDTO dto) throws Exception {
 		Directory d = service.getDirectoryById(parentDirectoryId);
 		Directory n = new Directory();
 		n.setName(dto.getName());
@@ -61,7 +61,7 @@ public class RestDirectoryController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
-	public MediaDTO createFile(@PathVariable("id") UUID directoryId, MultipartFile file) throws Exception {
+	public MediaDTO createFile(@PathVariable("id") ObjectId directoryId, MultipartFile file) throws Exception {
 		Directory d = service.getDirectoryById(directoryId);
 		Media m = new Media();
 		m.setData(file.getBytes());
@@ -79,7 +79,7 @@ public class RestDirectoryController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public DirectoryDTO updateDirectory(@PathVariable("id") UUID directoryId, @RequestBody DirectoryDTO dto) throws Exception {
+	public DirectoryDTO updateDirectory(@PathVariable("id") ObjectId directoryId, @RequestBody DirectoryDTO dto) throws Exception {
 		Directory d = service.getDirectoryById(directoryId);
 		d.setName(dto.getName());
 		d.setDescription(dto.getDescription());
@@ -87,7 +87,7 @@ public class RestDirectoryController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteDirectory(@PathVariable("id") UUID directoryId) throws Exception {
+	public void deleteDirectory(@PathVariable("id") ObjectId directoryId) throws Exception {
 		Directory d = service.getDirectoryById(directoryId);
 		service.deleteDirectory(d);
 	}

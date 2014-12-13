@@ -2,10 +2,10 @@ package de.mfischbo.bustamail.landingpage.repo;
 
 import java.util.UUID;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 
-public interface StaticPageRepo extends JpaRepository<StaticPage, UUID> {
+public interface StaticPageRepo extends MongoRepository<StaticPage, UUID> {
 
 }

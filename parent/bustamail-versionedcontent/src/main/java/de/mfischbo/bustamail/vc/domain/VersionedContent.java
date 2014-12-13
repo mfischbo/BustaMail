@@ -1,27 +1,14 @@
 package de.mfischbo.bustamail.vc.domain;
 
-import java.util.UUID;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.security.domain.User;
 
-@Entity
-@Table(name = "VersionedContent_Content")
+@Document(collection="VersionedContent")
 public class VersionedContent extends BaseDomain {
 
 	private static final long serialVersionUID = 2960183880457152474L;
@@ -31,25 +18,16 @@ public class VersionedContent extends BaseDomain {
 		Text
 	}
 	
-	@Basic
 	private DateTime		dateCreated;
 	
-	@ManyToOne
-	@JoinColumn(name = "User_Created_id", referencedColumnName = "id")
+	@DBRef
 	private User			userCreated;
 
-	@Basic(fetch = FetchType.EAGER)
-	@Column(length = 16)
-	private UUID			mailingId;
+	private ObjectId		foreignId;
 	
-	@Lob
-	@Fetch(FetchMode.SELECT)
 	private String			content;
 
-	@Basic
-	@Enumerated(EnumType.STRING)
 	private ContentType		type;
-
 	
 	public DateTime getDateCreated() {
 		return dateCreated;
@@ -75,12 +53,12 @@ public class VersionedContent extends BaseDomain {
 		this.content = content;
 	}
 
-	public UUID getDocumentId() {
-		return mailingId;
+	public ObjectId getForeignId() {
+		return foreignId;
 	}
 
-	public void setDocumentId(UUID mailingId) {
-		this.mailingId = mailingId;
+	public void setForeignId(ObjectId foreignId) {
+		this.foreignId = foreignId;
 	}
 
 	public ContentType getType() {

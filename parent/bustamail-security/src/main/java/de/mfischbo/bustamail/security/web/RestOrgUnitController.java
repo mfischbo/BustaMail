@@ -1,8 +1,8 @@
 package de.mfischbo.bustamail.security.web;
 
 import java.util.Set;
-import java.util.UUID;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,34 +42,34 @@ public class RestOrgUnitController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public OrgUnitDTO getOrgUnitById(@PathVariable("id") UUID id) throws Exception {
+	public OrgUnitDTO getOrgUnitById(@PathVariable("id") ObjectId id) throws Exception {
 		return asDTO(service.getOrgUnitById(id), OrgUnitDTO.class);
 	}
 	
 	@RequestMapping(value = "/{id}/users", method = RequestMethod.POST)
-	public UserDTO createUser(@PathVariable("id") UUID owner, @RequestBody UserDTO user) throws Exception {
+	public UserDTO createUser(@PathVariable("id") ObjectId owner, @RequestBody UserDTO user) throws Exception {
 		return service.createUser(owner, user);
 	}
 	
 	@RequestMapping(value = "/{id}/users", method = RequestMethod.GET)
-	public Page<UserDTO> getUsersByOrgUnit(@PathVariable("id") UUID id, @PageableDefault(page = 0, size = 30, sort = "lastName") Pageable page) throws Exception {
+	public Page<UserDTO> getUsersByOrgUnit(@PathVariable("id") ObjectId id, @PageableDefault(page = 0, size = 30, sort = "lastName") Pageable page) throws Exception {
 		OrgUnit o = service.getOrgUnitById(id);
 		return service.getUsersByOrgUnit(o, page);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public OrgUnitDTO createOrgUnitForParent(@PathVariable("id") UUID parentId, @RequestBody OrgUnitDTO dto) throws Exception {
+	public OrgUnitDTO createOrgUnitForParent(@PathVariable("id") ObjectId parentId, @RequestBody OrgUnitDTO dto) throws Exception {
 		return service.createOrgUnit(parentId, dto);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public OrgUnitDTO updateOrgUnit(@PathVariable("id") UUID id, @RequestBody OrgUnitDTO dto) throws Exception {
+	public OrgUnitDTO updateOrgUnit(@PathVariable("id") ObjectId id, @RequestBody OrgUnitDTO dto) throws Exception {
 		return service.updateOrgUnit(dto);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteOrgUnit(@PathVariable("id") UUID id) throws Exception {
+	public void deleteOrgUnit(@PathVariable("id") ObjectId id) throws Exception {
 		service.deleteOrgUnit(id);
 	}
 }

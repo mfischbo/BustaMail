@@ -1,39 +1,24 @@
 package de.mfischbo.bustamail.mailinglist.domain;
 
-import java.util.Set;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 
-@Entity
-@Table(name = "SubscriptionList_List")
+@Document(collection = "SubscriptionList")
 public class SubscriptionList extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = -5335592314616788305L;
 
-	@Basic
-	@Column(nullable = false)
 	@NotBlank
+	@Indexed
 	private String			name;
 	
-	@Basic
-	@Column(length = 4095)
 	private String			description;
 	
-	@Basic
 	private boolean			publiclyAvailable;
 	
-	
-	@OneToMany(mappedBy = "subscriptionList")
-	private Set<Subscription>	subscriptions;
-
 	public String getName() {
 		return name;
 	}
@@ -56,13 +41,5 @@ public class SubscriptionList extends OwnedBaseDomain {
 
 	public void setPubliclyAvailable(boolean publiclyAvailable) {
 		this.publiclyAvailable = publiclyAvailable;
-	}
-
-	public Set<Subscription> getSubscriptions() {
-		return subscriptions;
-	}
-
-	public void setSubscriptions(Set<Subscription> subscriptions) {
-		this.subscriptions = subscriptions;
 	}
 }

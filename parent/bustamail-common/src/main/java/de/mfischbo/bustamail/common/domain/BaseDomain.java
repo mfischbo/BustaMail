@@ -1,31 +1,22 @@
 package de.mfischbo.bustamail.common.domain;
 
 import java.io.Serializable;
-import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 
-import org.hibernate.annotations.GenericGenerator;
-
-@MappedSuperclass
 public class BaseDomain implements Serializable {
 
 	private static final long serialVersionUID = -1501141222657838588L;
 	
 	@Id
-	@GeneratedValue(generator = "uuid")
-	@GenericGenerator(name = "uuid", strategy = "uuid2")
-	@Column(name = "id", unique = true, length = 16)
-	protected UUID id;
+	protected ObjectId id;
 
-	public UUID getId() {
+	public ObjectId getId() {
 		return id;
 	}
 
-	public void setId(UUID id) {
+	public void setId(ObjectId id) {
 		this.id = id;
 	}
 

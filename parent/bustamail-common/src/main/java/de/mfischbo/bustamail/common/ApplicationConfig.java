@@ -1,14 +1,10 @@
 package de.mfischbo.bustamail.common;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.servlet.MultipartConfigElement;
-import javax.sql.DataSource;
 
+import org.bson.types.ObjectId;
 import org.dozer.spring.DozerBeanMapperFactoryBean;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -21,46 +17,36 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
+import de.mfischbo.bustamail.serializer.ObjectIdSerializer;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Version;
 
 @Configuration
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
 @EnableScheduling
 @EnableAsync
 //@EnableSwagger
-@ComponentScan("de.mfischbo")
+@ComponentScan("de.mfischbo.bustamail")
+//@EnableMongoRepositories(basePackages = {"de.mfischbo.bustamail"})
 //@PropertySource("classpath:/bm-application.properties")
 public class ApplicationConfig {
 	
 	@Inject
 	Environment			env;
-	
-	@Bean(destroyMethod = "shutdown")
-	public DataSource getBustamailCoreDS() {
-		
-		List<String> profiles = Arrays.asList(env.getActiveProfiles());
-		
-		String dbName = env.getProperty("de.mfischbo.bustamail.db.ds.name");
-		if (profiles.contains("testing"))
-			dbName = env.getProperty("de.mfischbo.bustamail.db.ds.testName");
-		
-		HikariConfig c = new HikariConfig();
-		c.setMaximumPoolSize(50);
-		c.setDataSourceClassName(env.getProperty("de.mfischbo.bustamail.db.ds.classname"));
-		c.addDataSourceProperty("url", env.getProperty("de.mfischbo.bustamail.db.ds.url")+ dbName);
-		c.addDataSourceProperty("user", env.getProperty("de.mfischbo.bustamail.db.ds.user"));
-		c.addDataSourceProperty("password", env.getProperty("de.mfischbo.bustamail.db.ds.password"));
-		return new HikariDataSource(c);
-	}
-	
+
 	@Bean
 	public Module getJacksonJodaModule() {
 		return new JodaModule();
+	}
+	
+	@Bean
+	public Module getObjectIdSerializer() {
+		SimpleModule sm = new SimpleModule();
+		sm.addSerializer(ObjectId.class, new ObjectIdSerializer());
+		return sm;
 	}
 	
 	@Bean

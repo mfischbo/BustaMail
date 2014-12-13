@@ -1,9 +1,8 @@
 package de.mfischbo.bustamail.mailinglist.web;
 
-import java.util.UUID;
-
 import javax.inject.Inject;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -45,14 +44,14 @@ public class RestSubscriptionController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public Page<SubscriptionDTO> getSubscriptions(@PathVariable("slid") UUID listId, 
+	public Page<SubscriptionDTO> getSubscriptions(@PathVariable("slid") ObjectId listId, 
 			@PageableDefault(page = 0, size = 30) Pageable page) throws Exception {
 		SubscriptionList list = service.getSubscriptionListById(listId);
 		return asDTO(service.getSubscriptionsByList(list, page), SubscriptionDTO.class, page);
 	}
 	
 	@RequestMapping(value = "/search", method = RequestMethod.GET)
-	public Page<SubscriptionDTO> findSubscriptions(@PathVariable("slid") UUID listId, 
+	public Page<SubscriptionDTO> findSubscriptions(@PathVariable("slid") ObjectId listId, 
 			@RequestParam(value = "q", defaultValue = "", required = true) String query,
 			@PageableDefault(page = 0, size = 30) Pageable page) throws Exception {
 	
@@ -68,7 +67,7 @@ public class RestSubscriptionController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public SubscriptionDTO getSubscriptionById(@PathVariable("slid") UUID listId, @PathVariable("id") UUID id) throws Exception {
+	public SubscriptionDTO getSubscriptionById(@PathVariable("slid") ObjectId listId, @PathVariable("id") ObjectId id) throws Exception {
 		return asDTO(service.getSubscriptionById(id), SubscriptionDTO.class);
 	}
 	
@@ -80,7 +79,7 @@ public class RestSubscriptionController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void unsubscribeSubscription(@PathVariable("slid") UUID listId, @PathVariable("id") UUID id) throws Exception {
+	public void unsubscribeSubscription(@PathVariable("slid") ObjectId listId, @PathVariable("id") ObjectId id) throws Exception {
 		Subscription s = service.getSubscriptionById(id);
 		SubscriptionList list = service.getSubscriptionListById(listId);
 		service.unsubscribeSubscription(list, s);
@@ -95,7 +94,7 @@ public class RestSubscriptionController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public SubscriptionImportDTO uploadImportFile(@PathVariable("slid") UUID listId, MultipartFile file) throws Exception {
+	public SubscriptionImportDTO uploadImportFile(@PathVariable("slid") ObjectId listId, MultipartFile file) throws Exception {
 		SubscriptionList l = service.getSubscriptionListById(listId);
 		
 		Media m = new Media();
@@ -114,7 +113,7 @@ public class RestSubscriptionController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/parse", method = RequestMethod.POST)
-	public ParsingResultDTO parseImportFile(@PathVariable("slid") UUID listId, @RequestBody SubscriptionImportDTO dto) throws Exception {
+	public ParsingResultDTO parseImportFile(@PathVariable("slid") ObjectId listId, @RequestBody SubscriptionImportDTO dto) throws Exception {
 	
 		Media m = mediaService.getMediaById(dto.getMediaId());
 		SubscriptionList list = service.getSubscriptionListById(listId);
@@ -122,14 +121,14 @@ public class RestSubscriptionController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/status", method = RequestMethod.POST)
-	public ParsingResultDTO getParsingStatus(@PathVariable("slid") UUID listId, @RequestBody SubscriptionImportDTO dto) throws Exception {
+	public ParsingResultDTO getParsingStatus(@PathVariable("slid") ObjectId listId, @RequestBody SubscriptionImportDTO dto) throws Exception {
 		Media m = mediaService.getMediaById(dto.getMediaId());
 		SubscriptionList list = service.getSubscriptionListById(listId);
 		return service.parseForErrors(list, m, dto);
 	}
 	
 	@RequestMapping(value = "/import", method = RequestMethod.POST)
-	public ImportResultDTO importCurrent(@PathVariable("slid") UUID listId, @RequestBody SubscriptionImportDTO dto) throws Exception {
+	public ImportResultDTO importCurrent(@PathVariable("slid") ObjectId listId, @RequestBody SubscriptionImportDTO dto) throws Exception {
 		Media m = mediaService.getMediaById(dto.getMediaId());
 		SubscriptionList list = service.getSubscriptionListById(listId);
 		return service.importSubscriptions(list, m, dto);

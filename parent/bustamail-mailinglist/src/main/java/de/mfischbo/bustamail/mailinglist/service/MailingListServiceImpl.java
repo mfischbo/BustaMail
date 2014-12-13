@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
+import org.bson.types.ObjectId;
 import org.dozer.DozerBeanMapper;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -29,9 +29,7 @@ import de.mfischbo.bustamail.mailinglist.dto.ParsingResultDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionImportDTO;
 import de.mfischbo.bustamail.mailinglist.dto.SubscriptionListDTO;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionListRepository;
-import de.mfischbo.bustamail.mailinglist.repository.SubscriptionListSpecs;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
-import de.mfischbo.bustamail.mailinglist.repository.SubscriptionSpecs;
 import de.mfischbo.bustamail.mailinglist.validation.ImportValidator;
 import de.mfischbo.bustamail.mailinglist.validation.Validator.ResultType;
 import de.mfischbo.bustamail.media.domain.Media;
@@ -60,13 +58,13 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	SubscriptionRepository			scRepo;
 	
 	
-	Map<UUID, ParsedImport>			importCache;
+	Map<ObjectId, ParsedImport>		importCache;
 	
 	/**
 	 * Default constructor
 	 */
 	public MailingListServiceImpl() {
-		this.importCache = new HashMap<UUID, ParsedImport>();
+		this.importCache = new HashMap<ObjectId, ParsedImport>();
 	}
 	
 	/*
@@ -84,7 +82,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#getSubscriptionListById(java.util.UUID)
 	 */
 	@Override
-	public SubscriptionList getSubscriptionListById(UUID id)
+	public SubscriptionList getSubscriptionListById(ObjectId id)
 			throws EntityNotFoundException {
 		SubscriptionList list = sListRepo.findOne(id);
 		checkOnNull(list);
@@ -97,9 +95,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	 */
 	@Override
 	public Page<SubscriptionList> findSubscriptionLists(OrgUnit owner, String query, Pageable page) {
-		
-		Specifications<SubscriptionList> specs = Specifications.where(SubscriptionListSpecs.matches(query));
-		return sListRepo.findAllByOwner(owner.getId(), specs, page);
+		return sListRepo.findByOwnerAndNameLike(owner, query, page);
 	}
 
 	/*
@@ -115,7 +111,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		OrgUnit owner = secService.getOrgUnitById(list.getOwner());
 		checkOnNull(owner);
 		l.setOwner(owner.getId());
-		return sListRepo.saveAndFlush(l);
+		return sListRepo.save(l);
 	}
 
 	/*
@@ -129,7 +125,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		l.setName(list.getName());
 		l.setDescription(list.getDescription());
 		l.setPubliclyAvailable(list.isPubliclyAvailable());
-		return sListRepo.saveAndFlush(l);
+		return sListRepo.save(l);
 	}
 
 	/*
@@ -147,9 +143,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	 */
 	@Override
 	public long getSubscriptionCountByState(SubscriptionList list, State state) {
-		Specifications<Subscription> specs = Specifications.where(SubscriptionSpecs.onList(list))
-				.and(SubscriptionSpecs.withState(state));
-		return scRepo.count(specs);
+		return scRepo.countBySubscriptionListAndState(list, state);
 	}
 
 	/*
@@ -168,7 +162,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	 * @see de.mfischbo.bustamail.mailinglist.service.MailingListService#getSubscriptionById(java.util.UUID)
 	 */
 	@Override
-	public Subscription getSubscriptionById(UUID subscriptionId)
+	public Subscription getSubscriptionById(ObjectId subscriptionId)
 			throws EntityNotFoundException {
 		Subscription sub = scRepo.findOne(subscriptionId);
 		checkOnNull(sub);
@@ -183,9 +177,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	@Override
 	public Page<Subscription> findSubscriptions(SubscriptionList list, String query, Pageable page) {
 	
-		Specifications<Subscription> specs = Specifications.where(SubscriptionSpecs.onList(list))
-				.and(SubscriptionSpecs.withContactMatching(query));
-		return scRepo.findAll(specs, page);
+		return new PageImpl<Subscription>(new ArrayList<Subscription>());
 	}
 	
 	
@@ -196,7 +188,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	@Override
 	public void unsubscribeSubscription(SubscriptionList list, Subscription subscription) {
 		subscription.setState(State.INACTIVE);
-		scRepo.saveAndFlush(subscription);
+		scRepo.save(subscription);
 	}
 	
 
@@ -276,11 +268,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 				}
 			}
 
-			// Specification for a contact being on this subscription list
-			Specifications<Subscription> specs = Specifications.where(SubscriptionSpecs.onList(list))
-				.and(SubscriptionSpecs.withAnyOfContactsEmails(c));
-			
-			Subscription s = scRepo.findOne(specs);
+			Subscription s = scRepo.findBySubscriptionListAndContact(list, c);
 			if (s == null) {
 				s = new Subscription();
 				s.setDateCreated(DateTime.now());
@@ -361,7 +349,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 					if (impAddr != null) {
 						if (!pers.getAddresses().contains(impAddr)) {
 							pers.getAddresses().add(impAddr);
-							impAddr.setContact(pers);
+							//impAddr.setContact(pers);
 						}
 					}
 				}
@@ -369,7 +357,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 				// add the new email address if not available yet. Comparisson based on EMailAddress#equals() implementation!
 				if (!pers.getEmailAddresses().contains(lookup)) {
 					pers.getEmailAddresses().add(lookup);
-					lookup.setContact(pers);
+					//lookup.setContact(pers);
 				} 
 				
 				try {
@@ -386,10 +374,12 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	
 		// case contact not found -> create a new one
 		if (pers == null) {
-			lookup.setContact(c);
-			
+			//lookup.setContact(c);
+		
+			/*
 			if (c.getAddresses() != null && c.getAddresses().size() > 0)
 				c.getAddresses().get(0).setContact(c);
+			*/
 			
 			c = subService.createContact(c);
 			result.setContactsCreated(result.getContactsCreated() + 1);

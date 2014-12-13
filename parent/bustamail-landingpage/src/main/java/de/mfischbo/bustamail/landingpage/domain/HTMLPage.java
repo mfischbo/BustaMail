@@ -1,6 +1,6 @@
 package de.mfischbo.bustamail.landingpage.domain;
 
-import java.util.UUID;
+import org.bson.types.ObjectId;
 
 /**
  * Interface for html pages like landing pages and static pages.
@@ -9,7 +9,7 @@ import java.util.UUID;
  */
 public interface HTMLPage {
 
-	UUID getId();
+	ObjectId getId();
 	String getName();
 	
 }

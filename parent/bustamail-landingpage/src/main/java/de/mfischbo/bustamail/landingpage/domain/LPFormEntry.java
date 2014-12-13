@@ -2,15 +2,8 @@ package de.mfischbo.bustamail.landingpage.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
 import org.hibernate.validator.constraints.NotBlank;
 
-@Embeddable
 public class LPFormEntry implements Serializable {
 
 	private static final long serialVersionUID = 6800401468137187935L;
@@ -25,18 +18,12 @@ public class LPFormEntry implements Serializable {
 	}
 	
 	@NotBlank
-	@Basic(optional = false)
 	private String name;
 	
-	@Basic
 	private boolean required;
 	
-	@Basic
-	@Enumerated(EnumType.STRING)
 	private ValidationType	validationType;
 
-	@Basic
-	@Column(name = "RegularExpression")
 	private String			regexp;
 	
 	public String getName() {

@@ -2,12 +2,11 @@ package de.mfischbo.bustamail.security.service;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -45,7 +44,6 @@ public interface SecurityService {
 	 * @param dto The DTO containing only the email address of the user
 	 * @throws EntityNotFoundException If no such user account exists
 	 */
-	@Transactional
 	public void recoverUserPassword(AuthenticationDTO dto) throws EntityNotFoundException;
 
 	
@@ -73,7 +71,7 @@ public interface SecurityService {
 	 * @throws EntityNotFoundException If no unit with that id exists
 	 */
 	@PreAuthorize("hasPermission(#id, 'Security.IS_ACTOR_OF')")
-	public OrgUnit			getOrgUnitById(UUID id) throws EntityNotFoundException;
+	public OrgUnit			getOrgUnitById(ObjectId id) throws EntityNotFoundException;
 
 
 	/**
@@ -89,9 +87,8 @@ public interface SecurityService {
 	 * @return The created unit
 	 * @throws EntityNotFoundException If no unit for the given parent id exists
 	 */
-	@Transactional
 	@PreAuthorize("hasPermission(#parent, 'Security.MANAGE_ORG_UNITS')")
-	public OrgUnitDTO		createOrgUnit(UUID parent, OrgUnitDTO dto) throws EntityNotFoundException;
+	public OrgUnitDTO		createOrgUnit(ObjectId parent, OrgUnitDTO dto) throws EntityNotFoundException;
 	
 	/**
 	 * Updates the given org unit
@@ -99,7 +96,6 @@ public interface SecurityService {
 	 * @return The updated unit
 	 * @throws EntityNotFoundException If no unit for the given id exists
 	 */
-	@Transactional
 	@PreAuthorize("hasPermission(#unit, 'Security.MANAGE_ORG_UNITS')")
 	public OrgUnitDTO		updateOrgUnit(OrgUnitDTO unit) throws EntityNotFoundException;
 	
@@ -109,7 +105,7 @@ public interface SecurityService {
 	 * @throws EntityNotFoundException If no unit for the given id exists
 	 */
 	@PreAuthorize("hasPermission(#id, 'Security.MANAGE_ORG_UNITS')")
-	public void				deleteOrgUnit(UUID id) throws EntityNotFoundException;
+	public void				deleteOrgUnit(ObjectId id) throws EntityNotFoundException;
 	
 	
 	// ----------------------------------------- //
@@ -119,16 +115,16 @@ public interface SecurityService {
 	public Page<UserDTO> 	getAllUsers(Pageable page);
 	public Page<UserDTO>	getUsersByOrgUnit(OrgUnit unit, Pageable page) throws EntityNotFoundException;
 	public Page<UserDTO>	findUsers(String searchTerm, Pageable page);
-	public UserDTO			getUserById(UUID id) throws EntityNotFoundException;
+	public UserDTO			getUserById(ObjectId id) throws EntityNotFoundException;
 	
 	
-	public UserDTO			createUser(UUID owner, UserDTO user) throws EntityNotFoundException, DataIntegrityException;
+	public UserDTO			createUser(ObjectId owner, UserDTO user) throws EntityNotFoundException, DataIntegrityException;
 	
 	public UserDTO			updateUser(UserDTO user) throws EntityNotFoundException;
-	public void				setUserPassword(UUID userId, UserPasswordDTO dto) throws EntityNotFoundException, DataIntegrityException;
-	public UserDTO			lockUser(UUID userId) throws EntityNotFoundException;
-	public UserDTO			unlockUser(UUID userId) throws EntityNotFoundException;
-	public void				deleteUser(UUID userId) throws EntityNotFoundException;
+	public void				setUserPassword(ObjectId userId, UserPasswordDTO dto) throws EntityNotFoundException, DataIntegrityException;
+	public UserDTO			lockUser(ObjectId userId) throws EntityNotFoundException;
+	public UserDTO			unlockUser(ObjectId userId) throws EntityNotFoundException;
+	public void				deleteUser(ObjectId userId) throws EntityNotFoundException;
 	
 	
 	// ----------------------------------------- //
@@ -143,6 +139,6 @@ public interface SecurityService {
 	 * @throws EntityNotFoundException
 	 */
 	//@Transactional
-	public List<ActorDTO>	updateActors(UUID userId, List<ActorDTO> actors) throws EntityNotFoundException;
+	public List<ActorDTO>	updateActors(ObjectId userId, List<ActorDTO> actors) throws EntityNotFoundException;
 	
 }

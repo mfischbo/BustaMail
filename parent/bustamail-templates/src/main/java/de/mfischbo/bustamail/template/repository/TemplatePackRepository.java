@@ -1,12 +1,17 @@
 package de.mfischbo.bustamail.template.repository;
 
-import java.util.UUID;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.Query;
 
-import de.mfischbo.bustamail.security.repository.OwnerJpaRepository;
+import de.mfischbo.bustamail.security.repository.OwnerMongoRepository;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 
 public interface TemplatePackRepository extends
-		OwnerJpaRepository<TemplatePack, UUID> {
-
-
+		OwnerMongoRepository<TemplatePack, ObjectId> {
+	
+	@Query(" { 'template.id' : ?0 } ")
+	TemplatePack findByTemplateWithId(ObjectId templateId);
+	
+	@Query(" { 'templates.widgets.id' : ?0 } ")
+	TemplatePack findByWidgetWithId(ObjectId widgetId);
 }

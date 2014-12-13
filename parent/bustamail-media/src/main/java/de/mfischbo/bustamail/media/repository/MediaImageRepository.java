@@ -1,11 +1,11 @@
 package de.mfischbo.bustamail.media.repository;
 
-import java.util.UUID;
+import org.bson.types.ObjectId;
 
 import de.mfischbo.bustamail.media.domain.MediaImage;
-import de.mfischbo.bustamail.security.repository.OwnerJpaRepository;
+import de.mfischbo.bustamail.security.repository.OwnerMongoRepository;
 
 public interface MediaImageRepository extends
-		OwnerJpaRepository<MediaImage, UUID> {
+		OwnerMongoRepository<MediaImage, ObjectId> {
 
 }

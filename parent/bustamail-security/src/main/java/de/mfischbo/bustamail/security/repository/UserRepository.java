@@ -1,16 +1,19 @@
 package de.mfischbo.bustamail.security.repository;
 
-import java.util.UUID;
+import java.util.Collection;
 
-import javax.transaction.Transactional;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import de.mfischbo.bustamail.security.domain.User;
 
-@Transactional
-public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends MongoRepository<User, ObjectId> {
 
+	@Query("{ 'deleted' : false, '_id' : { $in : ?0 } }")
+	public Page<User> findAllUsers(Collection<ObjectId> ids, Pageable page);
+	
 	public User findByEmail(String email);
 }

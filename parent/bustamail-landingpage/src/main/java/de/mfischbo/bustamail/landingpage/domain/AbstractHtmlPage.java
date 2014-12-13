@@ -1,10 +1,5 @@
 package de.mfischbo.bustamail.landingpage.domain;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -14,41 +9,27 @@ import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.template.domain.Template;
 
-@MappedSuperclass
 public class AbstractHtmlPage extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = -7893494702110662322L;
 
-	@Basic
 	@NotBlank
 	private String name;
 	
-	@Basic
-	@Column(length = 4096)
 	private String description;
 	
-	@Basic
-	@Column(length = 4096)
 	private String htmlHeader;
 	
-	@Basic
 	@NotNull
 	private DateTime dateCreated;
 	
-	@Basic
 	@NotNull
 	private DateTime dateModified;
 	
-	@ManyToOne
-	@JoinColumn(name = "UserCreated_id", referencedColumnName = "id", nullable = false)
 	private User		userCreated;
 	
-	@ManyToOne
-	@JoinColumn(name = "UserModified_id", referencedColumnName = "id", nullable = false)
 	private User		userModified;
 
-	@ManyToOne
-	@JoinColumn(name = "Template_id", referencedColumnName = "id", nullable=false)
 	private Template 	template;
 
 	public String getName() {

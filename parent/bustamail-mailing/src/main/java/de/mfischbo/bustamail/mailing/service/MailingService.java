@@ -1,15 +1,14 @@
 package de.mfischbo.bustamail.mailing.service;
 
 import java.util.List;
-import java.util.UUID;
 
-import javax.transaction.Transactional;
-
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 import de.mfischbo.bustamail.exception.ConfigurationException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
@@ -28,7 +27,7 @@ public interface MailingService {
 	 * @return The page of mailings 
 	 */
 	@PreAuthorize("hasPermission(#owner, 'Mailings.USE_MAILINGS')")
-	Page<Mailing>		getAllMailings(UUID owner, Pageable page);
+	Page<Mailing>		getAllMailings(ObjectId owner, Pageable page);
 
 	/**
 	 * Returns the mailing with the specified id
@@ -37,7 +36,7 @@ public interface MailingService {
 	 * @throws EntityNotFoundException
 	 */
 	@PostAuthorize("hasPermission(returnObject.owner, 'Mailings.USE_MAILINGS')")
-	Mailing				getMailingById(UUID id) throws EntityNotFoundException;
+	Mailing				getMailingById(ObjectId id) throws EntityNotFoundException;
 
 	/**
 	 * Creates a new mailing
@@ -91,7 +90,7 @@ public interface MailingService {
 	 * @throws EntityNotFoundException
 	 */
 	@PreAuthorize("hasPermission(#m.owner, 'Mailings.EDIT_CONTENTS')")
-	VersionedContent	getContentById(@P("m") Mailing m, UUID contentId) throws EntityNotFoundException;
+	VersionedContent	getContentById(@P("m") Mailing m, ObjectId contentId) throws EntityNotFoundException;
 	
 	/**
 	 * Gets the content version with the newest dateCreated attribute

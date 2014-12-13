@@ -1,38 +1,19 @@
 package de.mfischbo.bustamail.subscriber.domain;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import org.hibernate.validator.constraints.NotBlank;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 
-@Entity
-@Table(name = "Subscriber_EMailAddress", indexes = {
-		@Index(name = "MailIndex", columnList = "localPart,domainPart")
-})
 public class EMailAddress extends BaseDomain {
 
 	private static final long serialVersionUID = 8055176368450793272L;
 
-	@Basic
-	@Column(name = "localPart", length = 255, nullable = false)
 	@NotBlank
 	private String localPart;
 	
-	@Basic
-	@Column(name = "domainPart", length = 255, nullable = false)
 	@NotBlank
 	private String domainPart;
 	
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "Contact_id", referencedColumnName = "id")
-	private Contact	contact;
 
 	public EMailAddress() {
 		
@@ -62,6 +43,7 @@ public class EMailAddress extends BaseDomain {
 		this.domainPart = domainPart;
 	}
 
+	/*
 	public Contact getContact() {
 		return contact;
 	}
@@ -69,7 +51,13 @@ public class EMailAddress extends BaseDomain {
 	public void setContact(Contact contact) {
 		this.contact = contact;
 	}
+	*/
 
+	@Override
+	public String toString() {
+		return localPart + "@" + domainPart;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

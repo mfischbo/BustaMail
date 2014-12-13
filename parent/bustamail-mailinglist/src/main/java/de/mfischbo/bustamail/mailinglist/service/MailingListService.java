@@ -1,14 +1,12 @@
 package de.mfischbo.bustamail.mailinglist.service;
 
-import java.util.UUID;
-
-import javax.transaction.Transactional;
-
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
@@ -31,20 +29,17 @@ public interface MailingListService {
 	public Page<SubscriptionList> getAllMailingLists(@P("owner") OrgUnit owner, Pageable page);
 
 	@PostAuthorize("hasPermission(returnObject.owner, 'Security.IS_ACTOR_OF')")
-	public SubscriptionList			getSubscriptionListById(UUID id) throws EntityNotFoundException;
+	public SubscriptionList			getSubscriptionListById(ObjectId id) throws EntityNotFoundException;
 	
 	@PostAuthorize("hasPermission(#owner, 'Security.IS_ACTOR_OF')")
 	public Page<SubscriptionList> findSubscriptionLists(OrgUnit owner, String query, Pageable page);
 
-	@Transactional
 	@PreAuthorize("hasPermission(#list.owner, 'MailingList.MANAGE_SUBSCRIPTION_LISTS')")
 	public SubscriptionList			createSubscriptionList(SubscriptionListDTO list) throws EntityNotFoundException;
 	
-	@Transactional
 	@PreAuthorize("hasPermission(#list.owner, 'MailingList.MANAGE_SUBSCRIPTION_LISTS')")
 	public SubscriptionList			updateSubscriptionList(SubscriptionListDTO list) throws EntityNotFoundException;
 
-	@Transactional
 	@PreAuthorize("hasPermission(#list.owner, 'MailingList.MANAGE_SUBSCRIPTION_LISTS')")
 	public void						deleteSubscriptionList(SubscriptionList list) throws EntityNotFoundException;
 
@@ -66,7 +61,7 @@ public interface MailingListService {
 	public Page<Subscription> getSubscriptionsByList(SubscriptionList list, Pageable page);
 	
 	@PostAuthorize("hasPermission(returnObject.subscriptionList.owner, 'Security.IS_ACTOR_OF')")
-	public Subscription getSubscriptionById(UUID subscriptionId) throws EntityNotFoundException;
+	public Subscription getSubscriptionById(ObjectId subscriptionId) throws EntityNotFoundException;
 	
 	@PostAuthorize("hasPermission(#list.owner, 'Security.IS_ACTOR_OF')")
 	public Page<Subscription> findSubscriptions(SubscriptionList list, String query, Pageable page);

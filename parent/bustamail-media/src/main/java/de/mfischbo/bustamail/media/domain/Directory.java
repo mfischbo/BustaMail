@@ -2,37 +2,20 @@ package de.mfischbo.bustamail.media.domain;
 
 import java.util.List;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 
-@Entity
-@Table(name = "Media_Directory")
 public class Directory extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = -1066888517355528723L;
 
-	@Basic
 	private String			name;
 	
-	@Basic
-	@Column(length = 4095)
 	private String			description;
 
-	@ManyToOne
-	@JoinColumn(name = "Parent_id", referencedColumnName = "id", nullable = true)
 	private Directory		parent;
 
-	@OneToMany(mappedBy = "parent")
 	private List<Directory> children;
 	
-	@OneToMany(mappedBy = "directory", orphanRemoval = false)
 	private List<Media>		files;
 	
 	public String getName() {

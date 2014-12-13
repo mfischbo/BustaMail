@@ -1,13 +1,17 @@
 package de.mfischbo.bustamail.media.repository;
 
-import java.util.UUID;
+import java.util.Collection;
+import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.Query;
 
 import de.mfischbo.bustamail.media.domain.Directory;
-import de.mfischbo.bustamail.security.repository.OwnerJpaRepository;
+import de.mfischbo.bustamail.security.repository.OwnerMongoRepository;
 
 public interface DirectoryRepository extends
-		OwnerJpaRepository<Directory, UUID>, JpaSpecificationExecutor<Directory> {
+		OwnerMongoRepository<Directory, ObjectId> {
 
+	@Query(" { owner : { $in : ?0 }, parent : ?1 } ")
+	List<Directory> findByOwnerAndParent(Collection<ObjectId> owners, ObjectId parent);
 }

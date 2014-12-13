@@ -1,7 +1,6 @@
 package de.mfischbo.bustamail.subscriber.web;
 
-import java.util.UUID;
-
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,19 +37,19 @@ public class RestContactController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ContactDTO getContactById(@PathVariable("id") UUID id) throws Exception {
+	public ContactDTO getContactById(@PathVariable("id") ObjectId id) throws Exception {
 		return asDTO(service.getContactById(id), ContactDTO.class);
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public ContactDTO updateContact(@PathVariable("id") UUID id, @RequestBody ContactDTO contact) throws Exception {
+	public ContactDTO updateContact(@PathVariable("id") ObjectId id, @RequestBody ContactDTO contact) throws Exception {
 		Contact c = service.getContactById(id);
 		fromDTO(contact, c);
 		return asDTO(service.updateContact(c), ContactDTO.class);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteContact(@PathVariable("id") UUID id) throws Exception {
+	public void deleteContact(@PathVariable("id") ObjectId id) throws Exception {
 		Contact c = service.getContactById(id);
 		service.deleteContact(c);
 	}

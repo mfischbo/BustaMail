@@ -1,18 +1,19 @@
 package de.mfischbo.bustamail.common.dto;
 
 import java.io.Serializable;
-import java.util.UUID;
+
+import org.bson.types.ObjectId;
 
 public class OwnedBaseDTO extends BaseDTO implements Serializable {
 	
 	private static final long serialVersionUID = -7729841894241679118L;
-	private UUID owner;
+	private ObjectId owner;
 
-	public UUID getOwner() {
+	public ObjectId getOwner() {
 		return owner;
 	}
 
-	public void setOwner(UUID owner) {
+	public void setOwner(ObjectId owner) {
 		this.owner = owner;
 	}
 	

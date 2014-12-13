@@ -1,7 +1,6 @@
 package de.mfischbo.bustamail.media.web;
 
-import java.util.UUID;
-
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,13 +34,13 @@ public class RestMediaController extends BaseApiController {
 
 
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
-	public String getMediaContent(@PathVariable("id") UUID mediaId) throws Exception {
+	public String getMediaContent(@PathVariable("id") ObjectId mediaId) throws Exception {
 		Media m = service.getMediaById(mediaId);
 		return new String(m.getData());
 	}
 	
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.PATCH)
-	public void updateMediaContent(@PathVariable("id") UUID mediaId, @RequestBody String data) throws Exception {
+	public void updateMediaContent(@PathVariable("id") ObjectId mediaId, @RequestBody String data) throws Exception {
 		Media m = service.getMediaById(mediaId);
 		m.setData(data.getBytes());
 		service.updateMedia(m);

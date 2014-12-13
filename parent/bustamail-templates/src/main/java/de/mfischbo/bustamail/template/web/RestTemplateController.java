@@ -3,9 +3,9 @@ package de.mfischbo.bustamail.template.web;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +39,7 @@ public class RestTemplateController extends BaseApiController {
 	
 	
 	@RequestMapping(value = "/packs/{id}/templates", method = RequestMethod.POST)
-	public TemplateDTO createTemplate(@PathVariable("id") UUID tpackId, @RequestBody TemplateDTO dto) throws Exception {
+	public TemplateDTO createTemplate(@PathVariable("id") ObjectId tpackId, @RequestBody TemplateDTO dto) throws Exception {
 		
 		Template t = new Template();
 		t.setDescription(dto.getDescription());
@@ -52,11 +52,11 @@ public class RestTemplateController extends BaseApiController {
 		checkOnNull(tp);
 		t.setTemplatePack(tp);
 		
-		return asDTO(service.createTemplate(t), TemplateDTO.class);
+		return asDTO(service.createTemplate(tp, t), TemplateDTO.class);
 	}
 	
 	@RequestMapping(value = "/packs/{id}/templates/{tid}/clone", method = RequestMethod.PUT)
-	public TemplateDTO cloneTemplate(@PathVariable("id") UUID tpackId, @PathVariable("tid") UUID templateId) throws Exception {
+	public TemplateDTO cloneTemplate(@PathVariable("id") ObjectId tpackId, @PathVariable("tid") ObjectId templateId) throws Exception {
 		
 		Template o = service.getTemplateById(templateId);
 		Template t = new Template();
@@ -110,16 +110,20 @@ public class RestTemplateController extends BaseApiController {
 			}
 		});
 		
-		return asDTO(service.createTemplate(t), TemplateDTO.class);
+		return asDTO(service.createTemplate(o.getTemplatePack(), t), TemplateDTO.class);
 	}
 	
-	@RequestMapping(value = "/templates/{tid}", method = RequestMethod.GET)
-	public TemplateDTO getTemplateById(@PathVariable("tid") UUID templateId) throws Exception {
-		return asDTO(service.getTemplateById(templateId), TemplateDTO.class);
+	@RequestMapping(value = "/packs/{pid}/templates/{tid}", method = RequestMethod.GET)
+	public TemplateDTO getTemplateById(@PathVariable("pid") ObjectId packId, @PathVariable("tid") ObjectId templateId) throws Exception {
+		TemplatePack tp = service.getTemplatePackById(packId);
+		for (Template t : tp.getTemplates()) {
+			if (t.getId().equals(templateId)) return asDTO(t, TemplateDTO.class);
+		}
+		return null;
 	}
 	
 	@RequestMapping(value = "/packs/{pid}/templates/{tid}", method = RequestMethod.PATCH)
-	public TemplateDTO updateTemplate(@PathVariable("pid") UUID tpackId, @PathVariable("tid") UUID templateId,
+	public TemplateDTO updateTemplate(@PathVariable("pid") ObjectId tpackId, @PathVariable("tid") ObjectId templateId,
 			@RequestBody TemplateDTO dto) throws Exception {
 		
 		Template t = service.getTemplateById(templateId);
@@ -133,13 +137,13 @@ public class RestTemplateController extends BaseApiController {
 
 	
 	@RequestMapping(value = "/packs/{pid}/templates/{tid}", method = RequestMethod.DELETE)
-	public void deleteTemplate(@PathVariable("pid") UUID tpackId, @PathVariable("tid") UUID templateId) throws Exception {
+	public void deleteTemplate(@PathVariable("pid") ObjectId tpackId, @PathVariable("tid") ObjectId templateId) throws Exception {
 		Template t = service.getTemplateById(templateId);
 		service.deleteTemplate(t);
 	}
 	
 	@RequestMapping(value = "/templates/{tid}/widgets", method = RequestMethod.POST)
-	public WidgetDTO createWidget(@PathVariable("tid") UUID templateId, @RequestBody WidgetDTO dto) throws Exception {
+	public WidgetDTO createWidget(@PathVariable("tid") ObjectId templateId, @RequestBody WidgetDTO dto) throws Exception {
 		
 		Widget w = new Widget();
 		w.setDescription(dto.getDescription());
@@ -152,7 +156,7 @@ public class RestTemplateController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/templates/{tid}/widgets/{id}", method = RequestMethod.PATCH)
-	public WidgetDTO updateWidget(@PathVariable("tid") UUID templateId, @PathVariable("id") UUID widgetId, @RequestBody WidgetDTO dto) throws Exception {
+	public WidgetDTO updateWidget(@PathVariable("tid") ObjectId templateId, @PathVariable("id") ObjectId widgetId, @RequestBody WidgetDTO dto) throws Exception {
 		
 		Widget w = service.getWidgetById(widgetId);
 		w.setDescription(dto.getDescription());
@@ -162,13 +166,13 @@ public class RestTemplateController extends BaseApiController {
 	}
 
 	@RequestMapping(value = "/templates/{tid}/widgets/{wid}", method = RequestMethod.DELETE)
-	public void deleteWidget(@PathVariable("tid") UUID templateId, @PathVariable("wid") UUID widgetId) throws Exception {
+	public void deleteWidget(@PathVariable("tid") ObjectId templateId, @PathVariable("wid") ObjectId widgetId) throws Exception {
 		Widget w = service.getWidgetById(widgetId);
 		service.deleteWidget(w);
 	}
 	
 	@RequestMapping(value ="/templates/{tid}/images", method = RequestMethod.POST)
-	public MediaImageDTO createImage(@PathVariable("tid") UUID templateId, MultipartFile file) throws Exception {
+	public MediaImageDTO createImage(@PathVariable("tid") ObjectId templateId, MultipartFile file) throws Exception {
 		log.debug("Handling file upload from original filename" + file.getOriginalFilename());
 
 		MediaImage m = new MediaImage();
@@ -181,7 +185,7 @@ public class RestTemplateController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/templates/{tid}/images/{id}", method = RequestMethod.DELETE)
-	public void deleteTemplateImage(@PathVariable("tid") UUID templateId, @PathVariable("id") UUID imageId) throws Exception {
+	public void deleteTemplateImage(@PathVariable("tid") ObjectId templateId, @PathVariable("id") ObjectId imageId) throws Exception {
 		Template t = service.getTemplateById(templateId);
 		ListIterator<MediaImage> it = t.getImages().listIterator();
 		while (it.hasNext()) {
@@ -194,7 +198,7 @@ public class RestTemplateController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/templates/{tid}/resources", method = RequestMethod.POST)
-	public MediaDTO createResource(@PathVariable("tid") UUID template, MultipartFile file) throws Exception {
+	public MediaDTO createResource(@PathVariable("tid") ObjectId template, MultipartFile file) throws Exception {
 		Media m = new Media();
 		m.setData(file.getBytes());
 		m.setName(file.getOriginalFilename());
@@ -203,7 +207,7 @@ public class RestTemplateController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/templates/{tid}/resources/{id}", method = RequestMethod.DELETE)
-	public void deleteResource(@PathVariable("tid") UUID template, @PathVariable("id") UUID resourceId) throws Exception {
+	public void deleteResource(@PathVariable("tid") ObjectId template, @PathVariable("id") ObjectId resourceId) throws Exception {
 		Template t = service.getTemplateById(template);
 		ListIterator<Media> it = t.getResources().listIterator();
 		while (it.hasNext()) {

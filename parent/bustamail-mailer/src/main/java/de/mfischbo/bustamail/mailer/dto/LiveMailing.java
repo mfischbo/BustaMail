@@ -4,15 +4,16 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.mail.internet.InternetAddress;
+
+import org.bson.types.ObjectId;
 
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 
 public class LiveMailing {
 
-	private UUID									mailingId;
+	private ObjectId								mailingId;
 	private Set<PersonalizedEmailRecipient>			recipients;
 	private InternetAddress							senderAddress;
 	private InternetAddress							replyToAddress;
@@ -28,14 +29,14 @@ public class LiveMailing {
 	private String									disableLinkTrackClass;
 	private boolean									spanCellReplacement = true;
 	
-	public LiveMailing(UUID mailingId, String subject, String htmlContent, URL contentBaseUrl) {
+	public LiveMailing(ObjectId mailingId, String subject, String htmlContent, URL contentBaseUrl) {
 		this.mailingId = mailingId;
 		this.subject = subject;
 		this.htmlContent = htmlContent;
 		this.contentProviderBaseURL = contentBaseUrl;
 	}
 	
-	public LiveMailing(UUID mailingId, String subject, String htmlContent, String textContent, URL contentBaseUrl) {
+	public LiveMailing(ObjectId mailingId, String subject, String htmlContent, String textContent, URL contentBaseUrl) {
 		this.mailingId = mailingId;
 		this.subject = subject;
 		this.htmlContent = htmlContent;
@@ -43,7 +44,7 @@ public class LiveMailing {
 		this.contentProviderBaseURL = contentBaseUrl;
 	}
 	
-	public UUID getMailingId() {
+	public ObjectId getMailingId() {
 		return mailingId;
 	}
 	

@@ -2,100 +2,71 @@ package de.mfischbo.bustamail.mailing.domain;
 
 import java.util.List;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.template.domain.Template;
 
-@Entity
-@Table(name = "Mailing_Mailing")
+@Document(collection = "Mailing")
 public class Mailing extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = 4233998675412535889L;
 
-	@Basic
 	@NotBlank
 	private String 		subject;
 	
-	@Basic
 	@Email
 	@NotBlank
 	private String 		senderAddress;
 	
-	@Basic
 	@NotBlank
 	private String 		senderName;
 	
-	@Basic
 	@Email
 	@NotBlank
 	private String 		replyAddress;
 
-	@ManyToOne
-	@JoinColumn(name = "Template_id", referencedColumnName = "id", nullable = false)
-	private Template 	template;
-	
-	@ManyToOne
-	@JoinColumn(name = "User_Created_id", referencedColumnName = "id", nullable = false)
+	@DBRef
+	private Template	template;
+
+	@DBRef
 	private User		userCreated;
-	
-	@ManyToOne
-	@JoinColumn(name = "User_Modified_id", referencedColumnName = "id", nullable = false)
+
+	@DBRef
 	private User		userModified;
 
-	@ManyToOne
-	@JoinColumn(name = "User_Approval_Requested_id", referencedColumnName = "id", nullable = true)
+	@DBRef
 	private User		userApprovalRequested;
-	
-	@ManyToOne
-	@JoinColumn(name = "User_Approved_id", referencedColumnName = "id", nullable = true)
+
+	@DBRef
 	private User		userApproved;
 
-	@ManyToOne
-	@JoinColumn(name = "User_Published_id", referencedColumnName = "id", nullable = true)
+	@DBRef
 	private User		userPublished;
 
-	@Basic
 	private DateTime	dateCreated;
 
-	@Basic
 	private DateTime	dateModified;
 
-	@Basic
 	private DateTime	dateApprovalRequested;
 	
-	@Basic
 	private DateTime	dateApproved;
 
-	@Basic
 	private DateTime	datePublished;
 
-	@Basic
 	private boolean		approvalRequested;
 	
-	@Basic
 	private boolean		approved;
 
-	@Basic
 	private boolean		published;
 	
-	@ManyToMany
-	@JoinTable(name = "Mailing_SubscriptionLists",
-		joinColumns 		= { @JoinColumn(name = "Mailing_id", referencedColumnName = "id")},
-		inverseJoinColumns 	= { @JoinColumn(name = "SubscriptionList_id", referencedColumnName = "id")}
-	)
+	@DBRef
 	private List<SubscriptionList>		subscriptionLists;
 
 	public String getSubject() {

@@ -31,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 			.antMatchers("/api/security/authentication").permitAll()
 			.antMatchers("/api/security/users/recover").permitAll()
+			.antMatchers("/api/setup").permitAll()
 			.antMatchers("/api-docs/**").hasIpAddress("127.0.0.1")
 			.antMatchers("/**").authenticated();
 		
@@ -69,6 +70,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public Authentication authenticationHolder() {
 		return SecurityContextHolder.getContext().getAuthentication();
 	}
-	
-
 }

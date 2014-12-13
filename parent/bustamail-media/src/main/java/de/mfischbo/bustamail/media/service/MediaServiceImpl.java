@@ -15,18 +15,18 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
-import javax.transaction.Transactional;
 
 import org.apache.tika.Tika;
+import org.bson.types.ObjectId;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
@@ -34,7 +34,6 @@ import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.repository.DirectoryRepository;
-import de.mfischbo.bustamail.media.repository.DirectorySpecs;
 import de.mfischbo.bustamail.media.repository.MediaImageRepository;
 import de.mfischbo.bustamail.media.repository.MediaRepository;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
@@ -88,7 +87,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 
 	@Override
-	public Media getMediaById(UUID id) throws EntityNotFoundException {
+	public Media getMediaById(ObjectId id) throws EntityNotFoundException {
 		Media m = mRepo.findOne(id);
 		checkOnNull(m);
 		return m;
@@ -118,7 +117,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		if (mimetype.startsWith("image")) {
 			return processImage(media);
 		} else {
-			Media retval = mRepo.saveAndFlush(media);
+			Media retval = mRepo.save(media);
 			try {
 				writeToDisk(retval, false);
 			} catch (IOException ex) {
@@ -230,7 +229,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 				mi.getVariants().add(imn);
 			}
 		}
-		return miRepo.saveAndFlush(mi);
+		return miRepo.save(mi);
 	}
 	
 	
@@ -261,7 +260,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Override
 	public Media updateMedia(Media media) throws EntityNotFoundException {
 		if (media instanceof Media) {
-			media = mRepo.saveAndFlush(media);
+			media = mRepo.save(media);
 			try {
 				writeToDisk(media, false);
 			} catch (Exception ex) {
@@ -282,15 +281,12 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		Set<OrgUnitDTO> units = secService.getTopLevelUnits();
 		
 		// NOTE: This is my first line of java 8 code!
-		Set<UUID> ids = units.stream().map(OrgUnitDTO::getId).collect(Collectors.toSet());
-
-		Specifications<Directory> specs = Specifications.where(DirectorySpecs.isOwnedByOneOf(ids))
-				.and(DirectorySpecs.hasNullParent());
-		return dRepo.findAll(specs);
+		Set<ObjectId> ids = units.stream().map(OrgUnitDTO::getId).collect(Collectors.toSet());
+		return dRepo.findByOwnerAndParent(ids, null);
 	}
 
 	@Override
-	public Directory getDirectoryById(UUID directory)
+	public Directory getDirectoryById(ObjectId directory)
 			throws EntityNotFoundException {
 		Directory d = dRepo.findOne(directory);
 		checkOnNull(d);
@@ -298,14 +294,14 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 
 	@Override
-	public Directory createDirectory(UUID owner, Directory directory) {
+	public Directory createDirectory(ObjectId owner, Directory directory) {
 		directory.setOwner(owner);
-		return dRepo.saveAndFlush(directory);
+		return dRepo.save(directory);
 	}
 
 	@Override
 	public Directory updateDirectory(Directory directory) {
-		return dRepo.saveAndFlush(directory);
+		return dRepo.save(directory);
 	}
 
 	@Override
@@ -319,6 +315,6 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		Directory d = new Directory();
 		d.setName(ou.getName());
 		d.setOwner(ou.getId());
-		dRepo.saveAndFlush(d);
+		dRepo.save(d);
 	}
 }

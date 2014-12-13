@@ -1,15 +1,17 @@
 package de.mfischbo.bustamail.security.repository;
 
-import java.util.UUID;
+import java.util.List;
 
-import javax.transaction.Transactional;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 
-@Transactional
-public interface OrgUnitRepository extends JpaRepository<OrgUnit, UUID>, JpaSpecificationExecutor<OrgUnit> {
+public interface OrgUnitRepository extends MongoRepository<OrgUnit, ObjectId> {
+	
+	@Query("{ 'actors.user.$id' : ?0 }")
+	public List<OrgUnit> findAllWithUserAsActor(ObjectId userId);
 
+	public List<OrgUnit> findByParent(OrgUnit unit);
 }

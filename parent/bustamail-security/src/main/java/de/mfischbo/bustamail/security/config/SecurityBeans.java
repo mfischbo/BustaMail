@@ -8,17 +8,18 @@ import de.mfischbo.bustamail.security.service.ActorBasedPermissionEvaluator;
 
 @Configuration
 public class SecurityBeans {
-	
+
 	@Bean
 	public DefaultMethodSecurityExpressionHandler getExpressionHandler() {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 		handler.setPermissionEvaluator(getPermissionEvaluator());
 		return handler;
 	}
-	
+
 	
 	@Bean
 	public ActorBasedPermissionEvaluator getPermissionEvaluator() {
 		return new ActorBasedPermissionEvaluator();
 	}
+	
 }
