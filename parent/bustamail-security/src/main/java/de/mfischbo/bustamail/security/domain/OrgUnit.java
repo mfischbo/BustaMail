@@ -1,6 +1,6 @@
 package de.mfischbo.bustamail.security.domain;
 
-import java.util.List;
+import java.util.Set;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
@@ -30,7 +30,7 @@ public class OrgUnit extends BaseDomain {
 	@DBRef
 	private OrgUnit		parent;
 	
-	private List<Actor> 	actors;
+	private Set<Actor> 	actors;
 	
 
 	public String getName() {
@@ -81,11 +81,11 @@ public class OrgUnit extends BaseDomain {
 		this.parent = parent;
 	}
 
-	public List<Actor> getActors() {
+	public Set<Actor> getActors() {
 		return actors;
 	}
 
-	public void setActors(List<Actor> actors) {
+	public void setActors(Set<Actor> actors) {
 		this.actors = actors;
 	}
 

@@ -8,6 +8,7 @@
     	<copy-by-references>
     		<copy-by-reference>java.util.UUID</copy-by-reference>
     		<copy-by-reference>org.joda.time.DateTime</copy-by-reference>
+    		<copy-by-reference>org.bson.types.ObjectId</copy-by-reference>
     	</copy-by-references>
     </configuration>  
 </mappings>

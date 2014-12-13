@@ -1,7 +1,6 @@
 package de.mfischbo.bustamail.security.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -181,7 +180,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		
 		// find all actors from parent units that have the addToFutureChildren flag enabled
 		Set<OrgUnit> parents = getParentUnits(unit);
-		final List<Actor> nas = new LinkedList<>();
+		final Set<Actor> nas = new HashSet<>();
 		if (parents.size() > 0) {
 			
 			for (OrgUnit p : parents) {
@@ -201,7 +200,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 				});
 			}
 		}
-		unit.getActors().addAll(nas);
+		unit.setActors(nas);
 		unit = orgUnitRepo.save(unit);
 		publisher.publishEvent(new OrgUnitCreatedEvent(this, unit));
 		return mapper.map(unit, OrgUnitDTO.class);
@@ -210,7 +209,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	private Set<OrgUnit> getParentUnits(OrgUnit unit) {
 		Set<OrgUnit> parents = new HashSet<>();
 		OrgUnit leaf = unit;
-		while (!leaf.getId().equals(ROOT_UNIT_ID)) {
+		while (!ROOT_UNIT_ID.equals(leaf.getId())) {
 			if (leaf.getParent() != null)
 				parents.add(leaf.getParent());
 			leaf = leaf.getParent();
@@ -289,7 +288,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	public Set<OrgUnit> getOrgUnitsByCurrentUser() {
 		User current = (User) currentUser.getPrincipal();
 		List<OrgUnit> units = orgUnitRepo.findAllWithUserAsActor(current.getId());
-		Set<OrgUnit> retval = Collections.emptySet();
+		Set<OrgUnit> retval = new HashSet<>();
 		retval.addAll(units);
 		return retval;
 	}

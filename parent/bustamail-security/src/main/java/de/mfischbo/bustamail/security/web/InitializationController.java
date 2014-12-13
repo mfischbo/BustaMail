@@ -1,6 +1,5 @@
 package de.mfischbo.bustamail.security.web;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +71,7 @@ public class InitializationController {
 			pp.getModulePermissions().forEach( p -> perms.add(p.getId() ));
 		}
 		a.setPermissions(perms);
-		List<Actor> rootActors = new ArrayList<>(1);
+		Set<Actor> rootActors = new HashSet<>();
 		rootActors.add(a);
 		root.setActors(rootActors);
 		root = ouRepo.save(root);
