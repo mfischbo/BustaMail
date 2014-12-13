@@ -1,22 +1,24 @@
 package de.mfischbo.bustamail.media.domain;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 
+@Document(collection = "Media_Directory")
 public class Directory extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = -1066888517355528723L;
 
+	@Indexed
 	private String			name;
 	
 	private String			description;
 
-	private Directory		parent;
-
-	private List<Directory> children;
-	
-	private List<Media>		files;
+	private List<Directory> children = new ArrayList<>();
 	
 	public String getName() {
 		return name;
@@ -30,22 +32,10 @@ public class Directory extends OwnedBaseDomain {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Directory getParent() {
-		return parent;
-	}
-	public void setParent(Directory parent) {
-		this.parent = parent;
-	}
 	public List<Directory> getChildren() {
 		return children;
 	}
 	public void setChildren(List<Directory> children) {
 		this.children = children;
-	}
-	public List<Media> getFiles() {
-		return files;
-	}
-	public void setFiles(List<Media> files) {
-		this.files = files;
 	}
 }

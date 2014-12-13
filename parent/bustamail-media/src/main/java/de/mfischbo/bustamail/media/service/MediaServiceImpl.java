@@ -7,14 +7,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
 
 import org.apache.tika.Tika;
 import org.bson.types.ObjectId;
@@ -22,11 +23,15 @@ import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSFile;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
@@ -34,26 +39,15 @@ import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.repository.DirectoryRepository;
-import de.mfischbo.bustamail.media.repository.MediaImageRepository;
-import de.mfischbo.bustamail.media.repository.MediaRepository;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
-import de.mfischbo.bustamail.security.dto.OrgUnitDTO;
 import de.mfischbo.bustamail.security.event.OrgUnitCreatedEvent;
 import de.mfischbo.bustamail.security.service.SecurityService;
 
 @Service
 public class MediaServiceImpl extends BaseService implements MediaService, ApplicationListener<OrgUnitCreatedEvent> {
 
-	public static final UUID GLOBAL_ROOT_DIRECTORY_ID = UUID.fromString("15f812fb-c25c-45ab-ab5b-1fdb7d2dce33");
-	
 	public static final String UI_DOCUMENT_ROOT_KEY = "de.mfischbo.bustamail.ui.documentRoot";
 	public static final String UI_MEDIA_DIRECTORY_KEY = "de.mfischbo.bustamail.ui.mediadir";
-	
-	@Autowired
-	private MediaRepository			mRepo;
-	
-	@Autowired
-	private MediaImageRepository	miRepo;
 	
 	@Autowired
 	private DirectoryRepository		dRepo;
@@ -70,6 +64,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Autowired
 	private Environment				env;
 	
+	@Inject
+	private GridFsTemplate			gridTemplate;
+	
 	private File					mediaDir;
 	
 	@PostConstruct
@@ -80,28 +77,41 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 			this.mediaDir.mkdirs();
 	}
 	
-	@Override
-	public Page<Media> getAllMedias(Pageable page) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public Media getMediaById(ObjectId id) throws EntityNotFoundException {
-		Media m = mRepo.findOne(id);
-		checkOnNull(m);
+		GridFSDBFile file = gridTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
+		return convertFile(file);
+	}
+	
+	private Media convertFile(GridFSDBFile file) {
+		Media m = new Media();
+		m.setId((ObjectId) file.getId());
+		m.setDescription((String) file.getMetaData().get("description"));
+		m.setMimetype((String) file.getMetaData().get("mimetype"));
+		m.setName(file.getFilename());
+		m.setOwner((ObjectId) file.getMetaData().get("owner"));
 		return m;
 	}
 	
-	
 	@Override
-	public void flushToDisk() throws Exception {
-		List<MediaImage> miList = miRepo.findAll();
-		for (MediaImage i : miList)
-			writeToDisk(i, true);
+	public List<MediaImage> getFilesByDirectory(Directory dir) {
+		
+		List<GridFSDBFile> files = gridTemplate.find(
+				Query.query(Criteria.where("metadata.directory.$id").is(dir.getId())));
+		
+		List<MediaImage>   retval = new ArrayList<>(files.size());
+		for (GridFSDBFile f : files) {
+			MediaImage i = new MediaImage();
+			i.setId((ObjectId) f.getId());
+			i.setDescription((String) f.getMetaData().get("description"));
+			i.setHeight((Integer) f.getMetaData().get("height"));
+			i.setWidth((Integer) f.getMetaData().get("width"));
+			retval.add(i);
+		}
+		return retval;
 	}
 	
-
 	@Override
 	public Media createMedia(Media media) {
 		
@@ -117,13 +127,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		if (mimetype.startsWith("image")) {
 			return processImage(media);
 		} else {
-			Media retval = mRepo.save(media);
-			try {
-				writeToDisk(retval, false);
-			} catch (IOException ex) {
-				log.error("Unable to write resource file to disk. Cause: " + ex.getMessage());
-			}
-			return retval;
+			GridFSFile file = gridTemplate.store(media.getDataStream(), media.getName(), media);
+			media.setId((ObjectId) file.getId());
+			return media;
 		}
 	}
 	
@@ -229,7 +235,8 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 				mi.getVariants().add(imn);
 			}
 		}
-		return miRepo.save(mi);
+		//return miRepo.save(mi);
+		return null;
 	}
 	
 	
@@ -260,7 +267,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Override
 	public Media updateMedia(Media media) throws EntityNotFoundException {
 		if (media instanceof Media) {
-			media = mRepo.save(media);
+			//media = mRepo.save(media);
 			try {
 				writeToDisk(media, false);
 			} catch (Exception ex) {
@@ -272,17 +279,16 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 
 	@Override
 	public void deleteMedia(Media media) throws EntityNotFoundException {
-		// TODO Auto-generated method stub
-		
+		gridTemplate.delete(Query.query(Criteria.where("_id").is(media.getId())));
 	}
 
 	@Override
 	public List<Directory> getDirectoryRoots() {
-		Set<OrgUnitDTO> units = secService.getTopLevelUnits();
+		Set<OrgUnit> units = secService.getOrgUnitsByCurrentUser();
 		
 		// NOTE: This is my first line of java 8 code!
-		Set<ObjectId> ids = units.stream().map(OrgUnitDTO::getId).collect(Collectors.toSet());
-		return dRepo.findByOwnerAndParent(ids, null);
+		Set<ObjectId> ids = units.stream().map(OrgUnit::getId).collect(Collectors.toSet());
+		return dRepo.findByOwner(ids);
 	}
 
 	@Override
@@ -294,9 +300,10 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 
 	@Override
-	public Directory createDirectory(ObjectId owner, Directory directory) {
+	public Directory createDirectory(ObjectId owner, Directory parent, Directory directory) {
 		directory.setOwner(owner);
-		return dRepo.save(directory);
+		parent.getChildren().add(directory);
+		return dRepo.save(parent);
 	}
 
 	@Override
@@ -307,6 +314,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Override
 	public void deleteDirectory(Directory directory) {
 		dRepo.delete(directory);
+		gridTemplate.delete(Query.query(Criteria.where("metadata.directory").is(directory.getId())));
 	}
 
 	@Override

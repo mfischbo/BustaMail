@@ -3,8 +3,6 @@ package de.mfischbo.bustamail.media.service;
 import java.util.List;
 
 import org.bson.types.ObjectId;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,12 +14,11 @@ import de.mfischbo.bustamail.media.domain.MediaImage;
 
 public interface MediaService {
 
-	public Page<Media>		getAllMedias(Pageable page);
-	
-	void			flushToDisk() throws Exception;
-
 	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
 	Media			getMediaById(ObjectId id) throws EntityNotFoundException;
+
+	@PreAuthorize("hasPermission(#d.owner, 'Media.USE_MEDIA')")
+	List<MediaImage> getFilesByDirectory(@P("d") Directory d);
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			createMedia(@P("m") Media media);
@@ -50,11 +47,11 @@ public interface MediaService {
 	Directory		getDirectoryById(ObjectId directory) throws EntityNotFoundException;
 	
 	@PreAuthorize("hasPermission(#owner, 'Media.MANAGE_MEDIA')")
-	Directory		createDirectory(ObjectId owner, Directory directory);
+	Directory		createDirectory(ObjectId owner, Directory parent, Directory directory);
 	
 	@PreAuthorize("hasPermission(#d.owner, 'Media.MANAGE_MEDIA')")
-	Directory		updateDirectory(@P("d") Directory directory);
+	Directory		updateDirectory(Directory directory);
 	
 	@PreAuthorize("hasPermission(#d.owner, 'Media.MANAGE_MEDIA')")
-	void			deleteDirectory(@P("d") Directory directory);
+	void			deleteDirectory(Directory directory);
 }

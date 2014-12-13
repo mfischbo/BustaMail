@@ -3,6 +3,7 @@ package de.mfischbo.bustamail.media.domain;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,7 +22,7 @@ public class Media extends OwnedBaseDomain {
 	
 	private String mimetype;
 	
-	private byte[] data;
+	@Transient private byte[] data;
 	
 	@DBRef
 	private	Directory	directory;
