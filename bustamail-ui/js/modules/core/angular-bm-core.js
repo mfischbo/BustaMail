@@ -4,7 +4,7 @@ var BMApp = angular.module("BMApp",
 		 'ui.bootstrap']);
 
 BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
-	
+    
 	$httpProvider.interceptors.push(function($q) {
 		return {
 			'request' : function(config) {

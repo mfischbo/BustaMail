@@ -20,10 +20,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +35,6 @@ import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.domain.Widget;
-import de.mfischbo.bustamail.template.dto.TemplatePackDTO;
 import de.mfischbo.bustamail.template.repository.TemplatePackRepository;
 
 @Service
@@ -73,8 +70,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	}
 
 	@Override
-	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public TemplatePack createTemplatePack(@P("pack")TemplatePack pack) throws EntityNotFoundException {
+	public TemplatePack createTemplatePack(TemplatePack pack) throws EntityNotFoundException {
 		
 		// create media images for each template first
 		if (pack.getTemplates() != null) {
@@ -97,11 +93,10 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	
 		try {
 			// map the pack to a dto
-			TemplatePackDTO d = asDTO(pack, TemplatePackDTO.class);
-	
+			
 			ZipOutputStream zip = new ZipOutputStream(stream);
 			zip.putNextEntry(new ZipEntry("manifest.json"));
-			zip.write(jacksonMapper.writeValueAsBytes(d));
+			zip.write(jacksonMapper.writeValueAsBytes(pack));
 			
 			zip.putNextEntry(new ZipEntry(pack.getThemeImage().getId().toString()));
 			zip.write(pack.getThemeImage().getData());
@@ -173,7 +168,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			nt.setHtmlHead(t.getHtmlHead());
 			nt.setName(t.getName());
 			nt.setSource(t.getSource());
-			nt.setTemplatePack(nPack);
+			//nt.setTemplatePack(nPack);
 			nt.setWidgets(new LinkedList<>());
 			nt.setImages(new LinkedList<>());
 			nt.setResources(new LinkedList<>());
@@ -182,7 +177,6 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				nw.setDescription(w.getDescription());
 				nw.setName(w.getName());
 				nw.setSource(w.getSource());
-				nw.setTemplate(nt);
 				nt.getWidgets().add(nw);
 			}
 			
@@ -230,14 +224,13 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			tn.setName(to.getName());
 			tn.setSource(to.getSource());
 			tn.setWidgets(new LinkedList<Widget>());
-			tn.setTemplatePack(n);
+			//tn.setTemplatePack(n);
 			
 			for (Widget wo : to.getWidgets()) {
 				Widget wn = new Widget();
 				wn.setDescription(wo.getDescription());
 				wn.setName(wo.getName());
 				wn.setSource(wo.getSource());
-				wn.setTemplate(tn);
 				tn.getWidgets().add(wn);
 			}
 			
@@ -266,21 +259,29 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	
 
 	@Override
-	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public TemplatePack updateTemplatePack(@P("pack") TemplatePack pack)
+	public TemplatePack updateTemplatePack(TemplatePack pack)
 			throws EntityNotFoundException {
 		return tpRepo.save(pack);
 	}
 
 	@Override
-	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public void deleteTemplatePack(@P("pack") TemplatePack pack) throws EntityNotFoundException {
+	public void deleteTemplatePack(TemplatePack pack) {
 		tpRepo.delete(pack);
 	}
 	
 	@Override
 	public void exportAsZip(ObjectId owner, TemplatePack pack) {
 		
+	}
+
+	@Override
+	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
+	public MediaImage createTemplatePackImage(@P("pack") TemplatePack pack, MediaImage image) {
+		image.setOwner(pack.getOwner());
+		MediaImage retval = mediaService.createMediaImage(image);
+		pack.setThemeImage(retval);
+		tpRepo.save(pack);
+		return retval;
 	}
 
 	@Override
@@ -292,121 +293,5 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			if (t.getId().equals(templateId)) return t;
 		}
 		throw new EntityNotFoundException("Unable to find template for id : " + templateId);
-	}
-
-	@Override
-	public Template createTemplate(TemplatePack pack, Template template) {
-	
-		// copy media resources
-		if (template.getImages() != null) {
-			List<MediaImage> persisted = new ArrayList<MediaImage>();
-			for (MediaImage i : template.getImages()) {
-				i.setOwner(template.getTemplatePack().getOwner());
-				persisted.add(mediaService.createMediaImage(i));
-			}
-			template.setImages(persisted);
-		}
-		pack.getTemplates().add(template);
-		tpRepo.save(pack);
-		return template;
-	}
-	
-	@Override
-	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Template updateTemplate(@P("template") Template template) {
-		//return templateRepo.saveAndFlush(template);
-		return null;
-		// TODO: Reimplement this
-	}
-	
-	@Override
-	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public void deleteTemplate(Template template) {
-		//templateRepo.delete(template);
-		//TODO: Reimplement this
-	}
-	
-	@Override
-	@Transactional
-	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public MediaImage createTemplateImage(Template template, MediaImage image) {
-	
-		/*
-		image.setOwner(template.getTemplatePack().getOwner());
-		MediaImage retval = mediaService.createMediaImage(image);
-		
-		if (template.getImages() == null)
-			template.setImages(new LinkedList<MediaImage>());
-		template.getImages().add(retval);
-		templateRepo.saveAndFlush(template);
-		return retval;
-		*/
-		return null; // TODO: Reimplement this
-	}
-	
-	@Override
-	@Transactional
-	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Media createTemplateResource(Template template, Media resource) {
-		
-		/*
-		resource.setOwner(template.getTemplatePack().getOwner());
-		Media retval = mediaService.createMedia(resource);
-		if (template.getResources() == null)
-			template.setResources(new LinkedList<Media>());
-		template.getResources().add(retval);
-		templateRepo.saveAndFlush(template);
-		
-		return retval;
-		*/
-		// TODO: Reimplement this
-		return null;
-	}
-	
-	
-	@Override
-	@Transactional
-	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public MediaImage createTemplatePackImage(@P("pack") TemplatePack pack, MediaImage image) {
-		image.setOwner(pack.getOwner());
-		MediaImage retval = mediaService.createMediaImage(image);
-		pack.setThemeImage(retval);
-		tpRepo.save(pack);
-		return retval;
-	}
-	
-
-	@Override
-	@PostAuthorize("hasPermission(returnObject.template.templatePack.owner, 'Templates.USE_TEMPLATES')")
-	public Widget getWidgetById(ObjectId widget) throws EntityNotFoundException {
-
-		TemplatePack tp = tpRepo.findByWidgetWithId(widget);
-		checkOnNull(tp);
-		for (Template t : tp.getTemplates()) {
-			for (Widget w : t.getWidgets()) {
-				if (w.getId().equals(widget)) return w;
-			}
-		}
-		throw new EntityNotFoundException("Unable to find widget with id : " + widget);
-	}
-	
-	@Override
-	@PreAuthorize("hasPermission(#widget.template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Widget createWidget(Widget w) {
-		tpRepo.save(w.getTemplate().getTemplatePack());
-		return w;
-	}
-
-	@Override
-	@PreAuthorize("hasPermission(#widget.template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Widget updateWidget(@P("widget") Widget w) {
-		tpRepo.save(w.getTemplate().getTemplatePack());
-		return w;
-	}
-
-	@Override
-	@PreAuthorize("hasPermission(#widget.template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public void deleteWidget(@P("widget") Widget w) {
-		tpRepo.save(w.getTemplate().getTemplatePack());
 	}
 }

@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
@@ -25,18 +26,20 @@ import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Version;
 
 @Configuration
-//@EnableAutoConfiguration
 @EnableScheduling
 @EnableAsync
 //@EnableSwagger
 @ComponentScan("de.mfischbo.bustamail")
-//@EnableMongoRepositories(basePackages = {"de.mfischbo.bustamail"})
-//@PropertySource("classpath:/bm-application.properties")
 public class ApplicationConfig {
 	
 	@Inject
 	Environment			env;
 
+	@Bean
+	public ObjectMapper getObjectMapper() {
+		return new ObjectMapper();
+	}
+	
 	@Bean
 	public Module getJacksonJodaModule() {
 		return new JodaModule();

@@ -1,5 +1,5 @@
 BMApp.Templates = angular.module("TemplatesModule", 
-		['SecurityModule', 'ui.codemirror', 'angularFileUpload']);
+		['SecurityModule', 'TemplateServiceModule', 'ui.codemirror', 'angularFileUpload']);
 
 BMApp.Templates.config(['$routeProvider', function($routeProvider) {
 	
@@ -19,14 +19,15 @@ BMApp.Templates.config(['$routeProvider', function($routeProvider) {
 }]);
 
 
-BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', '$upload', function($http, $scope, $upload) {
+BMApp.Templates.controller("TemplatePacksIndexController", ['TemplateService', '$http', '$scope', '$upload', 
+                                                            function(service, $http, $scope, $upload) {
 
 	$scope.owner = undefined;
 	$scope.packs = {};
 	
 	$scope.$watch('owner', function(owner) {
 		if (!owner) return;
-		$http.get("/api/templates/" + $scope.owner + "/packs").success(function(data) {
+		service.getTemplatePacksByOwner(owner).success(function(data) {
 			$scope.packs = data;
 		});
 	});
@@ -43,11 +44,8 @@ BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', '
 	
 	$scope.deletePack = function(id) {
 		BMApp.confirm("Soll der Template Pack und alle seine Inhalte wirklich entfernt werden?", function() {
-			$http({
-				method 		:	"DELETE",
-				url			: 	"/api/templates/packs/" + id
-			}).success(function() {
-				BMApp.utils.remove("id", id, $scope.packs.content);
+			service.deleteTemplatePack(id).success(function() {
+				KT.remove('id', id, $scope.packs);
 			});
 		});
 	};
@@ -69,7 +67,7 @@ BMApp.Templates.controller("TemplatePacksIndexController", ['$http', '$scope', '
 }]);
 
 
-BMApp.Templates.controller("TemplatePacksCreateController", ['$http', '$scope', '$location', function($http, $scope, $location) {
+BMApp.Templates.controller("TemplatePacksCreateController", ['TemplateService', '$scope', '$location', function(service, $scope, $location) {
 	
 	$scope.pack = {};
 		
@@ -78,7 +76,7 @@ BMApp.Templates.controller("TemplatePacksCreateController", ['$http', '$scope', 
 	};
 	
 	$scope.savePack = function() {
-		$http.post("/api/templates/packs", $scope.pack).success(function(data) {
+		service.createTemplatePack($scope.pack).success(function(data) {
 			$location.path("/templates/packs/" + data.id + "/edit");
 		});
 	};
@@ -86,8 +84,8 @@ BMApp.Templates.controller("TemplatePacksCreateController", ['$http', '$scope', 
 
 
 BMApp.Templates.controller("TemplatePacksEditController", 
-		['$http', '$scope', '$routeParams', '$location', '$upload', 
-		 function($http, $scope, $routeParams, $location, $upload) {
+		['TemplateService', '$http', '$scope', '$routeParams', '$location', '$upload', 
+		 function(service, $http, $scope, $routeParams, $location, $upload) {
 	
 	$scope.pack = {};
 	$scope.tab  = "PACK";
@@ -104,19 +102,12 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	var 	_tHeadEditor; // instance for the HTML Header editor
 	var		_wCMEditor; // instance for widget source code
 	var		_rCMEditor;	// editor to edit resource files
-	
-	$http.get("/api/templates/packs/" + $routeParams.id).success(function(data) {
+
+	service.getTemplatePackById($routeParams.id).success(function(data) {
 		$scope.pack = data;
-		
-		/*
-		for (var i in $scope.pack.templates) {
-			for (var k in $scope.pack.templates[i].resources)
-				if ($scope.pack.templates[i].resources[k].mimetype == 'text/css')
-					$scope.pack.templates[i].resources[k].iconClass = 'flaticon-css5';
-		}
-		*/
 	});
 	
+
 	$scope.setupCodeMirror = function(_editor) {
 		_editor.setOption("lineNumbers", true);
 		_editor.setOption("mode", "htmlmixed");
@@ -170,23 +161,11 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	};
 	
 	$scope.saveAction = function() {
-		if ($scope.tab == "PACK") {
-			$scope.updateTemplatePack();
-		}
-		
-		if ($scope.tab == "TEMPLATES") {
-			if ($scope.template.id)
-				$scope.updateTemplate();
-			else
-				$scope.createTemplate();
-		}
-		
-		if ($scope.tab == 'WIDGETS') {
-			if ($scope.widget.id) 
-				$scope.updateWidget();
-			else
-				$scope.createWidget();
-		}
+		$scope.widget.source = _wCMEditor.getValue();
+		$scope.template.source = _tCMEditor.getValue();
+		service.updateTemplatePack($scope.pack).success(function(data) {
+			$scope.pack = data;
+		});
 	};
 	
 	$scope.onThemeFileSelect = function($files) {
@@ -244,8 +223,6 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		}
 	};
 	
-	
-	
 	$scope.deleteTemplateImage = function(id) {
 		BMApp.confirm("Soll das Bild wirklich aus dem Template entfernt werden?", function() {
 			$http({
@@ -268,37 +245,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		});
 	};
 	
-	
-	$scope.copyTemplate = function(id) {
-		$http.put("/api/templates/packs/" + $routeParams.id + "/templates/" + id + "/clone").success(function(data) {
-			$scope.pack.templates.push(data);
-			BMApp.hideSpinner();
-		}).error(function() {
-			BMApp.hideSpinner();
-		});
-	};
-	
-	$scope.updateTemplatePack = function() {
-		$http({
-			method		:	"PATCH",
-			url			:	"/api/templates/packs/" + $routeParams.id,
-			data		:	$scope.pack
-		}).success(function(data) {
-			$scope.pack = data;
-		});
-	};
-	
-	
-	$scope.focusTemplate = function(t) {
-		$scope.template = t;
-		if (_tCMEditor)
-			_tCMEditor.setValue($scope.template.source);
-		
-		if (_tHeadEditor)
-			_tHeadEditor.setValue($scope.template.htmlHead || "");
-		$scope.widgets = undefined;
-	};
-	
+
 	
 	$scope.focusResource = function(id) {
 		$http.get("/api/media/" + id + "/content").success(function(data) {
@@ -326,45 +273,37 @@ BMApp.Templates.controller("TemplatePacksEditController",
 			BMApp.alert("Erfolgreich gespeichert");
 		});
 	};
-	
-	
-	$scope.createTemplate = function() {
-		$scope.template.source = _tCMEditor.getValue();
-		$http.post("/api/templates/packs/" + $routeParams.id + "/templates", $scope.template).success(function(data) {
-			data.widgets = [];
-			$scope.pack.templates.push(data);
-			$scope.template = undefined;
-		});
-	};
-	
-	$scope.updateTemplate = function() {
-		$scope.template.source = _tCMEditor.getValue();
-		$scope.template.htmlHead = _tHeadEditor.getValue();
+
 		
-		$http({
-			method 	:	"PATCH",
-			url		:	"/api/templates/packs/" + $routeParams.id + "/templates/" + $scope.template.id,
-			data	:	$scope.template,
-		}).success(function(data) {
-			var t = BMApp.utils.find("id", data.id, $scope.pack.templates);
-			if (t) {
-				t = data;
-				$scope.template = undefined;
-			}
+	$scope.addTemplate = function() {
+		$scope.template = {};
+		$scope.pack.templates.push($scope.template);
+	};
+	
+	$scope.copyTemplate = function(id) {
+		$http.put("/api/templates/packs/" + $routeParams.id + "/templates/" + id + "/clone").success(function(data) {
+			$scope.pack.templates.push(data);
+			BMApp.hideSpinner();
+		}).error(function() {
+			BMApp.hideSpinner();
 		});
 	};
 	
-	$scope.deleteTemplate = function(id) {
-		BMApp.confirm("Soll das Template und seine Widgets wirklich entfernt werden?", function() {
-			$http({
-				method	:	"DELETE",
-				url		:	"/api/templates/packs/" + $scope.pack.id + "/templates/" + id
-			}).success(function() {
-				BMApp.utils.remove("id", id, $scope.pack.templates);
-			});
-		});
+	$scope.focusTemplate = function(t) {
+		$scope.template = t;
+		if (_tCMEditor)
+			_tCMEditor.setValue($scope.template.source);
+		
+		if (_tHeadEditor)
+			_tHeadEditor.setValue($scope.template.htmlHead || "");
+		$scope.widgets = undefined;
 	};
 	
+	
+	$scope.addWidget = function() {
+		$scope.widget = {};
+		$scope.template.widgets.push($scope.widget);
+	};
 	
 	$scope.showWidgets = function(t) {
 		$scope.template = t;
@@ -376,39 +315,4 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		if (_wCMEditor)
 			_wCMEditor.setValue($scope.widget.source);
 	};
-	
-	$scope.createWidget = function() {
-		$scope.widget.source = _wCMEditor.getValue();
-		$http.post("/api/templates/templates/" + $scope.template.id + "/widgets", $scope.widget).success(function(data) {
-			$scope.template.widgets.push(data);
-			$scope.widget = undefined;
-			BMApp.alert("Widget erfolgreich angelegt");
-		});
-	};
-	
-	$scope.updateWidget = function() {
-		$scope.widget.source = _wCMEditor.getValue();
-		$http({
-			method		:	"PATCH",
-			url			:	"/api/templates/templates/" + $scope.template.id + "/widgets/" + $scope.widget.id,
-			data		:	$scope.widget
-		}).success(function(data) {
-			var w = BMApp.utils.find("id", data.id, $scope.template.widgets);
-			w = data;
-			$scope.widget = undefined;
-			BMApp.alert("Widget erfolgreich gespeichert");
-		});
-	};
-	
-	$scope.deleteWidget = function(id) {
-		BMApp.confirm("Soll das Widget wirklich entfernt werden?", function() {
-			$http({
-				method	:	"DELETE",
-				url		:	"/api/templates/templates/" + $scope.template.id + "/widgets/" + id
-			}).success(function() {
-				BMApp.utils.remove("id", id, $scope.template.widgets);
-			});
-		});
-	}
-	
 }]);

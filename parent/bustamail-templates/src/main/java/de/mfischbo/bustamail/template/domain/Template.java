@@ -1,21 +1,21 @@
 package de.mfischbo.bustamail.template.domain;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.bson.types.ObjectId;
 
-import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.domain.MediaImage;
 
-public class Template extends BaseDomain {
-
-	private static final long serialVersionUID = -257611755576891163L;
+public class Template {
 	
 	public static final String SKEY_CELLPADDING_OPTIMIZATION = "enableCellPaddingOptimization";
 
+	private ObjectId	id;
+	
 	private String		name;
 	
 	private String		description;
@@ -24,18 +24,26 @@ public class Template extends BaseDomain {
 	
 	private String		source;
 
-	@DBRef
-	private TemplatePack	templatePack;
+	private List<Widget>	widgets = new LinkedList<>();
 
-	private List<Widget>	widgets;
-
-	private List<MediaImage>	images;
+	private List<MediaImage>	images = new LinkedList<>();
 	
-	private List<Media>			resources;
+	private List<Media>			resources = new LinkedList<>();
 
 	private Map<String, String>		settings = new LinkedHashMap<>();
+
+	public Template() {
+		this.id = new ObjectId();
+	}
 	
-	
+	public ObjectId getId() {
+		return id;
+	}
+
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -76,14 +84,6 @@ public class Template extends BaseDomain {
 		this.source = source;
 	}
 
-	public TemplatePack getTemplatePack() {
-		return templatePack;
-	}
-
-	public void setTemplatePack(TemplatePack templatePack) {
-		this.templatePack = templatePack;
-	}
-	
 	public List<Widget> getWidgets() {
 		return widgets;
 	}

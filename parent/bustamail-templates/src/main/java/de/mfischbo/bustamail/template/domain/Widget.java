@@ -1,18 +1,28 @@
 package de.mfischbo.bustamail.template.domain;
 
-import de.mfischbo.bustamail.common.domain.BaseDomain;
+import org.bson.types.ObjectId;
 
-public class Widget extends BaseDomain {
+public class Widget {
 
-	private static final long serialVersionUID = 7619850045491333396L;
-
+	private ObjectId	id;
+	
 	private String		name;
 	
 	private String		description;
 	
 	private String		source;
-	
-	private Template	template;
+
+	public Widget() {
+		this.id = new ObjectId();
+	}
+
+	public ObjectId getId() {
+		return id;
+	}
+
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
 
 	public String getName() {
 		return name;
@@ -36,13 +46,5 @@ public class Widget extends BaseDomain {
 
 	public void setSource(String source) {
 		this.source = source;
-	}
-
-	public Template getTemplate() {
-		return template;
-	}
-
-	public void setTemplate(Template template) {
-		this.template = template;
 	}
 }

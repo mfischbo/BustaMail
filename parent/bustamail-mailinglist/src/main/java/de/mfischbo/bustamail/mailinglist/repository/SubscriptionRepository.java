@@ -23,6 +23,6 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, Ob
 	@Query(" { 'subscriptionList' : ?0, 'contact' : ?1 } ")
 	Subscription findBySubscriptionListAndContact(SubscriptionList list, Contact contact);
 	
-	@Query(" { 'subscriptionList' : ?0, 'state' : ?1 } ")
+	//@Query(" { 'subscriptionList' : ?0, 'state' : ?1 } ")
 	long countBySubscriptionListAndState(SubscriptionList list, State state);
 }

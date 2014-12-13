@@ -1,10 +1,10 @@
 package de.mfischbo.bustamail.mailing.dto;
 
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.dto.OwnedBaseDTO;
 import de.mfischbo.bustamail.security.dto.UserDTO;
-import de.mfischbo.bustamail.template.dto.TemplateIndexDTO;
 
 public class MailingIndexDTO extends OwnedBaseDTO {
 
@@ -14,7 +14,7 @@ public class MailingIndexDTO extends OwnedBaseDTO {
 	private String				senderAddress;
 	private String				senderName;
 	private String				replyAddress;
-	private TemplateIndexDTO	template;
+	private ObjectId			templateId;
 	private DateTime			dateCreated;
 	private DateTime			dateModified;
 	private DateTime			dateApprovalRequested;
@@ -54,11 +54,11 @@ public class MailingIndexDTO extends OwnedBaseDTO {
 	public void setReplyAddress(String replyAddress) {
 		this.replyAddress = replyAddress;
 	}
-	public TemplateIndexDTO getTemplate() {
-		return template;
+	public ObjectId getTemplateId() {
+		return templateId;
 	}
-	public void setTemplate(TemplateIndexDTO template) {
-		this.template = template;
+	public void setTemplateId(ObjectId templateId) {
+		this.templateId = templateId;
 	}
 	public DateTime getDateCreated() {
 		return dateCreated;

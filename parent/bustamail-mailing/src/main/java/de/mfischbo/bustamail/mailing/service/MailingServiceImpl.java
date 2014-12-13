@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -214,7 +213,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	public VersionedContent getRecentContent(Mailing m, ContentType type) {
 		
 		PageRequest preq = new PageRequest(0, 1, Sort.Direction.DESC, "dateCreated");
-		Collection<ContentType> types = Collections.emptyList();
+		Collection<ContentType> types = new LinkedList<>();
 		types.add(type);
 		Page<VersionedContent> result = vcRepo.findByForeignIdAndType(m.getId(), types , preq);
 		if (result.getTotalElements() == 0)

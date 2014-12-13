@@ -21,7 +21,8 @@
 						<h4>Templates in {{pack.name}}</h4>
 						<div data-ng-include data-src="'./js/modules/templates/tmpl/templates/table.html'" data-ng-if="!template"></div>
 						<div data-ng-include data-src="'./js/modules/templates/tmpl/templates/form.html'" data-ng-if="template"></div>
-						<button class="btn btn-primary pull-right" data-ng-click="template = {}" data-ng-show="!template.id">
+						
+						<button class="btn btn-primary pull-right" data-ng-click="addTemplate()" data-ng-show="!template.id">
 							<span class="fa fa-plus"></span> Template
 						</button>
 					</div>
@@ -30,7 +31,7 @@
 						<h4>Widgets für Template {{template.name}}</h4>
 						<div data-ng-include data-src="'./js/modules/templates/tmpl/widgets/table.html'" data-ng-if="!widget"></div>
 						<div data-ng-include data-src="'./js/modules/templates/tmpl/widgets/form.html'" data-ng-if="widget"></div>
-						<button class="btn btn-primary pull-right" data-ng-click="widget = {}" data-ng-show="!widget.id">
+						<button class="btn btn-primary pull-right" data-ng-click="addWidget()" data-ng-show="!widget.id">
 							<span class="fa fa-plus"></span> Widget
 						</button>
 					</div>

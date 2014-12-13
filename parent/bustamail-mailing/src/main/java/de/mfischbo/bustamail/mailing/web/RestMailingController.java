@@ -94,8 +94,8 @@ public class RestMailingController extends BaseApiController {
 		m.setSenderName(dto.getSenderName());
 		m.setSubject(dto.getSubject());
 
-		if (dto.getTemplate() != null && dto.getTemplate().getId() != null) {
-			Template t = tService.getTemplateById(dto.getTemplate().getId());
+		if (dto.getTemplateId() != null) {
+			Template t = tService.getTemplateById(dto.getTemplateId());
 			m.setTemplate(t);
 		}
 		m = service.createMailing(m);

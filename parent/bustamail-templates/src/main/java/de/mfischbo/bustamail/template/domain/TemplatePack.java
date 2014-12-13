@@ -1,25 +1,31 @@
 package de.mfischbo.bustamail.template.domain;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.media.domain.MediaImage;
+import de.mfischbo.bustamail.views.TemplatePackDetailView;
 
 @Document(collection = "TemplatePack")
 public class TemplatePack extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = 8606991297872941503L;
 
+	@JsonView(Object.class)
 	private String			name;
-	
+
+	@JsonView(Object.class)
 	private String			description;
 
-	private List<Template>	templates;
-	
 	private MediaImage		themeImage;
-	
+
+	@JsonView(TemplatePackDetailView.class)
+	private List<Template>	templates = new LinkedList<>();
 	
 	public String getName() {
 		return name;
