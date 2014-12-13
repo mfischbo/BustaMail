@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
-import de.mfischbo.bustamail.media.domain.MediaImage;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.views.TemplatePackDetailView;
 
 @Document(collection = "TemplatePack")
@@ -22,7 +22,7 @@ public class TemplatePack extends OwnedBaseDomain {
 	@JsonView(Object.class)
 	private String			description;
 
-	private MediaImage		themeImage;
+	private Media		themeImage;
 
 	@JsonView(TemplatePackDetailView.class)
 	private List<Template>	templates = new LinkedList<>();
@@ -51,11 +51,11 @@ public class TemplatePack extends OwnedBaseDomain {
 		this.templates = templates;
 	}
 
-	public MediaImage getThemeImage() {
+	public Media getThemeImage() {
 		return themeImage;
 	}
 
-	public void setThemeImage(MediaImage themeImage) {
+	public void setThemeImage(Media themeImage) {
 		this.themeImage = themeImage;
 	}
 }

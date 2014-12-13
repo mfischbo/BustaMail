@@ -1,5 +1,7 @@
 package de.mfischbo.bustamail.template.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.ZipInputStream;
 
@@ -12,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
-import de.mfischbo.bustamail.media.domain.MediaImage;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 
@@ -33,28 +35,12 @@ public interface TemplateService {
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public void						deleteTemplatePack(TemplatePack pack);
 	public void						exportAsZip(ObjectId owner, TemplatePack tp);
-	public MediaImage				createTemplatePackImage(TemplatePack pack, MediaImage image);
+	public Media					createTemplatePackImage(TemplatePack pack, Media image, InputStream data) throws IOException;
 
 	public TemplatePack				importTemplatePack(ObjectId owner, ZipInputStream stream) throws BustaMailException;
 	public void						exportTemplatePack(TemplatePack pack, OutputStream stream) throws BustaMailException;
 	public TemplatePack				cloneTemplatePack(TemplatePack  pack) throws EntityNotFoundException;
 	
-	
-	
 	@PostAuthorize("hasPermission(returnObject.templatePack.owner, 'Templates.USE_TEMPLATES')")
 	public Template					getTemplateById(ObjectId template) throws EntityNotFoundException;
-
-	/*
-	@PreAuthorize("hasPermission(#template.templatePack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Template					createTemplate(TemplatePack pack, Template template);
-	public Template					updateTemplate(Template template);
-	public void						deleteTemplate(Template template);
-	public MediaImage				createTemplateImage(Template template, MediaImage image);
-	public Media					createTemplateResource(Template template, Media media);
-	
-	public Widget					getWidgetById(ObjectId id) throws EntityNotFoundException;
-	public Widget					createWidget(TemplatePack tp, Template t, Widget w);
-	public Widget					updateWidget(TemplatePack tp, Template t, Widget w);
-	public void						deleteWidget(TemplatePack tp, Template t, Widget w);
-	*/
 }

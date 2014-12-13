@@ -5,10 +5,10 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
@@ -37,7 +37,6 @@ import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.repository.DirectoryRepository;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.event.OrgUnitCreatedEvent;
@@ -84,6 +83,24 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		return convertFile(file);
 	}
 	
+	@Override
+	public void getContent(Media m, OutputStream stream) throws IOException {
+		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(m.getId())));
+		if (f != null) {
+			StreamUtils.copy(f.getInputStream(), stream);
+		}
+	}
+	
+	@Override
+	public InputStream getContent(Media m) {
+		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(m.getId())));
+		if (f != null) {
+			return f.getInputStream();
+		}
+		return null;
+	}
+	
+	
 	private Media convertFile(GridFSDBFile file) {
 		Media m = new Media();
 		m.setId((ObjectId) file.getId());
@@ -91,31 +108,29 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		m.setMimetype((String) file.getMetaData().get("mimetype"));
 		m.setName(file.getFilename());
 		m.setOwner((ObjectId) file.getMetaData().get("owner"));
+		
+		Directory d = dRepo.findOne((ObjectId) file.getMetaData().get("directory"));
+		m.setDirectory(d);
 		return m;
 	}
 	
 	@Override
-	public List<MediaImage> getFilesByDirectory(Directory dir) {
+	public List<Media> getFilesByDirectory(Directory dir) {
 		
 		List<GridFSDBFile> files = gridTemplate.find(
 				Query.query(Criteria.where("metadata.directory.$id").is(dir.getId())));
 		
-		List<MediaImage>   retval = new ArrayList<>(files.size());
+		List<Media>   retval = new ArrayList<>(files.size());
 		for (GridFSDBFile f : files) {
-			MediaImage i = new MediaImage();
-			i.setId((ObjectId) f.getId());
-			i.setDescription((String) f.getMetaData().get("description"));
-			i.setHeight((Integer) f.getMetaData().get("height"));
-			i.setWidth((Integer) f.getMetaData().get("width"));
-			retval.add(i);
+			retval.add(convertFile(f));
 		}
 		return retval;
 	}
 	
 	@Override
-	public Media createMedia(Media media) {
+	public Media createMedia(Media media, InputStream data) throws IOException {
 		
-		String mimetype = tika.detect(media.getData()).toLowerCase();
+		String mimetype = tika.detect(data).toLowerCase();
 		if (mimetype.equals("text/plain")) {
 			if (media.getExtension().equalsIgnoreCase("css"))
 				mimetype = "text/css";
@@ -125,93 +140,30 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		media.setMimetype(mimetype);
 		
 		if (mimetype.startsWith("image")) {
-			return processImage(media);
+			return processImage(media, data);
 		} else {
-			GridFSFile file = gridTemplate.store(media.getDataStream(), media.getName(), media);
+			GridFSFile file = gridTemplate.store(data, media.getName(), media.getMetaData());
 			media.setId((ObjectId) file.getId());
 			return media;
 		}
 	}
 	
-	@Override
-	public Media createCopy(Media media, String filename) {
-		Media m2 = new Media();
-		m2.setData(media.getData());
-		m2.setDescription(media.getDescription());
-		m2.setDirectory(media.getDirectory());
-		m2.setMimetype(media.getMimetype());
-		m2.setOwner(media.getOwner());
+
+
+	private Media processImage(Media m, InputStream data) {
 	
-		if (filename != null && !filename.isEmpty()) 
-			m2.setName(filename);
-		else
-			m2.setName(media.getName());
-		
-		return createMedia(m2);
-	}
-	
-	
-	@Override
-	@Transactional
-	public MediaImage createMediaImage(MediaImage image) {
-		String mimetype = tika.detect(image.getData()).toLowerCase();
-		image.setMimetype(mimetype);
-		image = processImage(image);
-	
-		try {
-			writeToDisk(image, true);
-		} catch (Exception ex) {
-			log.error("Failed writing media images to disk. Cause: " + ex.getMessage());
-		}
-		
-		return image;
-	}
-	
-	private void writeToDisk(Media image, boolean includeVariants) throws IOException {
-		File outputDir = this.mediaDir;
-	
-		File f = new File(outputDir.getAbsolutePath() + "/" + image.getId());
-		FileOutputStream fout = new FileOutputStream(f);
-		fout.write(image.getData());
-		fout.flush();
-		fout.close();
-	
-		if (includeVariants && image instanceof MediaImage) {
-			for (MediaImage i : ((MediaImage) image).getVariants()) {
-				File fv = new File(outputDir.getAbsolutePath() + "/" + i.getId());
-				fout = new FileOutputStream(fv);
-				fout.write(image.getData());
-				fout.flush();
-				fout.close();
-			}
-		}
-	}
-	
-	
-	private MediaImage processImage(Media m) {
-		
-		MediaImage mi = new MediaImage();
-		mi.setOwner(m.getOwner());
-		mi.setDirectory(m.getDirectory());
-		mi.setData(m.getData());
-		mi.setName(m.getName());
-		mi.setDescription(m.getDescription());
-		mi.setMimetype(m.getMimetype());
-		mi.setVariants(new LinkedList<MediaImage>());
-	
-		ByteArrayInputStream bai = new ByteArrayInputStream(mi.getData());
 		BufferedImage bim = null;
 		try {
-			bim = ImageIO.read(bai);
+			bim = ImageIO.read(data);
 		} catch (Exception ex) {
 			
 		}
 		if (bim != null) {
-			mi.setWidth(bim.getWidth());
-			mi.setHeight(bim.getHeight());
+			m.setWidth(bim.getWidth());
+			m.setHeight(bim.getHeight());
 		
 			ColorSpace cs = bim.getColorModel().getColorSpace();
-			mi.setAwtColorSpace(cs.getType());
+			m.setColorspace(cs.getType());
 		}
 		
 		// create smaller variants
@@ -219,24 +171,23 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		for (int s : sizes) {
 			if (bim.getWidth() > s) {
 				BufferedImage res = Scalr.resize(bim, s);
-				MediaImage imn = new MediaImage();
-				imn.setAwtColorSpace(mi.getAwtColorSpace());
-				imn.setDescription(mi.getDescription());
+				Media imn = new Media();
+				imn.setColorspace(m.getColorspace());
+				imn.setDescription(m.getDescription());
 				imn.setHeight(res.getHeight());
 				imn.setWidth(res.getWidth());
-				imn.setMimetype(mi.getMimetype());
-				imn.setName(mi.getName());
-				imn.setOwner(mi.getOwner());
-				imn.setParent(mi);
+				imn.setMimetype(m.getMimetype());
+				imn.setName(m.getName());
+				imn.setOwner(m.getOwner());
 			
-				byte[] data = getImageData(res, imn.getMimetype());
-				if (data != null)
-					imn.setData(data);
-				mi.getVariants().add(imn);
+				byte[] thd = getImageData(res, imn.getMimetype());
+				GridFSFile f = gridTemplate.store(new ByteArrayInputStream(thd), imn.getName(), imn.getMetaData());
+				m.getVariants().add((ObjectId) f.getId());
 			}
 		}
-		//return miRepo.save(mi);
-		return null;
+		gridTemplate.store(new ByteArrayInputStream(getImageData(bim, m.getMimetype())),
+				m.getName(), m.getMetaData());
+		return m;
 	}
 	
 	
@@ -264,22 +215,41 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		return null;
 	}
 
+	
+	
 	@Override
 	public Media updateMedia(Media media) throws EntityNotFoundException {
-		if (media instanceof Media) {
-			//media = mRepo.save(media);
-			try {
-				writeToDisk(media, false);
-			} catch (Exception ex) {
-				log.error("Failed writing media contents to disk. Cause: " + ex.getMessage());
-			}
-		}
+		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(media.getId())));
+		f.setMetaData(media.getMetaData());
+		f.save();
 		return media;
 	}
 
 	@Override
+	public Media createCopy(Media media, String filename) throws IOException {
+		Media m2 = new Media();
+		m2.setDescription(media.getDescription());
+		m2.setDirectory(media.getDirectory());
+		m2.setMimetype(media.getMimetype());
+		m2.setOwner(media.getOwner());
+	
+		if (filename != null && !filename.isEmpty()) 
+			m2.setName(filename);
+		else
+			m2.setName(media.getName());
+	
+		
+		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(media.getId())));
+		return createMedia(m2, f.getInputStream());
+	}
+	
+	
+	@Override
 	public void deleteMedia(Media media) throws EntityNotFoundException {
 		gridTemplate.delete(Query.query(Criteria.where("_id").is(media.getId())));
+		for (ObjectId v : media.getVariants()) {
+			gridTemplate.delete(Query.query(Criteria.where("_id").is(v)));
+		}
 	}
 
 	@Override

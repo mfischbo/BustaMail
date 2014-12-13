@@ -1,5 +1,7 @@
 package de.mfischbo.bustamail.template.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,6 @@ import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
@@ -76,8 +77,8 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		if (pack.getTemplates() != null) {
 			for (Template t : pack.getTemplates()) {
 				if (t.getImages() != null) {
-					List<MediaImage> persisted = new ArrayList<MediaImage>(t.getImages().size());
-					for (MediaImage i : t.getImages()) {
+					List<Media> persisted = new ArrayList<Media>(t.getImages().size());
+					for (Media i : t.getImages()) {
 						i.setOwner(pack.getOwner());
 						persisted.add(mediaService.createMediaImage(i));
 					}
@@ -234,11 +235,10 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				tn.getWidgets().add(wn);
 			}
 			
-			tn.setImages(new LinkedList<MediaImage>());
-			for (MediaImage mo : to.getImages()) {
-				MediaImage m = new MediaImage();
-				m.setAwtColorSpace(mo.getAwtColorSpace());
-				m.setData(mo.getData());
+			tn.setImages(new LinkedList<Media>());
+			for (Media mo : to.getImages()) {
+				Media m = new Media();
+				m.setAwtColorSpace(mo.getColorspace());
 				m.setDescription(mo.getDescription());
 				m.setName(mo.getName());
 				m.setOwner(mo.getOwner());
@@ -276,9 +276,9 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 
 	@Override
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public MediaImage createTemplatePackImage(@P("pack") TemplatePack pack, MediaImage image) {
+	public Media createTemplatePackImage(@P("pack") TemplatePack pack, Media image, InputStream data) throws IOException {
 		image.setOwner(pack.getOwner());
-		MediaImage retval = mediaService.createMediaImage(image);
+		Media retval = mediaService.createMedia(image, data);
 		pack.setThemeImage(retval);
 		tpRepo.save(pack);
 		return retval;

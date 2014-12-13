@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.mfischbo.bustamail.common.web.BaseApiController;
-import de.mfischbo.bustamail.media.domain.MediaImage;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.service.TemplateService;
 import de.mfischbo.bustamail.views.TemplatePackDetailView;
@@ -103,14 +103,13 @@ public class RestTemplatePackController extends BaseApiController {
 	
 	
 	@RequestMapping(value = "/packs/{id}/themeImage", method = RequestMethod.POST)
-	public MediaImage createThemeImage(@PathVariable("id") ObjectId packId, MultipartFile file) throws Exception {
+	public Media createThemeImage(@PathVariable("id") ObjectId packId, MultipartFile file) throws Exception {
 		TemplatePack tp = service.getTemplatePackById(packId);
 	
-		MediaImage im = new MediaImage();
-		im.setData(file.getBytes());
+		Media im = new Media();
 		im.setOwner(tp.getOwner());
 		im.setName("Theme for " + tp.getName());
-		return service.createTemplatePackImage(tp, im);
+		return service.createTemplatePackImage(tp, im, file.getInputStream());
 	}
 	
 	@RequestMapping(value = "/packs/{id}/clone", method = RequestMethod.PUT)

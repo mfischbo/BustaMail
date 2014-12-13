@@ -10,14 +10,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import de.mfischbo.bustamail.common.web.BaseApiController;
 import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.media.domain.MediaImage;
 import de.mfischbo.bustamail.media.service.MediaService;
 
+/**
+ * RESTful controller handling directories
+ * @author M. Fischboeck 
+ *
+ */
 @RestController
 @RequestMapping("/api/media/directory")
 public class RestDirectoryController extends BaseApiController {
@@ -41,35 +44,31 @@ public class RestDirectoryController extends BaseApiController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public List<MediaImage> getDirectoryById(@PathVariable("id") ObjectId directoryId) throws Exception {
+	public List<Media> getDirectoryById(@PathVariable("id") ObjectId directoryId) throws Exception {
 		Directory d = service.getDirectoryById(directoryId);
 		return service.getFilesByDirectory(d);
 	}
 	
-	
-	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+
+	/**
+	 * Creates a new directory in the directory given the id
+	 * @param parentDirectoryId The id of the parent directory
+	 * @param dir The directory to be created
+	 * @return The persisted instance
+	 * @throws Exception On any error
+	 */
+	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
 	public Directory createDirectory(@PathVariable("id") ObjectId parentDirectoryId, @RequestBody Directory dir) throws Exception {
 		Directory d = service.getDirectoryById(parentDirectoryId);
 		return service.createDirectory(d.getOwner(), d, dir);
 	}
 	
-	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
-	public Media createFile(@PathVariable("id") ObjectId directoryId, MultipartFile file) throws Exception {
-		Directory d = service.getDirectoryById(directoryId);
-		Media m = new Media();
-		m.setData(file.getBytes());
-		m.setDirectory(d);
-		m.setName(file.getOriginalFilename());
-		m.setOwner(d.getOwner());
-		return service.createMedia(m);
-	}
-
 	/**
 	 * Updates the given directory
-	 * @param directoryId
-	 * @param dto
-	 * @return
-	 * @throws Exception
+	 * @param directoryId The id of the directory to be updated
+	 * @param dto The data of the update
+	 * @return The persisted instance
+	 * @throws Exception On any error
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
 	public Directory updateDirectory(@PathVariable("id") ObjectId directoryId, @RequestBody Directory dto) throws Exception {
@@ -78,7 +77,12 @@ public class RestDirectoryController extends BaseApiController {
 		d.setDescription(dto.getDescription());
 		return service.updateDirectory(d);
 	}
-	
+
+	/**
+	 * Deletes the given directory
+	 * @param directoryId The id of the directory
+	 * @throws Exception On any error
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteDirectory(@PathVariable("id") ObjectId directoryId) throws Exception {
 		Directory d = service.getDirectoryById(directoryId);

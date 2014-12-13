@@ -8,7 +8,6 @@ import java.util.Map;
 import org.bson.types.ObjectId;
 
 import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.media.domain.MediaImage;
 
 public class Template {
 	
@@ -26,7 +25,7 @@ public class Template {
 
 	private List<Widget>	widgets = new LinkedList<>();
 
-	private List<MediaImage>	images = new LinkedList<>();
+	private List<Media>		images = new LinkedList<>();
 	
 	private List<Media>			resources = new LinkedList<>();
 
@@ -92,11 +91,11 @@ public class Template {
 		this.widgets = widgets;
 	}
 
-	public List<MediaImage> getImages() {
+	public List<Media> getImages() {
 		return images;
 	}
 
-	public void setImages(List<MediaImage> images) {
+	public void setImages(List<Media> images) {
 		this.images = images;
 	}
 
