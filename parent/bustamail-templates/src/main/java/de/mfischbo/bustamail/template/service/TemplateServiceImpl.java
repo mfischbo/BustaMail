@@ -1,7 +1,6 @@
 package de.mfischbo.bustamail.template.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +70,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	}
 
 	@Override
-	public TemplatePack createTemplatePack(TemplatePack pack) throws EntityNotFoundException {
+	public TemplatePack createTemplatePack(TemplatePack pack) throws EntityNotFoundException, IOException {
 		
 		// create media images for each template first
 		if (pack.getTemplates() != null) {
@@ -80,7 +79,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 					List<Media> persisted = new ArrayList<Media>(t.getImages().size());
 					for (Media i : t.getImages()) {
 						i.setOwner(pack.getOwner());
-						persisted.add(mediaService.createMediaImage(i));
+						persisted.add(mediaService.createMedia(i));
 					}
 					t.setImages(persisted);
 				}
@@ -100,17 +99,17 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			zip.write(jacksonMapper.writeValueAsBytes(pack));
 			
 			zip.putNextEntry(new ZipEntry(pack.getThemeImage().getId().toString()));
-			zip.write(pack.getThemeImage().getData());
+			zip.write(StreamUtils.copyToByteArray(pack.getThemeImage().getData()));
 	
 			for (Template tm : pack.getTemplates()) {
-				for (MediaImage i : tm.getImages()) {
+				for (Media i : tm.getImages()) {
 					zip.putNextEntry(new ZipEntry(i.getId().toString()));
-					zip.write(i.getData());
+					zip.write(StreamUtils.copyToByteArray(i.getData()));
 				}
 				
 				for (Media r : tm.getResources()) {
 					zip.putNextEntry(new ZipEntry(r.getId().toString()));
-					zip.write(r.getData());
+					zip.write(StreamUtils.copyToByteArray(r.getData()));
 				}
 			}
 			zip.flush();
@@ -127,7 +126,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	
 	@Override
 	@PreAuthorize("hasPermission(#owner, 'Templates.MANAGE_TEMPLATES')")
-	public TemplatePack importTemplatePack(ObjectId owner, ZipInputStream stream) throws BustaMailException {
+	public TemplatePack importTemplatePack(ObjectId owner, ZipInputStream stream) throws BustaMailException, IOException{
 	
 		// read all entries into a data structure
 		TemplatePack tin = null;
@@ -185,13 +184,12 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			//nt = templateRepo.save(nt);
 			
 			// copy all images and resources for this template
-			for (MediaImage image : t.getImages()) {
-				MediaImage mi = new MediaImage();
+			for (Media image : t.getImages()) {
+				Media mi = new Media();
 				mi.setName(image.getName());
-				mi.setData(files.get(image.getId()));
 				mi.setOwner(owner);
 				mi.setDescription(image.getDescription());
-				mi = mediaService.createMediaImage(mi);
+				mi = mediaService.createMedia(mi);
 				nt.getImages().add(mi);
 			}
 			
@@ -200,7 +198,6 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				m.setName(res.getName());
 				m.setDescription(res.getDescription());
 				m.setOwner(owner);
-				m.setData(files.get(m.getId()));
 				m = mediaService.createMedia(m);
 				nt.getResources().add(m);
 			}
@@ -212,7 +209,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	
 	@Override
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public TemplatePack cloneTemplatePack(@P("pack") TemplatePack o) throws EntityNotFoundException {
+	public TemplatePack cloneTemplatePack(@P("pack") TemplatePack o) throws EntityNotFoundException, IOException {
 		TemplatePack n = new TemplatePack();
 		n.setDescription(o.getDescription());
 		n.setName("Copy of " + o.getName());
@@ -238,7 +235,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 			tn.setImages(new LinkedList<Media>());
 			for (Media mo : to.getImages()) {
 				Media m = new Media();
-				m.setAwtColorSpace(mo.getColorspace());
+				m.setColorspace(mo.getColorspace());
 				m.setDescription(mo.getDescription());
 				m.setName(mo.getName());
 				m.setOwner(mo.getOwner());
@@ -276,9 +273,9 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 
 	@Override
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public Media createTemplatePackImage(@P("pack") TemplatePack pack, Media image, InputStream data) throws IOException {
+	public Media createTemplatePackImage(@P("pack") TemplatePack pack, Media image) throws IOException {
 		image.setOwner(pack.getOwner());
-		Media retval = mediaService.createMedia(image, data);
+		Media retval = mediaService.createMedia(image);
 		pack.setThemeImage(retval);
 		tpRepo.save(pack);
 		return retval;

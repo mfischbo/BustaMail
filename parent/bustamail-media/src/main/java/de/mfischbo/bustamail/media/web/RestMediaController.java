@@ -35,7 +35,8 @@ public class RestMediaController extends BaseApiController {
 	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public Media createMedia(@RequestBody Media m, MultipartFile file) throws Exception {
-		return service.createMedia(m, file.getInputStream());
+		m.setData(file.getInputStream());
+		return service.createMedia(m);
 	}
 
 	/**

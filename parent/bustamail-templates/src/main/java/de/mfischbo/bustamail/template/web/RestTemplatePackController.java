@@ -109,7 +109,8 @@ public class RestTemplatePackController extends BaseApiController {
 		Media im = new Media();
 		im.setOwner(tp.getOwner());
 		im.setName("Theme for " + tp.getName());
-		return service.createTemplatePackImage(tp, im, file.getInputStream());
+		im.setData(file.getInputStream());
+		return service.createTemplatePackImage(tp, im);
 	}
 	
 	@RequestMapping(value = "/packs/{id}/clone", method = RequestMethod.PUT)

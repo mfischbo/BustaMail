@@ -128,9 +128,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 	
 	@Override
-	public Media createMedia(Media media, InputStream data) throws IOException {
+	public Media createMedia(Media media) throws IOException {
 		
-		String mimetype = tika.detect(data).toLowerCase();
+		String mimetype = tika.detect(media.getData()).toLowerCase();
 		if (mimetype.equals("text/plain")) {
 			if (media.getExtension().equalsIgnoreCase("css"))
 				mimetype = "text/css";
@@ -140,9 +140,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		media.setMimetype(mimetype);
 		
 		if (mimetype.startsWith("image")) {
-			return processImage(media, data);
+			return processImage(media, media.getData());
 		} else {
-			GridFSFile file = gridTemplate.store(data, media.getName(), media.getMetaData());
+			GridFSFile file = gridTemplate.store(media.getData(), media.getName(), media.getMetaData());
 			media.setId((ObjectId) file.getId());
 			return media;
 		}
@@ -240,7 +240,8 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	
 		
 		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(media.getId())));
-		return createMedia(m2, f.getInputStream());
+		m2.setData(f.getInputStream());
+		return createMedia(m2);
 	}
 	
 	

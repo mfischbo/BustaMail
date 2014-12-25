@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.joda.time.DateTime;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import de.mfischbo.bustamail.common.domain.Gender;
 import de.mfischbo.bustamail.security.domain.Actor;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.domain.User;
+import de.mfischbo.bustamail.security.event.OrgUnitCreatedEvent;
 import de.mfischbo.bustamail.security.repository.OrgUnitRepository;
 import de.mfischbo.bustamail.security.repository.UserRepository;
 import de.mfischbo.bustamail.security.service.PermissionProvider;
@@ -33,6 +35,9 @@ public class InitializationController {
 
 	@Inject
 	private List<PermissionProvider>	permProviders;	
+	
+	@Inject
+	private ApplicationEventPublisher	publisher;
 	
 	@RequestMapping(value = "", method = RequestMethod.PUT)
 	public void setup() {
@@ -85,5 +90,8 @@ public class InitializationController {
 		ou.setParent(root);
 		ou.setActors(rootActors);
 		ou = ouRepo.save(ou);
+	
+		publisher.publishEvent(new OrgUnitCreatedEvent(this, root));
+		publisher.publishEvent(new OrgUnitCreatedEvent(this, ou));
 	}
 }

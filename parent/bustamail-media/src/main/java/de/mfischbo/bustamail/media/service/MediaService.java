@@ -29,13 +29,10 @@ public interface MediaService {
 	List<Media> 	getFilesByDirectory(@P("d") Directory d);
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
-	Media			createMedia(@P("m") Media media, InputStream data) throws IOException;
+	Media			createMedia(@P("m") Media media) throws IOException;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			createCopy(@P("m") Media media, String filename) throws IOException;
-	
-//	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
-//	Media			createMediaImage(@P("m") Media media);
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			updateMedia(@P("m") Media media) throws EntityNotFoundException;

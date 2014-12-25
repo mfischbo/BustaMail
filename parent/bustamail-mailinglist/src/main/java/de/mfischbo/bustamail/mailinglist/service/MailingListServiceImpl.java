@@ -197,7 +197,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		SubscriptionImportDTO retval = new SubscriptionImportDTO();
 		retval.setMediaId(m.getId());
 		
-		TableDataReader reader = new TableDataReader(m.getDataStream(), m.getMimetype(), m.getName());
+		TableDataReader reader = new TableDataReader(m.getData(), m.getMimetype(), m.getName());
 		retval.setCsvQuoteChar(reader.getEstimatedQuoteChar());
 		retval.setCsvDelimiter(reader.getEstimatedDelimiterChar());
 		retval.setType(reader.getType());
@@ -407,7 +407,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		// if cache results in null reparse
 		if (data == null) {
 			try {
-				TableDataReader reader = new TableDataReader(media.getDataStream(), media.getMimetype(), media.getName());
+				TableDataReader reader = new TableDataReader(media.getData(), media.getMimetype(), media.getName());
 				reader.setCsvDelimiterChar(settings.getCsvDelimiter());
 				reader.setCsvQuoteChar(settings.getCsvQuoteChar());
 				reader.setReaderEncoding(Charset.forName(settings.getEncoding().toString()));

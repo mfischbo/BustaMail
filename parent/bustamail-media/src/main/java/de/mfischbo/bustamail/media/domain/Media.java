@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.media.domain;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,6 +38,9 @@ public class Media extends OwnedBaseDomain {
 	@DBRef
 	private	Directory	directory;
 
+	@Transient
+	private InputStream 	data;
+	
 	public String getName() {
 		return name;
 	}
@@ -106,6 +110,16 @@ public class Media extends OwnedBaseDomain {
 
 	public void setVariants(List<ObjectId> variants) {
 		this.variants = variants;
+	}
+	
+	@Transient 
+	public InputStream getData() {
+		return this.data;
+	}
+	
+	@Transient
+	public void setData(InputStream stream) {
+		this.data = stream;
 	}
 
 	@Transient
