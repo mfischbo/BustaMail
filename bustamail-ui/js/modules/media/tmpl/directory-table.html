@@ -15,7 +15,7 @@
 		</tr>
 		<tr data-ng-repeat="f in cwd.files">
 			<td>
-				<img data-ng-src="./img/media/{{f.id}}" data-ng-if="f.mimetype.indexOf('image/') == 0" width="64">
+				<img data-ng-src="/api/files/{{f.id}}?w=64" data-ng-if="f.mimetype.indexOf('image/') == 0" width="64">
 			</td>
 			<td>{{f.name}}</td>
 			<td>

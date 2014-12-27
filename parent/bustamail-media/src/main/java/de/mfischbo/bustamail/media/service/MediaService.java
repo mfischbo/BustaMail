@@ -1,6 +1,5 @@
 package de.mfischbo.bustamail.media.service;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -20,7 +19,10 @@ public interface MediaService {
 	Media			getMediaById(ObjectId id) throws EntityNotFoundException;
 
 	@PreAuthorize("hasPermission(#m.owner, 'Media.USE_MEDIA')")
-	void			getContent(Media m, OutputStream stream) throws IOException;
+	void			getContent(Media m, OutputStream stream) throws Exception;
+	
+	@PreAuthorize("hasPermission(#m.owner, 'Media.USE_MEDIA')")
+	void 			getContent(Media m, int preferedSize, OutputStream stream) throws Exception;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.USE_MEDIA'")
 	InputStream		getContent(Media m);
@@ -29,10 +31,10 @@ public interface MediaService {
 	List<Media> 	getFilesByDirectory(@P("d") Directory d);
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
-	Media			createMedia(@P("m") Media media) throws IOException;
+	Media			createMedia(@P("m") Media media) throws Exception;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
-	Media			createCopy(@P("m") Media media, String filename) throws IOException;
+	Media			createCopy(@P("m") Media media, String filename) throws Exception;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			updateMedia(@P("m") Media media) throws EntityNotFoundException;

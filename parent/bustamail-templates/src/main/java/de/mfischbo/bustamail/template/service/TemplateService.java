@@ -1,6 +1,5 @@
 package de.mfischbo.bustamail.template.service;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipInputStream;
 
@@ -26,7 +25,7 @@ public interface TemplateService {
 	public TemplatePack				getTemplatePackById(ObjectId id) throws EntityNotFoundException;
 
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
-	public TemplatePack				createTemplatePack(TemplatePack pack) throws EntityNotFoundException, IOException;
+	public TemplatePack				createTemplatePack(TemplatePack pack) throws Exception;
 	
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public TemplatePack				updateTemplatePack(@P("pack") TemplatePack pack) throws EntityNotFoundException;
@@ -34,11 +33,11 @@ public interface TemplateService {
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public void						deleteTemplatePack(TemplatePack pack);
 	public void						exportAsZip(ObjectId owner, TemplatePack tp);
-	public Media					createTemplatePackImage(TemplatePack pack, Media image) throws IOException;
+	public Media					createTemplatePackImage(TemplatePack pack, Media image) throws Exception;
 
-	public TemplatePack				importTemplatePack(ObjectId owner, ZipInputStream stream) throws BustaMailException, IOException;
+	public TemplatePack				importTemplatePack(ObjectId owner, ZipInputStream stream) throws Exception;
 	public void						exportTemplatePack(TemplatePack pack, OutputStream stream) throws BustaMailException;
-	public TemplatePack				cloneTemplatePack(TemplatePack  pack) throws EntityNotFoundException, IOException;
+	public TemplatePack				cloneTemplatePack(TemplatePack  pack) throws Exception;
 	
 	@PostAuthorize("hasPermission(returnObject.templatePack.owner, 'Templates.USE_TEMPLATES')")
 	public Template					getTemplateById(ObjectId template) throws EntityNotFoundException;

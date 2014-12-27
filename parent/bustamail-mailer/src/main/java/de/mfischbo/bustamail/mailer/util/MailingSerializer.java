@@ -6,7 +6,6 @@ import javax.inject.Inject;
 
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,9 +18,6 @@ public class MailingSerializer {
 
 	@Inject
 	private	ObjectMapper			mapper;	
-	
-	@Inject
-	private FreeMarkerConfigurer	fmCfger;
 	
 	private boolean					isDevMode;
 	private String					testAddress;

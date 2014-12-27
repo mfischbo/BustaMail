@@ -67,6 +67,15 @@ public class ApplicationConfig {
 		factory.setMaxFileSize("10MB");
 		return factory.createMultipartConfig();
 	}
+
+	/*
+	@Bean
+	public CommonsMultipartResolver getMPResolver() {
+		CommonsMultipartResolver retval = new CommonsMultipartResolver();
+		retval.setMaxUploadSize(1024 * 1024 * 12);
+		return retval;
+	}
+	*/
 	
 	@Bean
 	public FreeMarkerConfigurer getFreeMarkerConfigurer() {

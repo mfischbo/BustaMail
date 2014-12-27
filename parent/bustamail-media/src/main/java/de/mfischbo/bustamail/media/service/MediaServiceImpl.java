@@ -34,6 +34,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 
 import de.mfischbo.bustamail.common.service.BaseService;
+import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
@@ -47,6 +48,8 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 
 	public static final String UI_DOCUMENT_ROOT_KEY = "de.mfischbo.bustamail.ui.documentRoot";
 	public static final String UI_MEDIA_DIRECTORY_KEY = "de.mfischbo.bustamail.ui.mediadir";
+
+	private static final int[] sizes = {1024, 512, 128, 64};
 	
 	@Autowired
 	private DirectoryRepository		dRepo;
@@ -91,6 +94,34 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		}
 	}
 	
+	
+	@Override
+	public void getContent(Media m, int preferedSize, OutputStream stream) throws Exception {
+		if (preferedSize > 1024 || preferedSize == 0) {
+			getContent(m, stream);
+			return;
+		}
+	
+		// find the upper and lower boundary sizes to be returned
+		int s = 1024;
+		if (preferedSize < 1024 && preferedSize > 512) s = 1024;
+		if (preferedSize <= 512 && preferedSize > 128) s = 512;
+		if (preferedSize <= 128 && preferedSize > 64 ) s = 128;
+		if (preferedSize <= 64  && preferedSize > 0  ) s = 64;
+		
+		GridFSDBFile f = gridTemplate.findOne(
+				Query.query(
+						Criteria.where("metadata.parent").is(m.getId())
+						.and("metadata.width").is(s)));
+		if (f != null) {
+			StreamUtils.copy(f.getInputStream(), stream);
+			return;
+		} else {
+			getContent(m, stream);
+			return;
+		}
+	}
+	
 	@Override
 	public InputStream getContent(Media m) {
 		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(m.getId())));
@@ -104,12 +135,18 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	private Media convertFile(GridFSDBFile file) {
 		Media m = new Media();
 		m.setId((ObjectId) file.getId());
-		m.setDescription((String) file.getMetaData().get("description"));
-		m.setMimetype((String) file.getMetaData().get("mimetype"));
+		m.setDescription((String) file.getMetaData().get(Media.KEY_DESCRIPTION));
+		m.setMimetype((String) file.getMetaData().get(Media.KEY_MIMETYPE));
 		m.setName(file.getFilename());
-		m.setOwner((ObjectId) file.getMetaData().get("owner"));
-		
-		Directory d = dRepo.findOne((ObjectId) file.getMetaData().get("directory"));
+		m.setOwner((ObjectId) file.getMetaData().get(Media.KEY_OWNER));
+	
+		// image related data
+		m.setWidth((Integer) 	file.getMetaData().get(Media.KEY_WIDTH));
+		m.setHeight((Integer) 	file.getMetaData().get(Media.KEY_HEIGHT));
+		m.setColorspace((int) 	file.getMetaData().get(Media.KEY_COLORSPACE));
+		m.setParent((ObjectId)	file.getMetaData().get(Media.KEY_PARENT));
+
+		Directory d = dRepo.findOne((ObjectId) file.getMetaData().get(Media.KEY_DIRECTORY));
 		m.setDirectory(d);
 		return m;
 	}
@@ -118,7 +155,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	public List<Media> getFilesByDirectory(Directory dir) {
 		
 		List<GridFSDBFile> files = gridTemplate.find(
-				Query.query(Criteria.where("metadata.directory.$id").is(dir.getId())));
+				Query.query(
+						Criteria.where("metadata.directory").is(dir.getId())
+						.and("metadata.parent").is(null)));
 		
 		List<Media>   retval = new ArrayList<>(files.size());
 		for (GridFSDBFile f : files) {
@@ -128,7 +167,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 	
 	@Override
-	public Media createMedia(Media media) throws IOException {
+	public Media createMedia(Media media) throws Exception {
 		
 		String mimetype = tika.detect(media.getData()).toLowerCase();
 		if (mimetype.equals("text/plain")) {
@@ -140,9 +179,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		media.setMimetype(mimetype);
 		
 		if (mimetype.startsWith("image")) {
-			return processImage(media, media.getData());
+			return processImage(media);
 		} else {
-			GridFSFile file = gridTemplate.store(media.getData(), media.getName(), media.getMetaData());
+			GridFSFile file = gridTemplate.store(media.asStream(), media.getName(), media.getMetaData());
 			media.setId((ObjectId) file.getId());
 			return media;
 		}
@@ -150,43 +189,57 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	
 
 
-	private Media processImage(Media m, InputStream data) {
+	private Media processImage(Media m) throws Exception {
 	
 		BufferedImage bim = null;
 		try {
-			bim = ImageIO.read(data);
+			bim = ImageIO.read(m.asStream());
 		} catch (Exception ex) {
-			
+			log.warn("Error to read image data from input stream. Cause: " + ex.getMessage());
+			throw new BustaMailException(ex.getMessage());
 		}
-		if (bim != null) {
-			m.setWidth(bim.getWidth());
-			m.setHeight(bim.getHeight());
 		
-			ColorSpace cs = bim.getColorModel().getColorSpace();
-			m.setColorspace(cs.getType());
-		}
+		if (bim == null)
+			throw new BustaMailException("Unable to read image from input stream.");
+		
+		m.setWidth(bim.getWidth());
+		m.setHeight(bim.getHeight());
+		
+		ColorSpace cs = bim.getColorModel().getColorSpace();
+		m.setColorspace(cs.getType());
 		
 		// create smaller variants
-		int sizes[] = {1024, 512, 128, 64};
+		List<Media> variants = new ArrayList<Media>(sizes.length);
+		
 		for (int s : sizes) {
 			if (bim.getWidth() > s) {
-				BufferedImage res = Scalr.resize(bim, s);
 				Media imn = new Media();
 				imn.setColorspace(m.getColorspace());
 				imn.setDescription(m.getDescription());
-				imn.setHeight(res.getHeight());
-				imn.setWidth(res.getWidth());
+				imn.setWidth(s);
 				imn.setMimetype(m.getMimetype());
 				imn.setName(m.getName());
 				imn.setOwner(m.getOwner());
-			
-				byte[] thd = getImageData(res, imn.getMimetype());
-				GridFSFile f = gridTemplate.store(new ByteArrayInputStream(thd), imn.getName(), imn.getMetaData());
-				m.getVariants().add((ObjectId) f.getId());
+				imn.setDirectory(m.getDirectory());
+				variants.add(imn);
 			}
 		}
-		gridTemplate.store(new ByteArrayInputStream(getImageData(bim, m.getMimetype())),
+		
+		// persist the parent
+		GridFSFile fsFile = gridTemplate.store(new ByteArrayInputStream(getImageData(bim, m.getMimetype())),
 				m.getName(), m.getMetaData());
+		
+		// persist all variants
+		for (Media v : variants) {
+			v.setParent((ObjectId) fsFile.getId());
+			
+			BufferedImage res = Scalr.resize(bim, v.getWidth());
+			v.setWidth(res.getWidth());
+			v.setHeight(res.getHeight());
+			
+			byte[] thd = getImageData(res, v.getMimetype());
+			gridTemplate.store(new ByteArrayInputStream(thd), v.getName(), v.getMetaData());
+		}
 		return m;
 	}
 	
@@ -226,7 +279,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 
 	@Override
-	public Media createCopy(Media media, String filename) throws IOException {
+	public Media createCopy(Media media, String filename) throws Exception {
 		Media m2 = new Media();
 		m2.setDescription(media.getDescription());
 		m2.setDirectory(media.getDirectory());
@@ -248,9 +301,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Override
 	public void deleteMedia(Media media) throws EntityNotFoundException {
 		gridTemplate.delete(Query.query(Criteria.where("_id").is(media.getId())));
-		for (ObjectId v : media.getVariants()) {
-			gridTemplate.delete(Query.query(Criteria.where("_id").is(v)));
-		}
+		gridTemplate.delete(Query.query(Criteria.where("metadata.parent").is(media.getId())));
 	}
 
 	@Override
