@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.mailing.domain;
 
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
@@ -30,6 +31,8 @@ public class Mailing extends OwnedBaseDomain {
 	@Email
 	@NotBlank
 	private String 		replyAddress;
+	
+	private ObjectId	templateId;
 
 	@DBRef
 	private User		userCreated;
@@ -95,6 +98,14 @@ public class Mailing extends OwnedBaseDomain {
 
 	public void setReplyAddress(String replyAddress) {
 		this.replyAddress = replyAddress;
+	}
+
+	public ObjectId getTemplateId() {
+		return templateId;
+	}
+
+	public void setTemplateId(ObjectId templateId) {
+		this.templateId = templateId;
 	}
 
 	public User getUserCreated() {

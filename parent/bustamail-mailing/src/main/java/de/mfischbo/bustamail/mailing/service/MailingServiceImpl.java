@@ -103,6 +103,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		User current = (User) auth.getPrincipal();
 		m.setUserCreated(current);
 		m.setUserModified(current);
+		m.setTemplateId(t.getId());
 		m = mRepo.save(m);
 		
 		// create a versioned content
