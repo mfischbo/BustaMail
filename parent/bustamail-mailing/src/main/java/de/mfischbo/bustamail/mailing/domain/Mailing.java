@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
-import de.mfischbo.bustamail.template.domain.Template;
 
 @Document(collection = "Mailing")
 public class Mailing extends OwnedBaseDomain {
@@ -31,9 +30,6 @@ public class Mailing extends OwnedBaseDomain {
 	@Email
 	@NotBlank
 	private String 		replyAddress;
-
-	@DBRef
-	private Template	template;
 
 	@DBRef
 	private User		userCreated;
@@ -99,14 +95,6 @@ public class Mailing extends OwnedBaseDomain {
 
 	public void setReplyAddress(String replyAddress) {
 		this.replyAddress = replyAddress;
-	}
-
-	public Template getTemplate() {
-		return template;
-	}
-
-	public void setTemplate(Template template) {
-		this.template = template;
 	}
 
 	public User getUserCreated() {

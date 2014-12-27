@@ -151,9 +151,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		
 		String mimetype = tika.detect(media.getData()).toLowerCase();
 		if (mimetype.equals("text/plain")) {
-			if (media.getExtension().equalsIgnoreCase("css"))
+			if (media.getName().endsWith("css"))
 				mimetype = "text/css";
-			if (media.getExtension().equalsIgnoreCase("js"))
+			if (media.getName().endsWith("js"))
 				mimetype = "text/javascript";
 		}
 		media.setMimetype(mimetype);

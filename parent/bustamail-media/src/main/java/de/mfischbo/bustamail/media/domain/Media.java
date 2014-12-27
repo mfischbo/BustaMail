@@ -93,13 +93,6 @@ public class Media extends OwnedBaseDomain {
 		this.directory = directory;
 	}
 
-	public String getExtension() {
-		if (this.name != null && this.name.contains(".")) {
-			return this.name.substring(this.name.lastIndexOf(".") +1);
-		}
-		return "";
-	}
-
 	public Integer getHeight() {
 		return height;
 	}
@@ -166,7 +159,6 @@ public class Media extends OwnedBaseDomain {
 		r.put(KEY_DIRECTORY, this.directory);
 		r.put(KEY_WIDTH, this.width);
 		r.put(KEY_HEIGHT, this.height);
-		r.put(KEY_EXTENSION, this.getExtension());
 		r.put(KEY_COLORSPACE, this.colorspace);
 		r.put(KEY_OWNER, this.getOwner());
 		r.put(KEY_PARENT, this.parent);
@@ -178,7 +170,6 @@ public class Media extends OwnedBaseDomain {
 	public static final String KEY_DIRECTORY   = "directory";
 	public static final String KEY_WIDTH       = "width";
 	public static final String KEY_HEIGHT		= "height";
-	public static final String KEY_EXTENSION 	= "extension";
 	public static final String KEY_COLORSPACE	= "colorspace";
 	public static final String KEY_OWNER		= "owner";
 	public static final String KEY_PARENT		= "parent";

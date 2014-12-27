@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.views.TemplatePackDetailView;
 
 @Document(collection = "TemplatePack")
 public class TemplatePack extends OwnedBaseDomain {
@@ -22,9 +21,8 @@ public class TemplatePack extends OwnedBaseDomain {
 	@JsonView(Object.class)
 	private String			description;
 
-	private Media		themeImage;
+	private Media			themeImage;
 
-	@JsonView(TemplatePackDetailView.class)
 	private List<Template>	templates = new LinkedList<>();
 	
 	public String getName() {

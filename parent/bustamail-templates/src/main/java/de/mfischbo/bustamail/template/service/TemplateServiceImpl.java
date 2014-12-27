@@ -281,13 +281,9 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	}
 
 	@Override
-	public Template getTemplateById(ObjectId templateId) throws EntityNotFoundException {
+	public TemplatePack getTemplatePackContainingTemplateById(ObjectId templateId) throws EntityNotFoundException {
 		TemplatePack tp = tpRepo.findByTemplateWithId(templateId);
 		checkOnNull(tp);
-		
-		for (Template t : tp.getTemplates()) {
-			if (t.getId().equals(templateId)) return t;
-		}
-		throw new EntityNotFoundException("Unable to find template for id : " + templateId);
+		return tp;
 	}
 }

@@ -13,21 +13,21 @@ public class Template {
 	
 	public static final String SKEY_CELLPADDING_OPTIMIZATION = "enableCellPaddingOptimization";
 
-	private ObjectId	id;
+	private ObjectId		id;
 	
-	private String		name;
+	private String			name;
 	
-	private String		description;
+	private String			description;
+		
+	private String			htmlHead;
 	
-	private String		htmlHead;
-	
-	private String		source;
+	private String			source;
 
 	private List<Widget>	widgets = new LinkedList<>();
 
 	private List<Media>		images = new LinkedList<>();
 	
-	private List<Media>			resources = new LinkedList<>();
+	private List<Media>		resources = new LinkedList<>();
 
 	private Map<String, String>		settings = new LinkedHashMap<>();
 

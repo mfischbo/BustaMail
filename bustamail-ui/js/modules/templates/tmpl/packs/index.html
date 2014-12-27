@@ -22,7 +22,7 @@
 					<tbody>
 						<tr data-ng-repeat="p in packs.content">
 							<td>
-								<img data-ng-src="./img/media/{{p.themeImage.id}}" width="64" data-ng-if="p.themeImage">
+								<img data-ng-src="/api/files/{{p.themeImage.id}}?w=64" width="64" data-ng-if="p.themeImage">
 								<img src="./img/missing-image.png" width="64" data-ng-if="!p.themeImage">	
 							</td>
 							<td>{{p.name}}</td>

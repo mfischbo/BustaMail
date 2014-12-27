@@ -136,6 +136,7 @@ BMApp.Mailing.controller("MailingEnvelopeController", ['$scope', '$http', '$rout
 BMApp.Mailing.controller("MailingCreateController", ['$scope', '$http', '$location', function($scope, $http, $location) {
 	
 	$scope.templates = [];
+	$scope.selectedTemplate = {};
 	$scope.owner = undefined;
 	$scope.mailing = {};
 	
@@ -156,8 +157,8 @@ BMApp.Mailing.controller("MailingCreateController", ['$scope', '$http', '$locati
 
 	$scope.createMailing = function() {
 		var id = $scope.mailing.template;
-		$scope.mailing.template = { id : id };
-		$http.post("/api/mailings/unit/" + $scope.owner, $scope.mailing).success(function(data) {
+		//$scope.mailing.template = { id : id };
+		$http.post("/api/mailings/unit/" + $scope.owner + '?template=' + $scope.selectedTemplate.id, $scope.mailing).success(function(data) {
 			$location.path("/mailings");
 		});
 	};
