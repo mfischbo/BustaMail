@@ -12,6 +12,9 @@ import de.mfischbo.bustamail.security.repository.OwnerMongoRepository;
 public interface DirectoryRepository extends
 		OwnerMongoRepository<Directory, ObjectId> {
 
-	@Query(" { 'owner' : { $in : ?0 } }")
+	@Query(" { 'owner' : { $in : ?0 }, 'parent' : null }")
 	List<Directory> findByOwner(Collection<ObjectId> owners);
+	
+	@Query(" { 'owner' : ?1, 'parent' : ?0 } ")
+	List<Directory> findByParentAndOwner(ObjectId pid, ObjectId owner);
 }

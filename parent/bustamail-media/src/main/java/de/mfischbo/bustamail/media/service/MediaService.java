@@ -29,9 +29,12 @@ public interface MediaService {
 	
 	@PreAuthorize("hasPermission(#d.owner, 'Media.USE_MEDIA')")
 	List<Media> 	getFilesByDirectory(@P("d") Directory d);
-	
+
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			createMedia(@P("m") Media media) throws Exception;
+	
+	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
+	Media			createMedia(@P("m") Media media, Directory directory) throws Exception;
 	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.MANAGE_MEDIA')")
 	Media			createCopy(@P("m") Media media, String filename) throws Exception;
@@ -54,6 +57,9 @@ public interface MediaService {
 	
 	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
 	Directory		getDirectoryById(ObjectId directory) throws EntityNotFoundException;
+	
+	@PreAuthorize("hasPermission(#d.owner, 'Media.MANAGE_MEDIA')")
+	List<Directory> getChildDirectories(@P("d") Directory parent);
 	
 	@PreAuthorize("hasPermission(#owner, 'Media.MANAGE_MEDIA')")
 	Directory		createDirectory(ObjectId owner, Directory parent, Directory directory);

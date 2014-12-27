@@ -35,6 +35,10 @@ BMApp.Media.controller("MediaIndexController", ['$scope', '$http', '$upload', fu
 		$http.get("/api/media/directory/" + val.id).success(function(data) {
 			$scope.cwd.files = data;
 		});
+		
+		$http.get("/api/media/directory/" + val.id + "/children").success(function(data) {
+			$scope.tree.currentNode.children = data;
+		});
 	});
 	
 	
@@ -44,8 +48,8 @@ BMApp.Media.controller("MediaIndexController", ['$scope', '$http', '$upload', fu
 	};
 	
 	$scope.uploadFiles = function() {
+		BMApp.showSpinner();
 		for (var i in $scope.uFiles) {
-			BMApp.showSpinner();
 			$scope.upload = $upload.upload({
 				method 	: 	"POST",
 				url		:	"/api/media/directory/" + $scope.cwd.id,
@@ -64,6 +68,15 @@ BMApp.Media.controller("MediaIndexController", ['$scope', '$http', '$upload', fu
 	$scope.createDirectory = function() {
 		$http.put("/api/media/directory/" + $scope.cwd.id, $scope.directory).success(function(data) {
 			$scope.cwd.children.push(data);
+		});
+	};
+	
+	$scope.deleteFile = function(file) {
+		$http({
+			method 	: 'DELETE',
+			url		: '/api/media/directory/' + $scope.cwd.id + '/' + file.id
+		}).success(function() {
+			BMApp.utils.remove('id', file.id, $scope.cwd.files);
 		});
 	};
 }]);

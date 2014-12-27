@@ -6,7 +6,7 @@ public class OwnedBaseDomain extends BaseDomain {
 
 	private static final long serialVersionUID = -4608480581507322585L;
 	
-	private ObjectId		owner;
+	protected ObjectId		owner;
 
 	public ObjectId getOwner() {
 		return owner;

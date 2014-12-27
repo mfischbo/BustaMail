@@ -7,8 +7,8 @@ import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -31,13 +31,34 @@ public class Media extends OwnedBaseDomain {
 	
 	private int     colorspace;
 	
-	private ObjectId		parent;
+	private ObjectId	parent;
 	
-	@DBRef
-	private	Directory	directory;
+	private	ObjectId	directory;
 
 	@Transient
+	@JsonIgnore
 	private byte[] 	data;
+
+	
+	public Media() {
+		
+	}
+	
+	public Media(ObjectId id, String filename, DBObject md) {
+		this.id 		 = id;
+		this.name		 = filename;
+		this.description = (String) md.get(Media.KEY_DESCRIPTION);
+		this.mimetype    = (String) md.get(Media.KEY_MIMETYPE);
+		this.owner		 = (ObjectId) md.get(Media.KEY_OWNER);
+		this.parent		 = (ObjectId) md.get(Media.KEY_PARENT);
+		
+		// image related data
+		if (this.mimetype.startsWith("image")) {
+			this.width 	= (Integer) md.get(Media.KEY_WIDTH);
+			this.height = (Integer) md.get(Media.KEY_HEIGHT);
+			this.colorspace = (int) md.get(Media.KEY_COLORSPACE);
+		}
+	}
 	
 	public String getName() {
 		return name;
@@ -63,14 +84,15 @@ public class Media extends OwnedBaseDomain {
 		this.mimetype = mimetype;
 	}
 
-	public Directory getDirectory() {
+
+	public ObjectId getDirectory() {
 		return directory;
 	}
 
-	public void setDirectory(Directory directory) {
+	public void setDirectory(ObjectId directory) {
 		this.directory = directory;
 	}
-	
+
 	public String getExtension() {
 		if (this.name != null && this.name.contains(".")) {
 			return this.name.substring(this.name.lastIndexOf(".") +1);
@@ -110,7 +132,8 @@ public class Media extends OwnedBaseDomain {
 		this.parent = parent;
 	}
 
-	@Transient 
+	@Transient
+	@JsonIgnore
 	public byte[] getData() {
 		return this.data;
 	}
@@ -135,11 +158,12 @@ public class Media extends OwnedBaseDomain {
 	}
 
 	@Transient
+	@JsonIgnore
 	public DBObject getMetaData() {
 		DBObject r = new BasicDBObject(); 
 		r.put(KEY_DESCRIPTION, this.description);
 		r.put(KEY_MIMETYPE, this.mimetype);
-		r.put(KEY_DIRECTORY, this.directory.getId());
+		r.put(KEY_DIRECTORY, this.directory);
 		r.put(KEY_WIDTH, this.width);
 		r.put(KEY_HEIGHT, this.height);
 		r.put(KEY_EXTENSION, this.getExtension());

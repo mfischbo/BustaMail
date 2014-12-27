@@ -4,7 +4,6 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
 
@@ -69,17 +67,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Inject
 	private GridFsTemplate			gridTemplate;
 	
-	private File					mediaDir;
 	
-	@PostConstruct
-	public void init() {
-		String dirname = env.getProperty(UI_DOCUMENT_ROOT_KEY) + env.getProperty(UI_MEDIA_DIRECTORY_KEY);
-		this.mediaDir = new File(dirname);
-		if (!this.mediaDir.exists())
-			this.mediaDir.mkdirs();
-	}
-	
-
 	@Override
 	public Media getMediaById(ObjectId id) throws EntityNotFoundException {
 		GridFSDBFile file = gridTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
@@ -133,21 +121,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	
 	
 	private Media convertFile(GridFSDBFile file) {
-		Media m = new Media();
-		m.setId((ObjectId) file.getId());
-		m.setDescription((String) file.getMetaData().get(Media.KEY_DESCRIPTION));
-		m.setMimetype((String) file.getMetaData().get(Media.KEY_MIMETYPE));
-		m.setName(file.getFilename());
-		m.setOwner((ObjectId) file.getMetaData().get(Media.KEY_OWNER));
-	
-		// image related data
-		m.setWidth((Integer) 	file.getMetaData().get(Media.KEY_WIDTH));
-		m.setHeight((Integer) 	file.getMetaData().get(Media.KEY_HEIGHT));
-		m.setColorspace((int) 	file.getMetaData().get(Media.KEY_COLORSPACE));
-		m.setParent((ObjectId)	file.getMetaData().get(Media.KEY_PARENT));
-
-		Directory d = dRepo.findOne((ObjectId) file.getMetaData().get(Media.KEY_DIRECTORY));
-		m.setDirectory(d);
+		Media m = new Media((ObjectId) file.getId(), file.getFilename(), file.getMetaData());
 		return m;
 	}
 	
@@ -166,8 +140,14 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		return retval;
 	}
 	
+	
 	@Override
 	public Media createMedia(Media media) throws Exception {
+		return createMedia(media, null);
+	}
+	
+	@Override
+	public Media createMedia(Media media, Directory directory) throws Exception {
 		
 		String mimetype = tika.detect(media.getData()).toLowerCase();
 		if (mimetype.equals("text/plain")) {
@@ -177,6 +157,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 				mimetype = "text/javascript";
 		}
 		media.setMimetype(mimetype);
+		
+		if (directory != null)
+			media.setDirectory(directory.getId());
 		
 		if (mimetype.startsWith("image")) {
 			return processImage(media);
@@ -228,6 +211,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		// persist the parent
 		GridFSFile fsFile = gridTemplate.store(new ByteArrayInputStream(getImageData(bim, m.getMimetype())),
 				m.getName(), m.getMetaData());
+		m.setId((ObjectId) fsFile.getId());
 		
 		// persist all variants
 		for (Media v : variants) {
@@ -294,7 +278,9 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		
 		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(media.getId())));
 		m2.setData(f.getInputStream());
-		return createMedia(m2);
+		
+		Directory d = dRepo.findOne(media.getId());
+		return createMedia(m2, d);
 	}
 	
 	
@@ -320,12 +306,19 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		checkOnNull(d);
 		return d;
 	}
+	
+	
+	@Override
+	public List<Directory> getChildDirectories(Directory parent) {
+		return dRepo.findByParentAndOwner(parent.getId(), parent.getOwner());
+	}
+	
 
 	@Override
 	public Directory createDirectory(ObjectId owner, Directory parent, Directory directory) {
 		directory.setOwner(owner);
-		parent.getChildren().add(directory);
-		return dRepo.save(parent);
+		directory.setParent(parent.getId());
+		return dRepo.save(directory);
 	}
 
 	@Override

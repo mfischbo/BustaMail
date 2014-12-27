@@ -50,6 +50,13 @@ public class RestDirectoryController extends BaseApiController {
 		Directory d = service.getDirectoryById(directoryId);
 		return service.getFilesByDirectory(d);
 	}
+	
+	@RequestMapping(value = "/{id}/children", method = RequestMethod.GET)
+	public List<Directory> getChildren(@PathVariable("id") ObjectId parentId) throws Exception {
+		Directory d = service.getDirectoryById(parentId);
+		checkOnNull(d);
+		return service.getChildDirectories(d);
+	}
 
 	/**
 	 * Creates a new media file
@@ -68,9 +75,8 @@ public class RestDirectoryController extends BaseApiController {
 		
 		Directory d = service.getDirectoryById(directoryId);
 		checkOnNull(d);
-		m.setDirectory(d);
 		m.setOwner(d.getOwner());
-		return service.createMedia(m);
+		return service.createMedia(m, d);
 	}	
 
 	/**
