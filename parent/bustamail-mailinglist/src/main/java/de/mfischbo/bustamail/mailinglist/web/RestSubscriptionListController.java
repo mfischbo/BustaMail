@@ -1,7 +1,5 @@
 package de.mfischbo.bustamail.mailinglist.web;
 
-import java.util.UUID;
-
 import javax.inject.Inject;
 
 import org.bson.types.ObjectId;
@@ -112,7 +110,7 @@ public class RestSubscriptionListController extends BaseApiController {
 	 */
 	@IntegrationTested
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public SubscriptionListDTO updateSubscriptionList(@PathVariable("id") UUID listId, 
+	public SubscriptionListDTO updateSubscriptionList(@PathVariable("id") ObjectId listId, 
 			@RequestBody SubscriptionListDTO dto) throws Exception {
 		return asDTO(service.updateSubscriptionList(dto), SubscriptionListDTO.class);
 	}

@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.mailinglist.service;
 
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
 import de.mfischbo.bustamail.mailinglist.validation.ImportValidator;
 import de.mfischbo.bustamail.mailinglist.validation.Validator.ResultType;
 import de.mfischbo.bustamail.media.domain.Media;
+import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.reader.IndexedPropertyHolder;
 import de.mfischbo.bustamail.reader.TableDataReader;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
@@ -50,6 +52,9 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	
 	@Inject
 	SubscriberService				subService;
+
+	@Inject
+	MediaService					mediaService;
 	
 	@Inject
 	SubscriptionListRepository		sListRepo;
@@ -407,7 +412,8 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		// if cache results in null reparse
 		if (data == null) {
 			try {
-				TableDataReader reader = new TableDataReader(media.asStream(), media.getMimetype(), media.getName());
+				InputStream stream = mediaService.getContent(media);
+				TableDataReader reader = new TableDataReader(stream, media.getMimetype(), media.getName());
 				reader.setCsvDelimiterChar(settings.getCsvDelimiter());
 				reader.setCsvQuoteChar(settings.getCsvQuoteChar());
 				reader.setReaderEncoding(Charset.forName(settings.getEncoding().toString()));

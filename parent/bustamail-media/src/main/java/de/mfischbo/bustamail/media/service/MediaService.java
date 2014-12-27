@@ -24,7 +24,7 @@ public interface MediaService {
 	@PreAuthorize("hasPermission(#m.owner, 'Media.USE_MEDIA')")
 	void 			getContent(Media m, int preferedSize, OutputStream stream) throws Exception;
 	
-	@PreAuthorize("hasPermission(#m.owner, 'Media.USE_MEDIA'")
+	@PreAuthorize("hasPermission(#m.owner, 'Media.USE_MEDIA')")
 	InputStream		getContent(Media m);
 	
 	@PreAuthorize("hasPermission(#d.owner, 'Media.USE_MEDIA')")
