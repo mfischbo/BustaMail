@@ -19,4 +19,7 @@ public interface VersionedContentRepository extends MongoRepository<VersionedCon
 
 	@Query(" { foreignId : ?0 } ")
 	public List<VersionedContent> findByForeignId(ObjectId foreignId);
+	
+	@Query(" { foreignId : ?0 } ")
+	public Page<VersionedContent> findByForeignId(ObjectId foreignId, Pageable page);
 }

@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.Test;
 import org.springframework.http.MediaType;
 
-import de.mfischbo.bustamail.media.dto.DirectoryDTO;
+import de.mfischbo.bustamail.media.domain.Directory;
 
 public class DirctoryIntegrationIT extends AbstractIntegrationTestBase {
 
@@ -33,7 +33,7 @@ public class DirctoryIntegrationIT extends AbstractIntegrationTestBase {
 	
 	@Test
 	public void canCreateSubFolderInRootWhenHavingPermission() throws Exception {
-		DirectoryDTO d = new DirectoryDTO();
+		Directory d = new Directory();
 		d.setName("Subfolder from tests");
 		d.setDescription("Some description");
 		
@@ -49,7 +49,7 @@ public class DirctoryIntegrationIT extends AbstractIntegrationTestBase {
 	
 	@Test
 	public void forbidsCreateSubFolderInRootNotHavingPermission() throws Exception {
-		DirectoryDTO d = new DirectoryDTO();
+		Directory d = new Directory();
 		d.setName("Not to be created");
 		d.setDescription("Some description");
 		

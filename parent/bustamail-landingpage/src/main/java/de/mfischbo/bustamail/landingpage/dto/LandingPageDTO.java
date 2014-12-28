@@ -2,7 +2,8 @@ package de.mfischbo.bustamail.landingpage.dto;
 
 import java.util.List;
 
-import de.mfischbo.bustamail.media.dto.MediaDTO;
+import de.mfischbo.bustamail.landingpage.domain.LPForm;
+import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
 
 public class LandingPageDTO extends LandingPageIndexDTO {
@@ -11,8 +12,8 @@ public class LandingPageDTO extends LandingPageIndexDTO {
 
 	private String 						htmlHeader;
 	private List<StaticPageDTO>			staticPages;
-	private List<LPFormDTO>				forms;
-	private List<MediaDTO>				resources;
+	private List<LPForm>				forms;
+	private List<Media>					resources;
 	private VersionedContentDTO 		htmlContent;
 
 
@@ -32,14 +33,6 @@ public class LandingPageDTO extends LandingPageIndexDTO {
 		this.staticPages = staticPages;
 	}
 
-	public List<LPFormDTO> getForms() {
-		return forms;
-	}
-
-	public void setForms(List<LPFormDTO> forms) {
-		this.forms = forms;
-	}
-
 	public VersionedContentDTO getHtmlContent() {
 		return htmlContent;
 	}
@@ -48,11 +41,19 @@ public class LandingPageDTO extends LandingPageIndexDTO {
 		this.htmlContent = content;
 	}
 
-	public List<MediaDTO> getResources() {
+	public List<LPForm> getForms() {
+		return forms;
+	}
+
+	public void setForms(List<LPForm> forms) {
+		this.forms = forms;
+	}
+
+	public List<Media> getResources() {
 		return resources;
 	}
 
-	public void setResources(List<MediaDTO> resources) {
+	public void setResources(List<Media> resources) {
 		this.resources = resources;
 	}
 }

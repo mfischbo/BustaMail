@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -28,7 +28,7 @@ class CSSFilePublisher {
 	private List<Media>			images;
 	private LandingPage			page;
 	
-	private Map<UUID, String>	cssSources;
+	private Map<ObjectId, String>	cssSources;
 	private List<String>		cssLinks;
 	private boolean				concatenationEnabled;
 	
@@ -50,7 +50,7 @@ class CSSFilePublisher {
 		StringBuffer b = new StringBuffer();
 		
 		for (Media m : page.getResources()) {
-			if (m.getMimetype().equalsIgnoreCase("text/css") || m.getExtension().equalsIgnoreCase("css")) {
+			if (m.getMimetype().equalsIgnoreCase("text/css") || Media.getExtension(m).equalsIgnoreCase("css")) {
 				
 				// concat to one single script or append in a list
 				if (concatenationEnabled) {
@@ -66,9 +66,9 @@ class CSSFilePublisher {
 			return;
 	
 		if (concatenationEnabled) 
-			this.cssSources.put(UUID.randomUUID(), b.toString());
+			this.cssSources.put(new ObjectId(), b.toString());
 	
-		for (UUID id : this.cssSources.keySet()) {
+		for (ObjectId id : this.cssSources.keySet()) {
 			
 			// adjust image links and collect images
 			String s = this.cssSources.get(id);
@@ -102,10 +102,10 @@ class CSSFilePublisher {
 		while (m.find()) {
 			// group 1 is to be replaced
 			try {
-				UUID mId = UUID.fromString(m.group(1));
+				ObjectId mId = new ObjectId(m.group(1));
 				Media media = mService.getMediaById(mId);
 				this.images.add(media);
-				css = m.replaceFirst("url(\"../img/$1."+ media.getExtension() +"\")");
+				css = m.replaceFirst("url(\"../img/$1."+ Media.getExtension(media) +"\")");
 			} catch (Exception ex) {
 				log.error("Unable to parse UUID from String : " + m.group(1));
 			}

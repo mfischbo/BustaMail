@@ -1,11 +1,11 @@
 package de.mfischbo.bustamail.landingpage.web;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,24 +22,34 @@ import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.dto.LandingPageDTO;
-import de.mfischbo.bustamail.landingpage.dto.LandingPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.dto.VersionedContentDTO;
 import de.mfischbo.bustamail.vc.dto.VersionedContentIndexDTO;
 
+/**
+ * RESTful controller to manage landing pages
+ * @author M. Fischboeck
+ *
+ */
 @RestController
 @RequestMapping("/api/landingpages")
 public class RestLandingPageController extends BaseApiController {
 
 	@Inject
 	private LandingPageService		service;
-	
+
+	/**
+	 * Returns a page of landing pages
+	 * @param owner The owner of the landing pages
+	 * @param page The page parameters
+	 * @return 
+	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public Page<LandingPageIndexDTO> getAllLandingPages(@RequestParam("owner") UUID owner, 
+	public Page<LandingPage> getAllLandingPages(@RequestParam("owner") ObjectId owner, 
 			@PageableDefault(size=30, value=0) Pageable page) {
-		return asDTO(service.getLandingPagesByOwner(owner, page), LandingPageIndexDTO.class, page);
+		return service.getLandingPagesByOwner(owner, page);
 	}
 
 	/**
@@ -49,7 +59,7 @@ public class RestLandingPageController extends BaseApiController {
 	 * @throws EntityNotFoundException If no such landing page exists
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public LandingPageDTO getLandingPageById(@PathVariable("id") UUID id) throws EntityNotFoundException {
+	public LandingPageDTO getLandingPageById(@PathVariable("id") ObjectId id) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(id);
 		LandingPageDTO retval = asDTO(page, LandingPageDTO.class);
 		retval.setHtmlContent(asDTO(service.getRecentContentVersionByPage(page), VersionedContentDTO.class));
@@ -57,7 +67,7 @@ public class RestLandingPageController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}/export", method = RequestMethod.GET)
-	public void exportLandingPage(@PathVariable("id") UUID id, HttpServletResponse response) throws BustaMailException {
+	public void exportLandingPage(@PathVariable("id") ObjectId id, HttpServletResponse response) throws BustaMailException {
 	
 		LandingPage p = service.getLandingPageById(id);
 		response.setHeader("Content-Type", "application/octet-stream");
@@ -79,17 +89,31 @@ public class RestLandingPageController extends BaseApiController {
 	 * @throws EntityNotFoundException
 	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public LandingPageIndexDTO createLandingPage(@RequestBody LandingPageIndexDTO page) throws EntityNotFoundException {
-		return asDTO(service.createLandingPage(page), LandingPageIndexDTO.class);
+	public LandingPage createLandingPage(@RequestBody LandingPage page) throws EntityNotFoundException {
+		return service.createLandingPage(page);
 	}
-	
+
+	/**
+	 * Updates the given landing page
+	 * @param page The page 
+	 * @return The persisted entity
+	 * @throws EntityNotFoundException
+	 * @throws DataIntegrityException
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-	public LandingPageDTO updateLandingPage(@RequestBody LandingPageDTO page) throws EntityNotFoundException, DataIntegrityException {
-		return asDTO(service.updateLandingPage(page), LandingPageDTO.class);
+	public LandingPage updateLandingPage(@RequestBody LandingPage page) throws EntityNotFoundException, DataIntegrityException {
+		return service.updateLandingPage(page);
 	}
+
 	
+	/**
+	 * Deletes the landing page given it's id
+	 * @param id The id of the page
+	 * @throws EntityNotFoundException
+	 * @throws DataIntegrityException
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteLandingPage(@PathVariable("id") UUID id) throws EntityNotFoundException, DataIntegrityException {
+	public void deleteLandingPage(@PathVariable("id") ObjectId id) throws EntityNotFoundException, DataIntegrityException {
 		LandingPage p = service.getLandingPageById(id);
 		service.deleteLandingPage(p);
 	}
@@ -102,13 +126,21 @@ public class RestLandingPageController extends BaseApiController {
 	 * @throws EntityNotFoundException
 	 */
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
-	public List<VersionedContentIndexDTO> getRecentVersionedContent(@PathVariable("id") UUID lpId) throws EntityNotFoundException {
+	public List<VersionedContentIndexDTO> getRecentVersionedContent(@PathVariable("id") ObjectId lpId) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
 		return asDTO(service.getContentVersions(p), VersionedContentIndexDTO.class);
 	}
 	
+	
+	/**
+	 * Returns the versioned content given it's id
+	 * @param pageId The id of the landing page
+	 * @param contentId The id of the versioned content
+	 * @return The versioned content
+	 * @throws EntityNotFoundException
+	 */
 	@RequestMapping(value = "/{id}/content/{cid}", method = RequestMethod.GET)
-	public VersionedContentDTO getContentById(@PathVariable("id") UUID pageId, @PathVariable("cid") UUID contentId) throws EntityNotFoundException {
+	public VersionedContentDTO getContentById(@PathVariable("id") ObjectId pageId, @PathVariable("cid") ObjectId contentId) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(pageId);
 		return asDTO(service.getContentVersionById(p, contentId), VersionedContentDTO.class);
 		
@@ -122,7 +154,7 @@ public class RestLandingPageController extends BaseApiController {
 	 * @throws EntityNotFoundException
 	 */
 	@RequestMapping(value = "/{id}/content", method = RequestMethod.POST)
-	public VersionedContentDTO saveContent(@PathVariable("id") UUID lpId, @RequestBody VersionedContentDTO dto) throws EntityNotFoundException {
+	public VersionedContentDTO saveContent(@PathVariable("id") ObjectId lpId, @RequestBody VersionedContentDTO dto) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
 		checkOnNull(p);
 		
@@ -139,20 +171,20 @@ public class RestLandingPageController extends BaseApiController {
 	 * @throws EntityNotFoundException
 	 */
 	@RequestMapping(value = "/{id}/preview", method = RequestMethod.PUT)
-	public void publishPreview(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
+	public void publishPreview(@PathVariable("id") ObjectId pageId) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(pageId);
 		service.publishPreview(page);
 	}
 	
 	@RequestMapping(value = "/{id}/publish", method = RequestMethod.PUT)
-	public LandingPageIndexDTO publishLive(@PathVariable("id") UUID pageId) throws EntityNotFoundException {
+	public LandingPage publishLive(@PathVariable("id") ObjectId pageId) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(pageId);
-		return asDTO(service.publishLive(page), LandingPageIndexDTO.class);
+		return service.publishLive(page);
 	}
 	
 	@RequestMapping(value = "/{id}/publish", method = RequestMethod.DELETE)
-	public LandingPageIndexDTO unpublishLive(@PathVariable("id") UUID pageId) throws BustaMailException {
+	public LandingPage unpublishLive(@PathVariable("id") ObjectId pageId) throws BustaMailException {
 		LandingPage page = service.getLandingPageById(pageId);
-		return asDTO(service.unpublishLive(page), LandingPageIndexDTO.class);
+		return service.unpublishLive(page);
 	}
 }

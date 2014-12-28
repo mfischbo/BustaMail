@@ -1,10 +1,10 @@
 package de.mfischbo.bustamail.landingpage.dto;
 
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.dto.OwnedBaseDTO;
 import de.mfischbo.bustamail.security.dto.UserDTO;
-import de.mfischbo.bustamail.template.dto.TemplateIndexDTO;
 
 public class LandingPageIndexDTO extends OwnedBaseDTO {
 
@@ -14,7 +14,7 @@ public class LandingPageIndexDTO extends OwnedBaseDTO {
 	private String pageUrl;
 	private boolean published;
 	
-	private TemplateIndexDTO	template;
+	private ObjectId	templateId;
 	private UserDTO userCreated;
 	private UserDTO userModified;
 	private UserDTO userPublished;
@@ -46,11 +46,11 @@ public class LandingPageIndexDTO extends OwnedBaseDTO {
 	public void setPublished(boolean published) {
 		this.published = published;
 	}
-	public TemplateIndexDTO getTemplate() {
-		return template;
+	public ObjectId getTemplateId() {
+		return templateId;
 	}
-	public void setTemplate(TemplateIndexDTO template) {
-		this.template = template;
+	public void setTemplateId(ObjectId templateId) {
+		this.templateId = templateId;
 	}
 	public UserDTO getUserCreated() {
 		return userCreated;

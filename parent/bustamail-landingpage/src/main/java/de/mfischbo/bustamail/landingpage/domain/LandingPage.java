@@ -3,6 +3,7 @@ package de.mfischbo.bustamail.landingpage.domain;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.security.domain.User;
@@ -23,6 +24,7 @@ public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 
 	private List<Media>	resources;
 	
+	@DBRef
 	private User		userPublished;
 
 	
@@ -65,7 +67,7 @@ public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 	public void setForms(List<LPForm> forms) {
 		this.forms = forms;
 	}
-
+	
 	public List<Media> getResources() {
 		return resources;
 	}

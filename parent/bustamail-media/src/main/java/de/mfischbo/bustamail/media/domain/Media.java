@@ -150,6 +150,14 @@ public class Media extends OwnedBaseDomain {
 		return new ByteArrayInputStream(this.data);
 	}
 
+	@JsonIgnore
+	public static String getExtension(Media m) {
+		if (!m.getName().contains("."))
+			return "";
+		String[] t = m.getName().split(".");
+		return t[t.length-1];
+	}
+	
 	@Transient
 	@JsonIgnore
 	public DBObject getMetaData() {

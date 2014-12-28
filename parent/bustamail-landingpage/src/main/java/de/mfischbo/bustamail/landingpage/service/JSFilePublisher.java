@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import org.bson.types.ObjectId;
 import org.springframework.core.env.Environment;
 
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
@@ -20,7 +20,7 @@ class JSFilePublisher {
 	
 	private File		jsResources;
 	private List<String> jsLinks;
-	private Map<UUID, String> sources;
+	private Map<ObjectId, String> sources;
 	private LandingPage	page;
 	private boolean		concatEnabled;
 	
@@ -37,7 +37,7 @@ class JSFilePublisher {
 		StringBuffer b = new StringBuffer();
 		
 		for (Media m : page.getResources()) {
-			if (m.getMimetype().equalsIgnoreCase("text/javascript") || m.getExtension().equalsIgnoreCase("js")) {
+			if (m.getMimetype().equalsIgnoreCase("text/javascript") || Media.getExtension(m).equalsIgnoreCase("js")) {
 				if (concatEnabled) {
 					b.append(new String(m.getData())).append("\n\n");
 				} else {
@@ -49,9 +49,9 @@ class JSFilePublisher {
 		if (concatEnabled && b.length() == 0)
 			return;
 		if (concatEnabled)
-			this.sources.put(UUID.randomUUID(), b.toString());
+			this.sources.put(new ObjectId(), b.toString());
 			
-		for (UUID id : this.sources.keySet()) {
+		for (ObjectId id : this.sources.keySet()) {
 			String s = this.sources.get(id);
 		
 			FileOutputStream fOut = new FileOutputStream(this.jsResources.getAbsolutePath() + "/" + id + ".js");

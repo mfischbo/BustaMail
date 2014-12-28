@@ -7,13 +7,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.UUID;
-
 import org.junit.Test;
 import org.springframework.http.MediaType;
 
-import de.mfischbo.bustamail.mailing.dto.MailingDTO;
-import de.mfischbo.bustamail.template.dto.TemplateIndexDTO;
+import de.mfischbo.bustamail.mailing.domain.Mailing;
 
 public class MailingIT extends AbstractIntegrationTestBase {
 
@@ -62,16 +59,18 @@ public class MailingIT extends AbstractIntegrationTestBase {
 
 	@Test
 	public void canCreateMailingHavingPermission() throws Exception {
-		MailingDTO d = new MailingDTO();
+		Mailing d = new Mailing();
 		d.setOwner(TEST_OWNER_ID);
 		d.setReplyAddress("testaccount@art-ignition.de");
 		d.setSenderAddress("testaccount@art-ignition.de");
 		d.setSenderName("Max Mustermann");
 		d.setSubject("Test CREATE subject");
-		
-		TemplateIndexDTO td = new TemplateIndexDTO();
+	
+		/*
+		Template td = new Template();
 		td.setId(UUID.fromString(TEST_TEMPLATE));
 		d.setTemplate(td);
+		*/
 		
 		mock.perform(post(URL + "/unit/" + TEST_OWNER_ID)
 				.session(getPermittedSession())

@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotBlank;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
-import de.mfischbo.bustamail.template.domain.Template;
 
 public class LPForm extends BaseDomain {
 
@@ -39,7 +39,7 @@ public class LPForm extends BaseDomain {
 	
 	private List<String>		recipients;
 	
-	private Template			mailTemplate;
+	private ObjectId			mailTemplateId;
 
 	// the landing page the form belongs to
 	private LandingPage			landingPage;
@@ -108,11 +108,11 @@ public class LPForm extends BaseDomain {
 		this.recipients = recipients;
 	}
 
-	public Template getMailTemplate() {
-		return mailTemplate;
+	public ObjectId getMailTemplateId() {
+		return mailTemplateId;
 	}
 
-	public void setMailTemplate(Template mailTemplate) {
-		this.mailTemplate = mailTemplate;
+	public void setMailTemplateId(ObjectId mailTemplateId) {
+		this.mailTemplateId = mailTemplateId;
 	}
 }
