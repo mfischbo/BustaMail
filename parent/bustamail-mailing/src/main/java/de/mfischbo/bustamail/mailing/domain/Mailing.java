@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.mailing.domain;
 
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
@@ -11,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
-import de.mfischbo.bustamail.template.domain.Template;
 
 @Document(collection = "Mailing")
 public class Mailing extends OwnedBaseDomain {
@@ -31,9 +31,8 @@ public class Mailing extends OwnedBaseDomain {
 	@Email
 	@NotBlank
 	private String 		replyAddress;
-
-	@DBRef
-	private Template	template;
+	
+	private ObjectId	templateId;
 
 	@DBRef
 	private User		userCreated;
@@ -101,12 +100,12 @@ public class Mailing extends OwnedBaseDomain {
 		this.replyAddress = replyAddress;
 	}
 
-	public Template getTemplate() {
-		return template;
+	public ObjectId getTemplateId() {
+		return templateId;
 	}
 
-	public void setTemplate(Template template) {
-		this.template = template;
+	public void setTemplateId(ObjectId templateId) {
+		this.templateId = templateId;
 	}
 
 	public User getUserCreated() {

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.mfischbo.bustamail.annotation.IntegrationTested;
 import de.mfischbo.bustamail.common.web.BaseApiController;
+import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
@@ -27,6 +28,7 @@ import de.mfischbo.bustamail.mailing.service.MailingService;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.service.MailingListService;
 import de.mfischbo.bustamail.template.domain.Template;
+import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.service.TemplateService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
@@ -45,9 +47,9 @@ public class RestMailingController extends BaseApiController {
 
 	@Inject
 	private MailingService service;
-
+	
 	@Inject
-	private TemplateService tService;
+	private TemplateService	tService;
 
 	@Inject
 	private MailingListService mListService;
@@ -82,24 +84,22 @@ public class RestMailingController extends BaseApiController {
 	 *             On any failure
 	 */
 	@RequestMapping(value = "/unit/{owner}", method = RequestMethod.POST)
-	public MailingDTO createMailing(@PathVariable("owner") ObjectId owner,
-			@RequestBody MailingDTO dto) throws Exception {
+	public Mailing createMailing(@PathVariable("owner") ObjectId owner,
+			@RequestParam(value = "template", required = true) ObjectId templateId, 
+			@RequestBody Mailing m) throws Exception {
 
-		Mailing m = new Mailing();
 		m.setDateCreated(DateTime.now());
 		m.setDateModified(DateTime.now());
 		m.setOwner(owner);
-		m.setReplyAddress(dto.getReplyAddress());
-		m.setSenderAddress(dto.getSenderAddress());
-		m.setSenderName(dto.getSenderName());
-		m.setSubject(dto.getSubject());
-
-		if (dto.getTemplateId() != null) {
-			Template t = tService.getTemplateById(dto.getTemplateId());
-			m.setTemplate(t);
+		
+		TemplatePack tp = tService.getTemplatePackContainingTemplateById(templateId);
+		for (Template t : tp.getTemplates()) {
+			if (t.getId().equals(templateId)) {
+				m = service.createMailing(m, t);
+				return m;			
+			}
 		}
-		m = service.createMailing(m);
-		return asDTO(m, MailingDTO.class);
+		throw new BustaMailException("Unable to find template for id : " + templateId);
 	}
 
 	/**

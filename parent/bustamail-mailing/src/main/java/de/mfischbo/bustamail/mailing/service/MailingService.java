@@ -15,6 +15,7 @@ import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
+import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 
@@ -45,7 +46,7 @@ public interface MailingService {
 	 * @throws EntityNotFoundException
 	 */
 	@PreAuthorize("hasPermission(#m.owner, 'Mailings.MANAGE_MAILINGS')")
-	Mailing				createMailing(@P("m") Mailing m) throws EntityNotFoundException;
+	Mailing				createMailing(@P("m") Mailing m, Template t) throws EntityNotFoundException;
 	
 	/**
 	 * Updates the given mailing

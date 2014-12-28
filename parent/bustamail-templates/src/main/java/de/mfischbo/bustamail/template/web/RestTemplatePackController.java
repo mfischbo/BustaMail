@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.mfischbo.bustamail.common.web.BaseApiController;
+import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Media;
+import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.service.TemplateService;
 import de.mfischbo.bustamail.views.TemplatePackDetailView;
@@ -36,6 +38,16 @@ public class RestTemplatePackController extends BaseApiController {
 
 	@Autowired
 	private ObjectMapper		mapper;
+	
+	@RequestMapping(value = "/templates/{id}", method = RequestMethod.GET)
+	public Template getTemplateById(@PathVariable("id") ObjectId templateId) throws Exception {
+		TemplatePack tp = service.getTemplatePackContainingTemplateById(templateId);
+		for (Template t : tp.getTemplates()) {
+			if (t.getId().equals(templateId))
+				return t;
+		}
+		throw new EntityNotFoundException("No template found for id : " + templateId);
+	}
 	
 	/**
 	 * Returns all template packs visible to the given org unit
@@ -109,7 +121,8 @@ public class RestTemplatePackController extends BaseApiController {
 		Media im = new Media();
 		im.setOwner(tp.getOwner());
 		im.setName("Theme for " + tp.getName());
-		return service.createTemplatePackImage(tp, im, file.getInputStream());
+		im.setData(file.getInputStream());
+		return service.createTemplatePackImage(tp, im);
 	}
 	
 	@RequestMapping(value = "/packs/{id}/clone", method = RequestMethod.PUT)

@@ -41,10 +41,6 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 		</dependency>
@@ -75,11 +71,6 @@
 			<version>1</version>
 		</dependency>
 		<dependency>
-			<groupId>com.mangofactory</groupId>
-			<artifactId>swagger-springmvc</artifactId>
-			<version>0.8.4</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
 		</dependency>
@@ -95,6 +86,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -149,9 +144,7 @@
 		<module>bustamail-media</module>
 		<module>bustamail-mailing</module>
 		<module>bustamail-mailinglist</module>
-		<module>bustamail-integrationtests</module>
 		<module>bustamail-io</module>
-		<module>bustamail-landingpage</module>
 		<module>bustamail-versionedcontent</module>
 	</modules>
 </project>

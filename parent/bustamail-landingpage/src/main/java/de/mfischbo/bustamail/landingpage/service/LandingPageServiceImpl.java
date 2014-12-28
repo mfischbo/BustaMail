@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -26,20 +26,12 @@ import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.HTMLPage;
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
-import de.mfischbo.bustamail.landingpage.domain.LPFormEntry;
 import de.mfischbo.bustamail.landingpage.domain.LPFormSubmission;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
-import de.mfischbo.bustamail.landingpage.dto.LPFormDTO;
-import de.mfischbo.bustamail.landingpage.dto.LPFormEntryDTO;
-import de.mfischbo.bustamail.landingpage.dto.LandingPageDTO;
-import de.mfischbo.bustamail.landingpage.dto.LandingPageIndexDTO;
-import de.mfischbo.bustamail.landingpage.dto.StaticPageDTO;
-import de.mfischbo.bustamail.landingpage.dto.StaticPageIndexDTO;
 import de.mfischbo.bustamail.landingpage.repo.LPFormRepo;
 import de.mfischbo.bustamail.landingpage.repo.LPFormSubmissionRepo;
 import de.mfischbo.bustamail.landingpage.repo.LandingPageRepo;
-import de.mfischbo.bustamail.landingpage.repo.StaticPageRepo;
 import de.mfischbo.bustamail.landingpage.service.LandingPagePublisher.Mode;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
@@ -47,11 +39,11 @@ import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.security.service.SecurityService;
 import de.mfischbo.bustamail.template.domain.Template;
+import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.service.TemplateService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
-import de.mfischbo.bustamail.vc.repo.VersionedContentSpecification;
 
 @Service
 public class LandingPageServiceImpl extends BaseService implements LandingPageService {
@@ -69,9 +61,6 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	LandingPageRepo		lpRepo;
 	
 	@Inject
-	StaticPageRepo		spRepo;
-	
-	@Inject
 	LPFormRepo			formRepo;
 	
 	@Inject
@@ -85,63 +74,89 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 
 	@Inject
 	Environment			env;
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#getLandingPagesByOwner(org.bson.types.ObjectId, org.springframework.data.domain.Pageable)
+	 */
 	@Override
-	public Page<LandingPage> getLandingPagesByOwner(UUID owner, Pageable page) {
+	public Page<LandingPage> getLandingPagesByOwner(ObjectId owner, Pageable page) {
 		return lpRepo.findAllByOwner(owner, page);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#getLandingPageById(org.bson.types.ObjectId)
+	 */
 	@Override
-	public LandingPage getLandingPageById(UUID id)
+	public LandingPage getLandingPageById(ObjectId id)
 			throws EntityNotFoundException {
 		LandingPage retval = lpRepo.findOne(id);
 		checkOnNull(retval);
 		return retval;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#createLandingPage(de.mfischbo.bustamail.landingpage.domain.LandingPage)
+	 */
 	@Override
-	public LandingPage createLandingPage(LandingPageIndexDTO page) throws EntityNotFoundException {
-		LandingPage p = new LandingPage();
+	public LandingPage createLandingPage(LandingPage page) throws EntityNotFoundException {
 		User current = (User) auth.getPrincipal();
-		Template t = tService.getTemplateById(page.getTemplate().getId());
-		checkOnNull(t);
+		
+		Template t = null;
+		TemplatePack tp = tService.getTemplatePackContainingTemplateById(page.getTemplateId());
+		for (Template tx : tp.getTemplates()) {
+			if (tx.getId().equals(page.getTemplateId())) {
+				t = tx;
+				break;
+			}
+		}
+	
+		if (t == null)
+			throw new EntityNotFoundException("No template found for the given id");
+		
 		
 		OrgUnit ou = secService.getOrgUnitById(page.getOwner());
 		checkOnNull(ou);
 		
 		DateTime now = DateTime.now();
-		p.setDateCreated(now);
-		p.setDateModified(now);
-		p.setDescription(page.getDescription());
-		p.setName(page.getName());
-		p.setOwner(ou.getId());
-		p.setTemplate(t);
-		p.setUserCreated(current);
-		p.setUserModified(current);
-		p.setHtmlHeader(t.getHtmlHead());
+		page.setDateCreated(now);
+		page.setDateModified(now);
+		page.setOwner(ou.getId());
+		page.setUserCreated(current);
+		page.setUserModified(current);
+		page.setHtmlHeader(t.getHtmlHead());
 		
 		// copy all resources from the template as new media
-		p.setResources(new ArrayList<Media>(t.getResources().size()));
+		page.setResources(new ArrayList<Media>(t.getResources().size()));
 		for (Media m : t.getResources()) {
-			Media m2 = mediaService.createCopy(m, null);
-			p.getResources().add(m2);
+			try {
+				Media m2 = mediaService.createCopy(m, m.getName());
+				page.getResources().add(m2);
+			} catch (Exception ex) {
+				log.warn("Unable to copy resource file : " + m.getId());
+			}
 		}
-		p = lpRepo.saveAndFlush(p);
+		page = lpRepo.save(page);
 		
 		// create a versioned content
 		VersionedContent html = new VersionedContent();
 		html.setContent(t.getSource());
-		html.setDateCreated(p.getDateCreated());
-		html.setDocumentId(p.getId());
+		html.setDateCreated(page.getDateCreated());
+		html.setForeignId(page.getId());
 		html.setUserCreated(current);
 		html.setType(ContentType.HTML);
-		vcRepo.saveAndFlush(html);
-	
-		return p;
+		vcRepo.save(html);
+		return page;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#updateLandingPage(de.mfischbo.bustamail.landingpage.domain.LandingPage)
+	 */
 	@Override
-	public LandingPage updateLandingPage(LandingPageDTO page)
+	public LandingPage updateLandingPage(LandingPage page)
 			throws EntityNotFoundException, DataIntegrityException {
 		LandingPage p = lpRepo.findOne(page.getId());
 		checkOnNull(p);
@@ -155,9 +170,14 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		p.setName(page.getName());
 		p.setUserModified(current);
 		p.setHtmlHeader(page.getHtmlHeader());
-		return lpRepo.saveAndFlush(p);
+		return lpRepo.save(p);
 	}
 
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#deleteLandingPage(de.mfischbo.bustamail.landingpage.domain.LandingPage)
+	 */
 	@Override
 	public void deleteLandingPage(LandingPage page) throws DataIntegrityException {
 		if (page.isPublished())
@@ -165,12 +185,20 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		lpRepo.delete(page);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#publishPreview(de.mfischbo.bustamail.landingpage.domain.LandingPage)
+	 */
 	@Override
 	public void publishPreview(LandingPage page) {
 		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.PREVIEW);
 		publisher.publish();
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#publishLive(de.mfischbo.bustamail.landingpage.domain.LandingPage)
+	 */
 	@Override
 	public LandingPage publishLive(LandingPage page) {
 		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.LIVE);
@@ -179,22 +207,30 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		page.setDatePublished(DateTime.now());
 		page.setPageUrl(publisher.getPageUrl());
 		page.setPublished(true);
-		return lpRepo.saveAndFlush(page);
+		return lpRepo.save(page);
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#unpublishLive(de.mfischbo.bustamail.landingpage.domain.LandingPage)
+	 */
 	@Override
 	public LandingPage unpublishLive(LandingPage page) throws BustaMailException {
 		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.LIVE);
 		try {
 			publisher.unpublish();
 			page.setPublished(false);
-			return lpRepo.saveAndFlush(page);
+			return lpRepo.save(page);
 		} catch (IOException ex) {
 			log.error("Caught exception when unpublishing the site. Cause: " + ex.getMessage());
 			throw new BustaMailException("Unable to unpublish site. Cause was error in publisher.");
 		}
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#exportLandingPage(de.mfischbo.bustamail.landingpage.domain.LandingPage, java.io.OutputStream)
+	 */
 	@Override
 	public void exportLandingPage(LandingPage page, OutputStream stream) throws BustaMailException {
 		LandingPagePublisher publisher = new LandingPagePublisher(env, vcRepo, mediaService, page, Mode.EXPORT);
@@ -211,102 +247,140 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 			throw new BustaMailException(ex.getMessage());
 		}
 	}
+
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#getContentVersions(de.mfischbo.bustamail.landingpage.domain.HTMLPage)
+	 */
 	@Override
 	public List<VersionedContent> getContentVersions(HTMLPage page) {
-		Specifications<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(page.getId()));
 		PageRequest preq = new PageRequest(0, 20, Sort.Direction.DESC, "dateCreated");
-		Page<VersionedContent> result = vcRepo.findAll(specs, preq);
+		Page<VersionedContent> result = vcRepo.findByForeignId(page.getId(), preq);
 		if (result.getTotalElements() == 0)
 			return new ArrayList<VersionedContent>(0);
 		else
 			return result.getContent();
 	}
+
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#getContentVersionById(de.mfischbo.bustamail.landingpage.domain.HTMLPage, org.bson.types.ObjectId)
+	 */
 	@Override
-	public VersionedContent getContentVersionById(HTMLPage page, UUID contentId) throws EntityNotFoundException {
+	public VersionedContent getContentVersionById(HTMLPage page, ObjectId contentId) throws EntityNotFoundException {
 		VersionedContent retval = vcRepo.findOne(contentId);
 		checkOnNull(retval);
 		return retval;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#getRecentContentVersionByPage(de.mfischbo.bustamail.landingpage.domain.HTMLPage)
+	 */
 	@Override
 	public VersionedContent getRecentContentVersionByPage(HTMLPage page) {
-		Specifications<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(page.getId()));
 		PageRequest preq = new PageRequest(0, 1, Sort.Direction.DESC, "dateCreated");
-		Page<VersionedContent> result = vcRepo.findAll(specs, preq);
+		Page<VersionedContent> result = vcRepo.findByForeignId(page.getId(), preq);
 		if (result.getTotalElements() == 0)
 			return null;
 		else return result.getContent().get(0);
 	}
 	
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#createContentVersion(de.mfischbo.bustamail.landingpage.domain.HTMLPage, de.mfischbo.bustamail.vc.domain.VersionedContent)
+	 */
 	@Override
 	public VersionedContent createContentVersion(HTMLPage page, VersionedContent content) {
 		User current = (User) auth.getPrincipal();
 		
-		content.setDocumentId(page.getId());
+		content.setForeignId(page.getId());
 		content.setDateCreated(DateTime.now());
 		content.setUserCreated(current);
 		content.setType(ContentType.HTML);
-		return vcRepo.saveAndFlush(content);
+		return vcRepo.save(content);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#getStaticPageById(org.bson.types.ObjectId)
+	 */
 	@Override
-	public List<StaticPage> getStaticPages(LandingPage page) {
-		return null;
+	public StaticPage getStaticPageById(ObjectId id) throws EntityNotFoundException {
+		LandingPage p = lpRepo.findPageContainingStaticPageById(id);
+		for (StaticPage sp : p.getStaticPages())
+			if (sp.getId().equals(id)) 
+				return sp;
+		throw new EntityNotFoundException("Unable to find static page for id : " + id);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#createStaticPage(de.mfischbo.bustamail.landingpage.domain.LandingPage, de.mfischbo.bustamail.landingpage.domain.StaticPage)
+	 */
 	@Override
-	public StaticPage getStaticPageById(UUID id) throws EntityNotFoundException {
-		StaticPage p = spRepo.findOne(id);
-		checkOnNull(p);
-		return p;
-	}
-
-	@Override
-	public StaticPage createStaticPage(LandingPage parent, StaticPageIndexDTO staticPage) throws EntityNotFoundException {
+	public StaticPage createStaticPage(LandingPage parent, StaticPage staticPage) throws EntityNotFoundException {
 		
 		User current = (User) auth.getPrincipal();
 		DateTime now = DateTime.now();
 		
-		Template t = tService.getTemplateById(staticPage.getTemplate().getId());
+		Template t = null;//tService.getTemplateById(staticPage.getTemplate().getId());
+		TemplatePack tp = tService.getTemplatePackContainingTemplateById(staticPage.getTemplateId());
+		for (Template tx : tp.getTemplates()) {
+			if (tx.getId().equals(staticPage.getTemplateId())) {
+				t = tx;
+			}
+		}
+		if (t == null)
+			throw new EntityNotFoundException("Unable to find template for id " + staticPage.getTemplateId());
+	
+		staticPage.setId(new ObjectId());
+		staticPage.setOwner(parent.getOwner());
+		staticPage.setDateCreated(now);
+		staticPage.setDateModified(now);
+		staticPage.setUserCreated(current);
+		staticPage.setUserModified(current);
+		staticPage.setHtmlHeader(t.getHtmlHead());
 		
-		StaticPage p = new StaticPage();
-		p.setOwner(parent.getOwner());
-		p.setDescription(staticPage.getDescription());
-		p.setName(staticPage.getName());
-		p.setDateCreated(now);
-		p.setDateModified(now);
-		p.setUserCreated(current);
-		p.setUserModified(current);
-		p.setTemplate(t);
-		p.setParent(parent);
-		p.setHtmlHeader(t.getHtmlHead());
-		
-		p = spRepo.saveAndFlush(p);
+		if (parent.getStaticPages() == null)
+			parent.setStaticPages(new ArrayList<>(1));
+		parent.getStaticPages().add(staticPage);
 		
 		VersionedContent c = new VersionedContent();
 		c.setContent(t.getSource());
 		c.setDateCreated(now);
-		c.setDocumentId(p.getId());
+		c.setForeignId(staticPage.getId());
 		c.setType(ContentType.HTML);
 		c.setUserCreated(current);
-		vcRepo.saveAndFlush(c);
-		return p;
+		vcRepo.save(c);
+		return staticPage;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#updateStaticPage(de.mfischbo.bustamail.landingpage.domain.StaticPage)
+	 */
 	@Override
-	public StaticPage updateStaticPage(StaticPageDTO staticPage) throws EntityNotFoundException {
-		StaticPage p = spRepo.findOne(staticPage.getId());
-		checkOnNull(p);
+	public StaticPage updateStaticPage(StaticPage staticPage) throws EntityNotFoundException {
 		
-		p.setName(staticPage.getName());
-		p.setDescription(staticPage.getDescription());
-		p.setDateModified(DateTime.now());
-		p.setUserModified((User) auth.getPrincipal());
-		p.setHtmlHeader(staticPage.getHtmlHeader());
-		return spRepo.saveAndFlush(p);
+		LandingPage p = lpRepo.findPageContainingStaticPageById(staticPage.getId());
+		if (p == null)
+			throw new EntityNotFoundException("Unable to find landing page for static page with id : " + staticPage.getId());
+		
+		staticPage.setDateModified(DateTime.now());
+		staticPage.setUserModified((User) auth.getPrincipal());
+		
+		for (StaticPage sp : p.getStaticPages()) {
+			if (sp.getId().equals(staticPage.getId())) {
+				sp = staticPage;
+				break;
+			}
+		}
+		lpRepo.save(p);
+		return staticPage;
 	}
 
 	@Override
@@ -315,88 +389,81 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#getFormById(org.bson.types.ObjectId)
+	 */
 	@Override
-	public LPForm getFormById(UUID id) throws EntityNotFoundException {
-		LPForm form = formRepo.findOne(id);
-		checkOnNull(form);
+	public LPForm getFormById(ObjectId id) throws EntityNotFoundException {
+		LandingPage p = lpRepo.findPageContainingFormById(id);
+		for (LPForm f : p.getForms()) {
+			if (f.getId().equals(id))
+				return f;
+		}
+		throw new EntityNotFoundException("Unable to find form for id " + id);
+	}
+
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#createForm(de.mfischbo.bustamail.landingpage.domain.LandingPage, de.mfischbo.bustamail.landingpage.domain.LPForm)
+	 */
+	@Override
+	public LPForm createForm(LandingPage page, LPForm form)
+			throws EntityNotFoundException {
+
+		if (page.getForms() == null)
+			page.setForms(new ArrayList<>(1));
+		page.getForms().add(form);
+	
+		lpRepo.save(page);
 		return form;
 	}
 
-	@Override
-	public LPForm createForm(LandingPage page, LPFormDTO form)
-			throws EntityNotFoundException {
-
-
-		LPForm f = new LPForm();
-		f.setConversion(form.isConversion());
-		f.setName(form.getName());
-		f.setOnSuccessAction(form.getOnSuccessAction());
-		f.setRedirectTarget(form.getRedirectTarget());
-		f.setLandingPage(page);
-		f.setFields(new ArrayList<LPFormEntry>(form.getFields().size()));
-		for (LPFormEntryDTO d : form.getFields()) {
-			
-			LPFormEntry e = new LPFormEntry();
-			e.setName(d.getName());
-			e.setRegexp(d.getRegexp());
-			e.setRequired(d.isRequired());
-			e.setValidationType(d.getValidationType());
-			f.getFields().add(e);
-		}
-		f.setTriggersMail(form.isTriggersMail());
-		f.setRecipients(form.getRecipients());
 	
-		if (form.isTriggersMail()) {
-			Template t = tService.getTemplateById(form.getMailTemplate().getId());
-			checkOnNull(t);
-			f.setMailTemplate(t);
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#updateForm(de.mfischbo.bustamail.landingpage.domain.LPForm)
+	 */
+	@Override
+	public LPForm updateForm(LPForm form) throws EntityNotFoundException {
+	
+		LandingPage p = lpRepo.findPageContainingFormById(form.getId());
+		if (p == null)
+			throw new EntityNotFoundException("Unable to find form by id " + form.getId());
+	
+		for (LPForm f : p.getForms()) {
+			if (f.getId().equals(form.getId())) {
+				f = form;
+				break;
+			}
 		}
-		
-		return formRepo.saveAndFlush(f);
+		lpRepo.save(p);
+		return form;
 	}
 
-	@Override
-	public LPForm updateForm(LPFormDTO form) throws EntityNotFoundException {
-		
-		LPForm f = formRepo.findOne(form.getId());
-		checkOnNull(f);
-		
-		f.setConversion(form.isConversion());
-		f.setName(form.getName());
-		f.setOnSuccessAction(form.getOnSuccessAction());
-		f.setRedirectTarget(form.getRedirectTarget());
-		List<LPFormEntry> fields = new ArrayList<>(form.getFields().size());
-		for (LPFormEntryDTO d : form.getFields()) {
-			
-			LPFormEntry e = new LPFormEntry();
-			e.setName(d.getName());
-			e.setRegexp(d.getRegexp());
-			e.setRequired(d.isRequired());
-			e.setValidationType(d.getValidationType());
-			fields.add(e);
-		}
-		f.setFields(fields);
-		f.setTriggersMail(form.isTriggersMail());
-		f.setRecipients(form.getRecipients());
-	
-		if (form.isTriggersMail()) {
-			Template t = tService.getTemplateById(form.getMailTemplate().getId());
-			checkOnNull(t);
-			f.setMailTemplate(t);
-		}
-		
-		
-		return formRepo.saveAndFlush(f);
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#deleteForm(de.mfischbo.bustamail.landingpage.domain.LPForm)
+	 */
 	@Override
 	public void deleteForm(LPForm form) {
-		formRepo.delete(form);
+
+		LandingPage p = lpRepo.findPageContainingFormById(form.getId());
+		if (p == null)
+			return;
+		
+		Iterator<LPForm> fit = p.getForms().iterator();
+		while (fit.hasNext()) {
+			if (fit.next().getId().equals(form.getId()))
+				fit.remove();
+		}
+		lpRepo.save(p);
 	}
 
 	@Override
 	public LPFormSubmission createFormSubmission(LPFormSubmission submission) {
 		submission.setDateCreated(DateTime.now());
-		return formSubRepo.saveAndFlush(submission);
+		return formSubRepo.save(submission);
 	}
 }

@@ -19,7 +19,6 @@ import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.subscriber.dto.RecipientDTO;
-import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 
@@ -68,11 +67,13 @@ public class MailingPreProcessor {
 		lm.setDisableLinkTrackClass(DefaultTemplateMarkers.getDiableLinkTrackClass());
 
 		// check for cell padding optimization
+		/*
 		Template t = m.getTemplate();
 		if (t.getSettings().containsKey(Template.SKEY_CELLPADDING_OPTIMIZATION)) {
 			log.info("Enabling cell padding optimizations");
 			lm.setSpanCellReplacement(Boolean.parseBoolean(t.getSettings().get(Template.SKEY_CELLPADDING_OPTIMIZATION)));
 		}
+		*/
 		
 		// set sender / reply to addresses and names
 		log.info("Setting sender address to : " + m.getSenderAddress());

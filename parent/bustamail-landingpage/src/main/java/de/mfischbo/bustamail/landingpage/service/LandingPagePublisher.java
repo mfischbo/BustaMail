@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.bson.types.ObjectId;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 import org.zeroturnaround.zip.ZipUtil;
 
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
@@ -34,7 +33,6 @@ import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
-import de.mfischbo.bustamail.vc.repo.VersionedContentSpecification;
 
 class LandingPagePublisher {
 
@@ -63,8 +61,8 @@ class LandingPagePublisher {
 	private File				jsResources;
 	private File				imgResources;
 	private List<Media>			images;
-	private Map<UUID, String>	linkMap;
-	private Map<UUID, Document>	contents;
+	private Map<ObjectId, String>	linkMap;
+	private Map<ObjectId, Document>	contents;
 	
 	private String				pageUrl;
 	
@@ -154,6 +152,7 @@ class LandingPagePublisher {
 		// step 1: Read recent content version for the landing page
 		VersionedContent pageContent = getMostRecentVersionById(page.getId());
 		
+		
 		// step 2: Content only contains the body. Wrap up in stub HTML document and create a jsoup from it
 		StringBuffer b = new StringBuffer(page.getHtmlHeader()).append("<body>").append(pageContent.getContent()).append("</body></html>");
 		Document d = Jsoup.parse(b.toString());
@@ -173,7 +172,7 @@ class LandingPagePublisher {
 		}
 		
 		// step 3: Add all css/js resources from the template to the html head
-		for (UUID id : this.contents.keySet()) {
+		for (ObjectId id : this.contents.keySet()) {
 			Document c = this.contents.get(id);
 			Element head = c.getElementsByTag("head").first();
 		
@@ -204,7 +203,8 @@ class LandingPagePublisher {
 		// step 5: write all collected image files
 		for (Media m : images) {
 			try {
-				FileOutputStream fOut = new FileOutputStream(new File(basedir.getAbsolutePath() + "/resources/img/" + m.getId() + "." + m.getExtension()));
+				FileOutputStream fOut = new FileOutputStream(
+						new File(basedir.getAbsolutePath() + "/resources/img/" + m.getId() + "." + Media.getExtension(m)));
 				fOut.write(m.getData());
 				fOut.flush();
 				fOut.close();
@@ -214,7 +214,7 @@ class LandingPagePublisher {
 		}
 	
 		// step 7 : Write the landing page
-		for (UUID id : contents.keySet()) {
+		for (ObjectId id : contents.keySet()) {
 			Document c = contents.get(id);
 			
 			// remove editor stuff
@@ -245,10 +245,12 @@ class LandingPagePublisher {
 			try {
 				if (src.startsWith("./img/media/"))
 					src = src.replaceAll("./img/media/", "");
-				UUID mId = UUID.fromString(src);
+				//UUID mId = UUID.fromString(src);
+
+				ObjectId mId = new ObjectId(src);
 				Media m = mService.getMediaById(mId);
 				images.add(m);
-				e.attr("src", "./resources/img/" + m.getId() + "." + m.getExtension());
+				e.attr("src", "./resources/img/" + m.getId() + "." + Media.getExtension(m));
 			} catch (Exception ex) {
 				log.error("Unable to parse UUID from String : " + src);
 			}
@@ -279,10 +281,9 @@ class LandingPagePublisher {
 		return uiName;
 	}
 	
-	private VersionedContent getMostRecentVersionById(UUID id) {
-		Specification<VersionedContent> specs = Specifications.where(VersionedContentSpecification.mailingIdIs(id));
+	private VersionedContent getMostRecentVersionById(ObjectId id) {
 		PageRequest preq = new PageRequest(0,1, Sort.Direction.DESC, "dateCreated");
-		VersionedContent pageContent = vcRepo.findAll(specs, preq).getContent().get(0);
+		VersionedContent pageContent = vcRepo.findByForeignId(id, preq).getContent().get(0);
 		return pageContent;
 	}
 	

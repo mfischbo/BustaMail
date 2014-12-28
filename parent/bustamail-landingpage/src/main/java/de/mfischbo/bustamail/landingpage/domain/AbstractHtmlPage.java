@@ -2,12 +2,13 @@ package de.mfischbo.bustamail.landingpage.domain;
 
 import javax.validation.constraints.NotNull;
 
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.security.domain.User;
-import de.mfischbo.bustamail.template.domain.Template;
 
 public class AbstractHtmlPage extends OwnedBaseDomain {
 
@@ -25,12 +26,14 @@ public class AbstractHtmlPage extends OwnedBaseDomain {
 	
 	@NotNull
 	private DateTime dateModified;
-	
+
+	@DBRef
 	private User		userCreated;
-	
+
+	@DBRef
 	private User		userModified;
 
-	private Template 	template;
+	private ObjectId templateId;
 
 	public String getName() {
 		return name;
@@ -88,11 +91,11 @@ public class AbstractHtmlPage extends OwnedBaseDomain {
 		this.userModified = userModified;
 	}
 
-	public Template getTemplate() {
-		return template;
+	public ObjectId getTemplateId() {
+		return templateId;
 	}
 
-	public void setTemplate(Template template) {
-		this.template = template;
+	public void setTemplateId(ObjectId templateId) {
+		this.templateId = templateId;
 	}
 }

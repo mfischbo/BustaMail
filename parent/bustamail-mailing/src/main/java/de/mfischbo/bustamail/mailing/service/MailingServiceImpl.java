@@ -36,6 +36,7 @@ import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
 import de.mfischbo.bustamail.security.domain.User;
+import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
@@ -97,16 +98,17 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	 * @see de.mfischbo.bustamail.mailing.service.MailingService#createMailing(de.mfischbo.bustamail.mailing.domain.Mailing)
 	 */
 	@Override
-	public Mailing createMailing(Mailing m) throws EntityNotFoundException {
+	public Mailing createMailing(Mailing m, Template t) throws EntityNotFoundException {
 	
 		User current = (User) auth.getPrincipal();
 		m.setUserCreated(current);
 		m.setUserModified(current);
+		m.setTemplateId(t.getId());
 		m = mRepo.save(m);
 		
 		// create a versioned content
 		VersionedContent html = new VersionedContent();
-		html.setContent(m.getTemplate().getSource());
+		html.setContent(t.getSource());
 		html.setDateCreated(m.getDateCreated());
 		html.setForeignId(m.getId());
 		html.setUserCreated(m.getUserCreated());

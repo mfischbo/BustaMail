@@ -4,20 +4,18 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LPFormEntry;
@@ -35,13 +33,10 @@ public class LPFormWebController {
 	@Inject
 	private FormSubmissionService	formService;
 	
-	@Inject
-	private ObjectMapper			mapper;
-
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
-	public void processForm(@PathVariable("id") UUID formId, HttpServletRequest request, HttpServletResponse response) {
+	public void processForm(@PathVariable("id") ObjectId formId, HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 			LPForm form = service.getFormById(formId);

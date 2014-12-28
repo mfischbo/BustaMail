@@ -115,7 +115,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 	@Test
 	public void canUpdateSubscriptionListWhenHavingPermission() throws Exception {
 		SubscriptionListDTO list = new SubscriptionListDTO();
-		list.setId(TEST_LIST_ID);
+		//list.setId(TEST_LIST_ID);
 		list.setName("Test for update list");
 		list.setDescription("Test for update list");
 		list.setPubliclyAvailable(false);
@@ -138,7 +138,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 	@Test
 	public void fobidsUpdateSubscriptionListWhenNotHavingPermission() throws Exception {
 		SubscriptionListDTO list = new SubscriptionListDTO();
-		list.setId(TEST_LIST_ID);
+	//	list.setId(TEST_LIST_ID);
 		list.setName("New Name that will not be set");
 		list.setDescription("New description");
 		list.setPubliclyAvailable(false);
@@ -154,7 +154,7 @@ public class MailingListIT extends AbstractIntegrationTestBase {
 	@Test
 	public void returnsNotFoundForUpdateSubscriptionListForForeignOrgUnit() throws Exception {
 		SubscriptionListDTO list = new SubscriptionListDTO();
-		list.setId(TEST_LIST_ID);
+	//	list.setId(TEST_LIST_ID);
 		list.setName("New Name that will not be set");
 		list.setDescription("New description");
 		list.setPubliclyAvailable(false);

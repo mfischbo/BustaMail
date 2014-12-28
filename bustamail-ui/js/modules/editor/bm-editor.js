@@ -113,7 +113,7 @@ BMApp.Editor.controller("EditorIndexController",
 
 
 		// fetch the full graph for the given template
-		$http.get("/api/templates/templates/" + $scope.mailing.template.id).success(function(data) {
+		$http.get("/api/templates/templates/" + $scope.mailing.templateId).success(function(data) {
 			$scope.mailing.template = data;
 			$scope.widgets = data.widgets;
 			for (var i in $scope.widgets) 

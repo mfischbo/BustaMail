@@ -1,8 +1,6 @@
 package de.mfischbo.bustamail.media.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,9 +15,9 @@ public class Directory extends OwnedBaseDomain {
 	private String			name;
 	
 	private String			description;
-
-	private List<Directory> children = new ArrayList<>();
 	
+	private ObjectId		parent;
+
 	public String getName() {
 		return name;
 	}
@@ -32,10 +30,10 @@ public class Directory extends OwnedBaseDomain {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public List<Directory> getChildren() {
-		return children;
+	public ObjectId getParent() {
+		return parent;
 	}
-	public void setChildren(List<Directory> children) {
-		this.children = children;
+	public void setParent(ObjectId parent) {
+		this.parent = parent;
 	}
 }

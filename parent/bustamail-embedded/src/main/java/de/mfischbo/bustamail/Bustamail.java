@@ -6,24 +6,25 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
-import de.mfischbo.bustamail.common.ApplicationConfig;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan("de.mfischbo.bustamail")
-@Import({ApplicationConfig.class})
+@PropertySource("application-dev.properties")
+//@Profile("dev")
+//@Import({ApplicationConfig.class, SecurityConfig.class, SecurityBeans.class})
 public class Bustamail extends SpringBootServletInitializer {
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Bustamail.class, args);
 	}
-	
+
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder app) {
-		
-		SpringApplicationBuilder retval = app.sources(Bustamail.class);
-		return retval;
+		SpringApplicationBuilder retval = 
+				app.sources(Bustamail.class);
+		return retval.profiles("dev");
+		//return retval;
 	}
 }

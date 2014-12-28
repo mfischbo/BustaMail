@@ -161,8 +161,12 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	};
 	
 	$scope.saveAction = function() {
-		$scope.widget.source = _wCMEditor.getValue();
-		$scope.template.source = _tCMEditor.getValue();
+		if (_wCMEditor)
+			$scope.widget.source = _wCMEditor.getValue();
+		
+		if (_tCMEditor)
+			$scope.template.source = _tCMEditor.getValue();
+		
 		service.updateTemplatePack($scope.pack).success(function(data) {
 			$scope.pack = data;
 		});

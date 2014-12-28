@@ -98,7 +98,7 @@ public class RestSubscriptionController extends BaseApiController {
 		SubscriptionList l = service.getSubscriptionListById(listId);
 		
 		Media m = new Media();
-		m.setData(file.getBytes());
+		m.setData(file.getInputStream());
 		m.setName(file.getOriginalFilename());
 		m.setOwner(l.getOwner());
 		m = mediaService.createMedia(m);

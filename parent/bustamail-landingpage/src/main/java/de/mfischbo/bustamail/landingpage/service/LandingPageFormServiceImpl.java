@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.mail.internet.InternetAddress;
 
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,6 @@ import de.mfischbo.bustamail.landingpage.domain.LPFormSubmission;
 import de.mfischbo.bustamail.landingpage.dto.ValidationError;
 import de.mfischbo.bustamail.landingpage.dto.ValidationError.ErrorType;
 import de.mfischbo.bustamail.mailer.service.SimpleMailService;
-import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.service.TemplateService;
 
 @Service
@@ -80,10 +78,16 @@ public class LandingPageFormServiceImpl extends BaseService implements FormSubmi
 	}
 
 	private void sendFormSubmissionMail(LPForm form, Map<LPFormEntry, String> values) {
+		/*
 		if (!form.isTriggersMail())
 			return;
 		
-		Template t = form.getMailTemplate();
+		//Template t = form.getMailTemplate();
+		TemplatePack tp = templateService.getTemplatePackContainingTemplateById(form.getMailTemplateId());
+		Template t = null;
+		for (Template tx : tp.getTemplates())
+			if (tx.getId().equals(form.getMailTemplateId()))
+				t = tx;
 		
 		for (String r : form.getRecipients()) {
 			try {
@@ -94,6 +98,6 @@ public class LandingPageFormServiceImpl extends BaseService implements FormSubmi
 				log.error("Failed to send form submission mail to : " + r);
 			}
 		}
+		*/
 	}
-	
 }

@@ -1,10 +1,10 @@
 package de.mfischbo.bustamail.landingpage.dto;
 
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.security.dto.UserDTO;
-import de.mfischbo.bustamail.template.dto.TemplateIndexDTO;
 
 public class StaticPageIndexDTO extends BaseDomain {
 
@@ -15,7 +15,7 @@ public class StaticPageIndexDTO extends BaseDomain {
 	private DateTime				dateModified;
 	private UserDTO					userCreated;
 	private UserDTO					userModified;
-	private TemplateIndexDTO		template;
+	private ObjectId				templateId;
 	
 	
 	public String getName() {
@@ -54,10 +54,10 @@ public class StaticPageIndexDTO extends BaseDomain {
 	public void setUserModified(UserDTO userModified) {
 		this.userModified = userModified;
 	}
-	public TemplateIndexDTO getTemplate() {
-		return template;
+	public ObjectId getTemplateId() {
+		return templateId;
 	}
-	public void setTemplate(TemplateIndexDTO template) {
-		this.template = template;
+	public void setTemplateId(ObjectId templateId) {
+		this.templateId = templateId;
 	}
 }

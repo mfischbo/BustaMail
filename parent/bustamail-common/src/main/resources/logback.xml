@@ -9,9 +9,8 @@
 
     <logger name="de.mfischbo" level="debug" />
     <logger name="org.springframework" level="info" />
-    <logger name="org.springframework.web" level="debug"/>
+    <logger name="org.springframework.web" level="info"/>
     <logger name="org.springframework.security" level="info"/>
-    <logger name="com.zaxxer.hikari" level="info" />
     <root level="info">
         <appender-ref ref="console" />
     </root>
