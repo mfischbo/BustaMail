@@ -1,0 +1,28 @@
+<div class="row">
+	<div class="col-md-12">
+		<h3>Neuen Bounce Account einrichten</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+		
+			<div class="panel-heading">
+				<h3 class="panel-title">Bounce Account anlegen</h3>
+			</div>
+			
+			<div class="panel-body">
+				<div data-ng-include data-src="'./js/modules/bouncemails/views/accounts/form.html'"></div>
+			</div>
+			
+			<div class="panel-footer">
+				<div class="pull-right">
+					<a href="#/bounce-accounts" class="btn btn-danger">Abbrechen</a>
+					<button data-ng-click="createAccount()" class="btn btn-success">Speichern</button>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>

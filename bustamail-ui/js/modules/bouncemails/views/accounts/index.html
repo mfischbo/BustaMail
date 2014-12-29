@@ -1,0 +1,54 @@
+<div class="row">
+	<div class="col-md-10">
+		<h3>Bounce Accounts</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div data-ou-selector data-select-as="owner"></div>	
+			</div>
+			
+			<div class="panel-body">
+				<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Adresse</th>
+						<th>Aktiviert</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-ng-repeat="account in accounts.content">
+						<td>{{account.name}}</td>
+						<td>{{account.address}}</td>
+						<td>
+							Aktiv
+						</td>
+						<td class="tools">
+							<a href="#/bounce-accounts/{{account.id}}/edit" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
+							<a href="#/bounce-accounts/{{account.id}}/mails" title="Mails einsehen"><span class="fa fa-envelope"></span></a>
+							<a href="javascript:void('');" data-ng-click="deleteAccount(account)" title="Account entfernen"><span class="fa fa-trash-o"></span></a>
+						</td>
+					</tr>
+				</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div class="col-md-2">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Aktionen</h3>
+			</div>
+			
+			<div class="panel-body">
+				<a href="#/bounce-accounts/create">Neuen Account anlegen</a>
+			</div>
+		</div>
+	</div>
+</div>

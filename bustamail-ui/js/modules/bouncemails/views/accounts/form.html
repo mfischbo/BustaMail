@@ -1,0 +1,88 @@
+<form name="bounceAccountForm">
+	<div class="row">
+		<div class="col-md-6">
+			<h4>Generelles</h4>
+			<div class="form-group">
+				<label>Name</label>
+				<input type="text" data-ng-model="account.name" class="form-control">
+			</div>
+			
+			<div class="form-group">
+				<label>Beschreibung</label>
+				<textarea data-ng-model="account.description" class="form-control" rows="3"></textarea>
+			</div>	
+		
+			<div class="form-group">
+				<label>E-Mail Adresse</label>
+				<input type="email" data-ng-model="account.address" class="form-control">
+			</div>
+		
+			<div class="form-group">
+				<label>Besitzer</label>	
+				<div data-ou-selector data-select-as="account.owner"></div>
+			</div>
+		</div>
+		
+		<div class="col-md-6">
+			<h4>Server Einstellungen</h4>
+			
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-8">
+						<label>Hostname</label>
+						<input type="text" data-ng-model="account.hostname" class="form-control">
+					</div>
+					<div class="col-md-4">
+						<label>Port</label>
+						<input type="number" data-ng-model="account.port" class="form-control" min="0" max="65535">
+					</div>					
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-6">
+						<label>Account Typ</label>
+						<select data-ng-model="account.accountType" class="form-control">
+							<option value="POP3">POP3</option>
+							<option value="IMAP">IMAP</option>
+						</select>
+					</div>
+					
+					<div class="col-md-6 checkbox">
+						<label>
+							<input type="checkbox" data-ng-model="account.useSSL"> SSL verwenden
+						</label>
+					</div>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-6">
+						<label>Login</label>
+						<input type="text" data-ng-model="account.username" class="form-control">
+					</div>
+					
+					<div class="col-md-6">
+						<label>Passwort</label>
+						<input type="text" data-ng-model="account.password" class="form-control">
+					</div>
+				</div>
+			</div>
+	
+			<div class="form-group">
+				<label>Abfrage Interval (sekunden)</label>
+				<input type="number" min="30" data-ng-model="account.pollInterval" class="form-control">
+			</div>
+		
+			<div class="form-group">
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" data-ng-model="account.removeOnRead">Mails nach Abfragen entfernen
+					</label>
+				</div>	
+			</div>	
+		</div>
+	</div>
+</form>

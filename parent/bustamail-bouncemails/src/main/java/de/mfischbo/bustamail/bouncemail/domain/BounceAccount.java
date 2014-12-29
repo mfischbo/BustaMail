@@ -17,27 +17,30 @@ public class BounceAccount extends OwnedBaseDomain {
 		IMAP
 	}
 	
-	private String 	name;
-	private String 	description;
+	private String 		name;
+	private String 		description;
 
 	private AccountType accountType;
 	
-	private String 	hostname;
-	private int		port;
-
-	private String	username;
-	private String	password;
+	private String		address;
 	
-	private int		pollInterval;
+	private String 		hostname;
+	private int			port;
 
-	private boolean enabled;
-	private boolean	useSSL;
+	private String		username;
+	private String		password;
+	
+	private int			pollInterval;
+
+	private boolean 	enabled;
+	private boolean		useSSL;
+	private boolean 	removeOnRead;
 	
 	@DBRef
-	private User	userCreated;
+	private User		userCreated;
 	
 	@DBRef
-	private User	userModified;
+	private User		userModified;
 	
 	private DateTime	dateCreated;
 	private DateTime	dateModified;
@@ -64,6 +67,14 @@ public class BounceAccount extends OwnedBaseDomain {
 
 	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public String getHostname() {
@@ -152,5 +163,13 @@ public class BounceAccount extends OwnedBaseDomain {
 
 	public void setDateModified(DateTime dateModified) {
 		this.dateModified = dateModified;
+	}
+
+	public boolean isRemoveOnRead() {
+		return removeOnRead;
+	}
+
+	public void setRemoveOnRead(boolean removeOnRead) {
+		this.removeOnRead = removeOnRead;
 	}
 }

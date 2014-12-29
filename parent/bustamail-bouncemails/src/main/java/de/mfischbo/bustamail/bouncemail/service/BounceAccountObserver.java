@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 import de.mfischbo.bustamail.bouncemail.domain.BounceAccount;
 import de.mfischbo.bustamail.bouncemail.repo.BounceAccountRepo;
 
+/**
+ * Scheduler class that handles the polling of bounce accounts on a fixed rate.
+ * @author M. Fischboeck
+ *
+ */
 @Component
 public class BounceAccountObserver {
 
@@ -40,7 +45,7 @@ public class BounceAccountObserver {
 				BounceMailWorker worker = new BounceMailWorker(account, baRepo);
 				worker.exec();
 			} else {
-				if ((System.currentTimeMillis() - this.lastExecTime) > account.getPollInterval()) {
+				if ((System.currentTimeMillis() - this.lastExecTime) > (account.getPollInterval() * 1000)) {
 			
 					log.debug("Launching worker on account " + account.getName());
 					log.debug("Caused by exeeding poll interval");
