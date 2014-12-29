@@ -1,8 +1,11 @@
 package de.mfischbo.bustamail.bouncemail.domain;
 
+import org.joda.time.DateTime;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
+import de.mfischbo.bustamail.security.domain.User;
 
 @Document(collection = "Bounce_BounceAccount")
 public class BounceAccount extends OwnedBaseDomain {
@@ -29,6 +32,15 @@ public class BounceAccount extends OwnedBaseDomain {
 
 	private boolean enabled;
 	private boolean	useSSL;
+	
+	@DBRef
+	private User	userCreated;
+	
+	@DBRef
+	private User	userModified;
+	
+	private DateTime	dateCreated;
+	private DateTime	dateModified;
 
 	public String getName() {
 		return name;
@@ -108,5 +120,37 @@ public class BounceAccount extends OwnedBaseDomain {
 
 	public void setUseSSL(boolean useSSL) {
 		this.useSSL = useSSL;
+	}
+
+	public User getUserCreated() {
+		return userCreated;
+	}
+
+	public void setUserCreated(User userCreated) {
+		this.userCreated = userCreated;
+	}
+
+	public User getUserModified() {
+		return userModified;
+	}
+
+	public void setUserModified(User userModified) {
+		this.userModified = userModified;
+	}
+
+	public DateTime getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(DateTime dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public DateTime getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(DateTime dateModified) {
+		this.dateModified = dateModified;
 	}
 }

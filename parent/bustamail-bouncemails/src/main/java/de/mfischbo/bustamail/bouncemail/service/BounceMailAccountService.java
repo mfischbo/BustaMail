@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import de.mfischbo.bustamail.bouncemail.domain.BounceMail;
 import de.mfischbo.bustamail.bouncemail.domain.BounceAccount;
+import de.mfischbo.bustamail.bouncemail.domain.BounceMail;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 
 public interface BounceMailAccountService {
@@ -33,7 +33,7 @@ public interface BounceMailAccountService {
 	public Page<BounceMail> getMailsByAccount(BounceAccount account, Pageable page);
 	
 	@PreAuthorize("hasPermission(account.owner, 'BounceAccounts.READ_MAILS')")
-	public BounceMail getMailById(BounceAccount account, ObjectId id);
+	public BounceMail getMailById(BounceAccount account, ObjectId id) throws EntityNotFoundException;
 	
 	@PreAuthorize("hasPermission(account.owner, 'BounceAccounts.MANAGE_MAILS'")
 	public void deleteBounceMailsById(BounceAccount account, List<ObjectId> mailIds);
