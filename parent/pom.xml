@@ -146,5 +146,6 @@
 		<module>bustamail-mailinglist</module>
 		<module>bustamail-io</module>
 		<module>bustamail-versionedcontent</module>
+		<module>bustamail-bouncemails</module>
 	</modules>
 </project>
