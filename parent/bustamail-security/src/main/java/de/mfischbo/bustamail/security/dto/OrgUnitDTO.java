@@ -1,5 +1,7 @@
 package de.mfischbo.bustamail.security.dto;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,8 +19,8 @@ public class OrgUnitDTO extends BaseDTO {
 	private		DateTime			dateCreated;
 	private		DateTime			dateModified;
 	private		boolean				deleted;
-	private		Set<OrgUnitDTO>		children;
-	private		List<ActorDTO>		actors;
+	private		Set<OrgUnitDTO>		children = new HashSet<>();
+	private		List<ActorDTO>		actors = new ArrayList<>();
 
 	public String getName() {
 		return name;

@@ -30,7 +30,9 @@ public class RestOrgUnitController extends BaseApiController {
 	
 	@RequestMapping(value = "/roots", method = RequestMethod.GET)
 	public Set<OrgUnitDTO> getRootOrgUnits() {
-		return service.getTopLevelUnits();
+		Set<OrgUnit> units =  service.getTopLevelUnits();
+		
+		return asDTO(units, OrgUnitDTO.class);
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)

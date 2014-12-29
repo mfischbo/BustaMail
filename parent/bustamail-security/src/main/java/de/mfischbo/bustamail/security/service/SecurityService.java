@@ -55,7 +55,7 @@ public interface SecurityService {
 	 * root org unit. Those are returned here
 	 * @return
 	 */
-	public Set<OrgUnitDTO>	getTopLevelUnits();
+	public Set<OrgUnit>	getTopLevelUnits();
 	
 	/**
 	 * Returns the upmost org unit of the hierarchy. 

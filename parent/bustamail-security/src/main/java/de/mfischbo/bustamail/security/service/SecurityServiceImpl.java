@@ -129,7 +129,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	 * @see de.mfischbo.bustamail.security.service.SecurityService#getRootOrgUnits()
 	 */
 	@Override
-	public Set<OrgUnitDTO> getTopLevelUnits() {
+	public Set<OrgUnit> getTopLevelUnits() {
 		OrgUnit root = orgUnitRepo.findOne(ROOT_UNIT_ID);
 		User current = (User) currentUser.getPrincipal();
 		Set<OrgUnit> units = getOrgUnitsOfUser(current);
@@ -142,7 +142,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 				retval.add(nxt);
 				
 		}
-		return asDTO(retval, OrgUnitDTO.class);
+		return retval;
 	}
 
 	/*
