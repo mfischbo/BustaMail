@@ -18,6 +18,13 @@ BMApp.BounceMails.controller('BounceAccountIndexController', ['$scope', 'BounceA
 			});
 		});
 	};
+	
+	$scope.toggleEnabled = function(account) {
+		account.enabled = !account.enabled;
+		service.updateAccount(account).success(function(data) {
+			account = data;
+		});
+	};
 }]);
 
 BMApp.BounceMails.controller('BounceAccountCreateController', ['$scope', '$location', 'BounceAccountService', function($scope, $location, service) {

@@ -26,7 +26,8 @@
 						<td>{{account.name}}</td>
 						<td>{{account.address}}</td>
 						<td>
-							Aktiv
+							<span data-ng-if="account.enabled" class="fa fa-toggle-on" style="font-size:20px;color:green;cursor:pointer;" data-ng-click="toggleEnabled(account)"></span>
+							<span data-ng-if="!account.enabled" class="fa fa-toggle-off" style="font-size:20px; color:lightgrey; cursor:pointer;" data-ng-click="toggleEnabled(account)"></span>
 						</td>
 						<td class="tools">
 							<a href="#/bounce-accounts/{{account.id}}/edit" title="Bearbeiten"><span class="fa fa-pencil"></span></a>
