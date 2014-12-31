@@ -1,8 +1,13 @@
 package de.mfischbo.bustamail.bouncemail.domain;
 
+import java.util.Properties;
+
 import org.joda.time.DateTime;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.security.domain.User;
@@ -15,6 +20,12 @@ public class BounceAccount extends OwnedBaseDomain {
 	public enum AccountType {
 		POP3,
 		IMAP
+	}
+	
+	public enum SecurityType {
+		NONE,
+		SSL,
+		STARTTLS
 	}
 	
 	private String 		name;
@@ -32,8 +43,9 @@ public class BounceAccount extends OwnedBaseDomain {
 	
 	private int			pollInterval;
 
+	private SecurityType securityType;
+	
 	private boolean 	enabled;
-	private boolean		useSSL;
 	private boolean 	removeOnRead;
 	
 	@DBRef
@@ -125,12 +137,12 @@ public class BounceAccount extends OwnedBaseDomain {
 		this.enabled = enabled;
 	}
 
-	public boolean isUseSSL() {
-		return useSSL;
+	public SecurityType getSecurityType() {
+		return securityType;
 	}
 
-	public void setUseSSL(boolean useSSL) {
-		this.useSSL = useSSL;
+	public void setSecurityType(SecurityType securityType) {
+		this.securityType = securityType;
 	}
 
 	public User getUserCreated() {
@@ -171,5 +183,45 @@ public class BounceAccount extends OwnedBaseDomain {
 
 	public void setRemoveOnRead(boolean removeOnRead) {
 		this.removeOnRead = removeOnRead;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public Properties getConnectionProperties() {
+		Properties p = new Properties();
+		
+		p.put("mail.host", this.hostname);
+	
+		if (this.accountType == AccountType.POP3) {
+			p.put("mail.pop3.auth", "true");
+			p.put("mail.pop3.port", this.port);
+			p.put("mail.store.protocol", "pop3");
+			
+			if (this.securityType == SecurityType.STARTTLS) {
+				p.put("mail.pop3.starttls.enable", "true");
+				p.put("mail.pop3.ssl.trust", this.hostname);
+			}
+			
+			if (this.securityType == SecurityType.SSL) {
+				p.put("mail.pop3.ssl.enable", "true");
+				p.put("mail.pop3.ssl.trust", this.hostname);
+			}
+		
+		} else if (this.accountType == AccountType.IMAP) {
+			p.put("mail.imap.auth", "true");
+			p.put("mail.imap.port", this.port);
+			p.put("mail.store.protocol", "imap");
+		
+			if (this.securityType == SecurityType.STARTTLS) {
+				p.put("mail.imap.starttls.enable", "true");
+				p.put("mail.pop3.ssl.trust", this.hostname);
+			}
+			
+			if (this.securityType == SecurityType.SSL) {
+				p.put("mail.pop3.ssl.enable", "true");
+				p.put("mail.pop3.ssl.trust", this.hostname);
+			}
+		}
+		return p;
 	}
 }

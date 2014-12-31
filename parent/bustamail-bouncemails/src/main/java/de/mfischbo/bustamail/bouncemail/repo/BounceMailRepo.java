@@ -16,4 +16,7 @@ public interface BounceMailRepo extends MongoRepository<BounceMail, ObjectId> {
 	
 	@Query(" { 'accountId' : ?0, '_id' : ?1} ")
 	BounceMail findOneByAccount(BounceAccount account, ObjectId id);
+	
+	@Query(" { 'messageId' : ?0 } ")
+	BounceMail findByMessageId(String messageId);
 }

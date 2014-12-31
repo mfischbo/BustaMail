@@ -50,9 +50,12 @@
 					</div>
 					
 					<div class="col-md-6 checkbox">
-						<label>
-							<input type="checkbox" data-ng-model="account.useSSL"> SSL verwenden
-						</label>
+						<label>Verbindunssicherung</label>
+						<select data-ng-model="account.securityType" class="form-control">
+							<option value="NONE">Ohne</option>
+							<option value="SSL">SSL</option>
+							<option value="STARTTLS">STARTTLS</option>
+						</select>
 					</div>
 				</div>
 			</div>
