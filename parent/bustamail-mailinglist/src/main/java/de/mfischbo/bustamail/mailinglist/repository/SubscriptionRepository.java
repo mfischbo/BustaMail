@@ -25,4 +25,7 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, Ob
 	
 	//@Query(" { 'subscriptionList' : ?0, 'state' : ?1 } ")
 	long countBySubscriptionListAndState(SubscriptionList list, State state);
+	
+	@Query(" { 'contact.$id' : ?0} ")
+	List<Subscription> findAllByContactId(ObjectId contactId);
 }

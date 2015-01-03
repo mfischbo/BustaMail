@@ -147,5 +147,6 @@
 		<module>bustamail-io</module>
 		<module>bustamail-versionedcontent</module>
 		<module>bustamail-bouncemails</module>
+		<module>bustamail-public</module>
 	</modules>
 </project>
