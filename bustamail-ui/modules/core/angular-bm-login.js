@@ -4,11 +4,11 @@ BMLogin.config(['$routeProvider', function($routeProvider) {
 	
 	$routeProvider
 		.when("/login", {
-			templateUrl : "./js/modules/core/tmpl/login.html",
+			templateUrl : "./modules/core/tmpl/login.html",
 			controller	: "BMLoginController"
 		})
 		.when("/recover", {
-			templateUrl : "./js/modules/core/tmpl/password-recover.html",
+			templateUrl : "./modules/core/tmpl/password-recover.html",
 			controller	: "BMRecoverPasswordController"
 		})
 		.otherwise({redirectTo : "/login"});

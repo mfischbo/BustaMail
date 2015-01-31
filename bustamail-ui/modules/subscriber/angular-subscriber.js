@@ -3,11 +3,11 @@ BMApp.Subscriber.config(['$routeProvider', function($routeProvider) {
 	
 	$routeProvider
 		.when("/subscriber", {
-			templateUrl : "./js/modules/subscriber/tmpl/index.html",
+			templateUrl : "./modules/subscriber/tmpl/index.html",
 			controller	: "SubscriberIndexController"
 		})
 		.when('/subscriber/:id/edit', {
-			templateUrl : './js/modules/subscriber/tmpl/edit.html',
+			templateUrl : './modules/subscriber/tmpl/edit.html',
 			controller	: 'SubscriberEditController'
 		});
 }]);

@@ -3,27 +3,27 @@ BMApp.MailingList.config(['$routeProvider', function($routeProvider) {
 	
 	$routeProvider
 		.when("/subscription-lists", {
-			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/index.html",
+			templateUrl	:	"./modules/mailinglist/tmpl/subscriptionlist/index.html",
 			controller	:	"MailingListIndexController"
 		})
 		.when("/subscription-lists/create", {
-			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/create.html",
+			templateUrl	:	"./modules/mailinglist/tmpl/subscriptionlist/create.html",
 			controller	:	"MailingListCreateController"
 		})
 		.when("/subscription-lists/:id", {
-			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/details.html",
+			templateUrl	:	"./modules/mailinglist/tmpl/subscriptionlist/details.html",
 			controller	:	"MailingListEditController"
 		})
 		.when("/subscription-lists/:id/edit", {
-			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/edit.html",
+			templateUrl	:	"./modules/mailinglist/tmpl/subscriptionlist/edit.html",
 			controller	:	"MailingListEditController"
 		}).
 		when("/subscription-lists/:id/import", {
-			templateUrl	:	"./js/modules/mailinglist/tmpl/subscriptionlist/import.html",
+			templateUrl	:	"./modules/mailinglist/tmpl/subscriptionlist/import.html",
 			controller	:	"MailingListImportController"
 		}).
 		when('/subscription-lists/:id/subscribers', {
-			templateUrl :   './js/modules/mailinglist/tmpl/subscriptionlist/subscribers.html',
+			templateUrl :   './modules/mailinglist/tmpl/subscriptionlist/subscribers.html',
 			controller	:	'MailingListSubscriberController'
 		});
 }]);

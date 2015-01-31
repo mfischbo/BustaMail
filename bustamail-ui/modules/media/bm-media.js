@@ -3,13 +3,13 @@ BMApp.Media.config(['$routeProvider', function($routeProvider) {
 
 	$routeProvider
 		.when("/media", {
-			templateUrl	:	"./js/modules/media/tmpl/index.html",
+			templateUrl	:	"./modules/media/tmpl/index.html",
 			controller	:	"MediaIndexController"
 		})
 		
 		// editor module
 		.when("/editor", {
-			templateUrl	:	"./js/modules/editor/tmpl/editor.html",
+			templateUrl	:	"./modules/editor/tmpl/editor.html",
 			controller	:	"EditorIndexController"
 		});
 }]);

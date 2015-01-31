@@ -4,19 +4,19 @@ BMApp.Mailing.config(['$routeProvider', function($routeProvider) {
 	
 	$routeProvider
 		.when("/mailings", {
-			templateUrl	:	"./js/modules/mailing/tmpl/mailing/index.html",
+			templateUrl	:	"./modules/mailing/tmpl/mailing/index.html",
 			controller	:	"MailingIndexController"
 		})
 		.when("/mailings/create", {
-			templateUrl :	"./js/modules/mailing/tmpl/mailing/create.html",
+			templateUrl :	"./modules/mailing/tmpl/mailing/create.html",
 			controller	:	"MailingCreateController"
 		})
 		.when("/mailings/:id/edit", {
-			templateUrl : 	"./js/modules/editor/tmpl/editor.html",
+			templateUrl : 	"./modules/editor/tmpl/editor.html",
 			controller	:	"EditorIndexController"
 		})
 		.when("/mailings/:id/envelope", {
-			templateUrl	:	"./js/modules/mailing/tmpl/mailing/envelope.html",
+			templateUrl	:	"./modules/mailing/tmpl/mailing/envelope.html",
 			controller	:	"MailingEnvelopeController"
 		});
 }]);
