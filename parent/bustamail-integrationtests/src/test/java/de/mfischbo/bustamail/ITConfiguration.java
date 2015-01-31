@@ -1,7 +1,6 @@
 package de.mfischbo.bustamail;
 
 import javax.servlet.MultipartConfigElement;
-import javax.sql.DataSource;
 
 import org.dozer.spring.DozerBeanMapperFactoryBean;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,8 +14,6 @@ import org.springframework.core.io.Resource;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @EnableAutoConfiguration
@@ -43,17 +40,5 @@ public class ITConfiguration {
 		MultipartConfigFactory factory = new MultipartConfigFactory();
 		factory.setMaxFileSize("10MB");
 		return factory.createMultipartConfig();
-	}
-	
-	@Bean(destroyMethod = "shutdown")
-	public DataSource getBustamailCoreDS() {
-		
-		HikariConfig c = new HikariConfig();
-		c.setMaximumPoolSize(50);
-		c.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-		c.addDataSourceProperty("url", "jdbc:mysql://localhost:3306/bustamaildb_test");
-		c.addDataSourceProperty("user", "root");
-		c.addDataSourceProperty("password", "matrix");
-		return new HikariDataSource(c);
 	}
 }

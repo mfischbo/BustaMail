@@ -8,7 +8,7 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.subscriber.domain.Contact;
 import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
-@Document(collection = "Subscription")
+@Document(collection = "MailingList_Subscription")
 public class Subscription extends BaseDomain {
 
 	private static final long serialVersionUID = 3316987035776229064L;

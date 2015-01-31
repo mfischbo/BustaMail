@@ -13,7 +13,7 @@ import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
 
-@Document(collection = "Mailing")
+@Document(collection = "Mailing_Mailing")
 public class Mailing extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = 4233998675412535889L;

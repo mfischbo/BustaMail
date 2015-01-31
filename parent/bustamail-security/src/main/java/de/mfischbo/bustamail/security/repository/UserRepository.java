@@ -15,5 +15,6 @@ public interface UserRepository extends MongoRepository<User, ObjectId> {
 	@Query("{ 'deleted' : false, '_id' : { $in : ?0 } }")
 	public Page<User> findAllUsers(Collection<ObjectId> ids, Pageable page);
 	
+	@Query(" { 'email' : ?0 } ")
 	public User findByEmail(String email);
 }
