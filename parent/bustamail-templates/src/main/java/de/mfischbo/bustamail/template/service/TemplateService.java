@@ -40,6 +40,4 @@ public interface TemplateService {
 	public TemplatePack				importTemplatePack(ObjectId owner, ZipInputStream stream) throws Exception;
 	public void						exportTemplatePack(TemplatePack pack, OutputStream stream) throws BustaMailException;
 	public TemplatePack				cloneTemplatePack(TemplatePack  pack) throws Exception;
-	
-
 }

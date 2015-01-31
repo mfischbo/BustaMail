@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 
-@Document(collection = "OrgUnit")
+@Document(collection = "Security_OrgUnit")
 public class OrgUnit extends BaseDomain {
 
 	private static final long serialVersionUID = 1410454016750659990L;

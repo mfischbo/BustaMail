@@ -16,7 +16,7 @@ import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.common.domain.Gender;
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 
-@Document(collection = "User")
+@Document(collection = "Security_User")
 public class User extends BaseDomain implements UserDetails, PersonalizedEmailRecipient {
 
 	private static final long serialVersionUID = 6348512582303776397L;

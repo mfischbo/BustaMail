@@ -44,7 +44,7 @@ BMApp.MailingList.controller("MailingListIndexController",
 			$http.get("/api/subscription-lists?owner=" + $scope.owner).success(function(data) {
 				$scope.subscriptionLists = data;
 			});
-		};
+		}
 	});
 	
 	$scope.deleteSubscriptionList = function(id) {

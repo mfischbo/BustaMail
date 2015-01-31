@@ -86,21 +86,27 @@ public class BounceMailWorker {
 
 	private void handleMessage(MimeMessage m) throws MessagingException {
 		log.debug("Working on message : " + m.getMessageID());
-		
-		BounceMail mail = new BounceMail();
-		mail.setMessageId(m.getMessageID());
-		mail.setSubject(m.getSubject());
 	
-		mail.setDateSent(new DateTime(m.getSentDate()));
-		mail.setDateReceived(new DateTime(m.getReceivedDate()));
+		try {
+			BounceMail mail = new BounceMail();
+			mail.setMessageId(m.getMessageID());
+			mail.setSubject(m.getSubject());
 		
-		mail.setSender(m.getSender().toString());
-		for (Address a : m.getFrom()) 
-			mail.getFrom().add(a.toString());
-	
-		// parse the X-BM-
+			mail.setDateSent(new DateTime(m.getSentDate()));
+			mail.setDateReceived(new DateTime(m.getReceivedDate()));
+			
+			if (m.getSender() != null)
+				mail.setSender(m.getSender().toString());
+			
+			for (Address a : m.getFrom()) 
+				mail.getFrom().add(a.toString());
 		
-		log.debug("Inserting message " + mail.getMessageId());
-		bmRepo.save(mail);
+			// parse the X-BM-
+		
+			log.debug("Inserting message " + mail.getMessageId());
+			bmRepo.save(mail);
+		} catch (Exception ex) {
+			log.warn("Unparseable message with id : " + m.getMessageID());
+		}
 	}
 }

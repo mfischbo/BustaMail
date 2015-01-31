@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.media.domain.Media;
 
-@Document(collection = "TemplatePack")
+@Document(collection = "Templates_TemplatePack")
 public class TemplatePack extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = 8606991297872941503L;

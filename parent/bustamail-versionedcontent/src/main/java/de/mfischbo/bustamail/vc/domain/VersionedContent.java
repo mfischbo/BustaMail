@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.security.domain.User;
 
-@Document(collection="VersionedContent")
+@Document(collection="VersionedContent_Content")
 public class VersionedContent extends BaseDomain {
 
 	private static final long serialVersionUID = 2960183880457152474L;

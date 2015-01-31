@@ -49,6 +49,7 @@ public class RestTemplatePackController extends BaseApiController {
 		throw new EntityNotFoundException("No template found for id : " + templateId);
 	}
 	
+
 	/**
 	 * Returns all template packs visible to the given org unit
 	 * @param owner The org unit

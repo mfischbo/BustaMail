@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 
-@Document(collection = "SubscriptionList")
+@Document(collection = "MailingList_SubscriptionList")
 public class SubscriptionList extends OwnedBaseDomain {
 
 	private static final long serialVersionUID = -5335592314616788305L;
