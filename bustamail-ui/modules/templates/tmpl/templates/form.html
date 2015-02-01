@@ -55,10 +55,10 @@
 			</thead>
 			<tbody>
 				<tr data-ng-repeat="i in template.images">
-					<td><img data-ng-src="./img/media/{{i.id}}" width="64"></td>
+					<td><img data-ng-src="/api/files/{{i.id}}" width="64"></td>
 					<td>{{i.name}}</td>
 					<td class="tools">
-						<a href="./img/media/{{i.id}}" target="_blank"><span class="fa fa-download"></span></a>
+						<a href="/api/files/{{i.id}}" target="_blank"><span class="fa fa-download"></span></a>
 						<a href="javascript:void('');" data-ng-click="deleteTemplateImage(i.id)"><span class="fa fa-trash-o"></span></a>
 					</td>
 				</tr>

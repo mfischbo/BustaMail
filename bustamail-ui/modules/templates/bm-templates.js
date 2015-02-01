@@ -5,15 +5,15 @@ BMApp.Templates.config(['$routeProvider', function($routeProvider) {
 	
 	$routeProvider
 		.when("/templates/packs", {
-			templateUrl	:	"./js/modules/templates/tmpl/packs/index.html",
+			templateUrl	:	"./modules/templates/tmpl/packs/index.html",
 			controller	:	"TemplatePacksIndexController"
 		})
 		.when("/templates/packs/create", {
-			templateUrl :	"./js/modules/templates/tmpl/packs/create.html",
+			templateUrl :	"./modules/templates/tmpl/packs/create.html",
 			controller  :	"TemplatePacksCreateController"
 		})
 		.when("/templates/packs/:id/edit", {
-			templateUrl	:	"./js/modules/templates/tmpl/packs/edit.html",
+			templateUrl	:	"./modules/templates/tmpl/packs/edit.html",
 			controller	:	"TemplatePacksEditController"
 		});
 }]);
@@ -34,18 +34,16 @@ BMApp.Templates.controller("TemplatePacksIndexController", ['TemplateService', '
 	
 	$scope.copyPack = function(id) {
 		BMApp.showSpinner();
-		$http.put("/api/templates/packs/" + id + "/clone").success(function(data) {
+		service.copyTemplatePack(id).success(function(data) {
 			$scope.packs.content.push(data);
 			BMApp.hideSpinner();
-		}).error(function(){
-			BMApp.hideSpinner();
-		});
+		}).error(BMApp.hideSpinner);
 	};
 	
 	$scope.deletePack = function(id) {
 		BMApp.confirm("Soll der Template Pack und alle seine Inhalte wirklich entfernt werden?", function() {
 			service.deleteTemplatePack(id).success(function() {
-				KT.remove('id', id, $scope.packs);
+				BMApp.utils.remove('id', id, $scope.packs.content);
 			});
 		});
 	};
@@ -53,7 +51,7 @@ BMApp.Templates.controller("TemplatePacksIndexController", ['TemplateService', '
 	$scope.onZipFileSelect = function($files) {
 		BMApp.showSpinner();
 		$scope.upload = $upload.upload({
-			url		:	"/api/templates/"+ $scope.owner +"/packs/upload",
+			url		:	"/api/templatepacks/upload?owner="+ $scope.owner,
 			method	:	"POST",
 			file	:	$files[0]
 		}).success(function(data) {
@@ -175,7 +173,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 	$scope.onThemeFileSelect = function($files) {
 		BMApp.showSpinner();
 		$scope.upload = $upload.upload({
-			url		:	"/api/templates/packs/" + $routeParams.id + "/themeImage",
+			url		:	"/api/templatepacks/" + $routeParams.id + "/image",
 			method	:	"POST",
 			file	:	$files[0]
 		}).success(function(data) {
@@ -199,7 +197,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		for (var i in $scope.templateFiles) {
 			BMApp.showSpinner();
 			$scope.upload = $upload.upload({
-				url		:	"/api/templates/templates/" + $scope.template.id + "/images",
+				url		:	"/api/templatepacks/" + $scope.pack.id + '/templates/' + $scope.template.id + "/resources?type=image",
 				method	:	"POST",
 				file	:	$scope.templateFiles[i]
 			}).success(function(data) {
@@ -215,7 +213,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		for (var i in $scope.templateResources) {
 			BMApp.showSpinner();
 			$scope.upload = $upload.upload({
-				url		:	"/api/templates/templates/" + $scope.template.id + "/resources",
+				url		:	"/api/templatepacks/" + $scope.pack.id + "/templates/" + $scope.template.id + "/resources?type=resource",
 				method	:	"POST",
 				file	:	$scope.templateResources[i]
 			}).success(function(data) {
@@ -231,7 +229,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		BMApp.confirm("Soll das Bild wirklich aus dem Template entfernt werden?", function() {
 			$http({
 				method	:	"DELETE",
-				url		:	"/api/templates/templates/" + $scope.template.id + "/images/" + id
+				url		:	"/api/templatepacks/" + $scope.pack.id + "/templates/" + $scope.template.id + "/resources/" + id + "?type=image"
 			}).success(function() {
 				BMApp.utils.remove("id", id, $scope.template.images);
 			});
@@ -242,7 +240,7 @@ BMApp.Templates.controller("TemplatePacksEditController",
 		BMApp.confirm("Soll die Datei wirklich aus dem Template entfernt werden?", function() {
 			$http({
 				method	:	"DELETE",
-				url		:	"/api/templates/templates/" + $scope.template.id + "/resources/" + id
+				url		:	"/api/templatepacks/" + $scope.pack.id + "/templates/" + $scope.template.id + "/resources/" + id + "?type=resource"
 			}).success(function() {
 				BMApp.utils.remove("id", id, $scope.template.resources);
 			});

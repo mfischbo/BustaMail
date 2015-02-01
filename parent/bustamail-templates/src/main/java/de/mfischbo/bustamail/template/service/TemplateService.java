@@ -34,12 +34,25 @@ public interface TemplateService {
 	
 	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public void						deleteTemplatePack(TemplatePack pack);
+	
+	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public void						exportAsZip(ObjectId owner, TemplatePack tp);
+	
+	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public Media					createTemplatePackImage(TemplatePack pack, Media image) throws Exception;
 
+	@PreAuthorize("hasPermission(#owner, 'Templates.MANAGE_TEMPLATES')")
 	public TemplatePack				importTemplatePack(ObjectId owner, ZipInputStream stream) throws Exception;
+	
+	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public void						exportTemplatePack(TemplatePack pack, OutputStream stream) throws BustaMailException;
+
+	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public TemplatePack				cloneTemplatePack(TemplatePack  pack) throws Exception;
 	
+	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
+	public Media					createTemplateResource(TemplatePack pack, ObjectId templateId, Media m, String type) throws Exception;
 
+	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
+	public void						deleteTemplateResource(TemplatePack pack, ObjectId templateId, ObjectId resourceId, String type) throws Exception;
 }

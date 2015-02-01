@@ -3,11 +3,11 @@ package de.mfischbo.bustamail.template.service;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
@@ -20,7 +20,6 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.method.P;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 
@@ -49,11 +48,20 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	private ObjectMapper			jacksonMapper;
 	
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#getAllTemplatePacks(org.bson.types.ObjectId, org.springframework.data.domain.Pageable)
+	 */
 	@Override
 	public Page<TemplatePack> getAllTemplatePacks(ObjectId owner, Pageable page) {
 		return tpRepo.findAllByOwner(owner, page);
 	}
 
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#getTemplatePackById(org.bson.types.ObjectId)
+	 */
 	@Override
 	public TemplatePack getTemplatePackById(ObjectId id)
 			throws EntityNotFoundException {
@@ -68,6 +76,11 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		return tp;
 	}
 
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#createTemplatePack(de.mfischbo.bustamail.template.domain.TemplatePack)
+	 */
 	@Override
 	public TemplatePack createTemplatePack(TemplatePack pack) throws Exception {
 		
@@ -87,28 +100,34 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		return tpRepo.save(pack);
 	}
 	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#exportTemplatePack(de.mfischbo.bustamail.template.domain.TemplatePack, java.io.OutputStream)
+	 */
 	@Override
 	public void exportTemplatePack(TemplatePack pack, OutputStream stream) throws BustaMailException {
 	
 		try {
-			// map the pack to a dto
-			
 			ZipOutputStream zip = new ZipOutputStream(stream);
 			zip.putNextEntry(new ZipEntry("manifest.json"));
 			zip.write(jacksonMapper.writeValueAsBytes(pack));
 			
-			zip.putNextEntry(new ZipEntry(pack.getThemeImage().getId().toString()));
-			zip.write(pack.getThemeImage().getData());
-	
+			if (pack.getThemeImage() != null) {
+				zip.putNextEntry(new ZipEntry(pack.getThemeImage().getId().toString()));
+				byte[] data = StreamUtils.copyToByteArray(mediaService.getContent(pack.getThemeImage()));
+				zip.write(data);
+			}
+			
 			for (Template tm : pack.getTemplates()) {
 				for (Media i : tm.getImages()) {
 					zip.putNextEntry(new ZipEntry(i.getId().toString()));
-					zip.write(i.getData());
+					zip.write(StreamUtils.copyToByteArray(mediaService.getContent(i)));
 				}
 				
 				for (Media r : tm.getResources()) {
 					zip.putNextEntry(new ZipEntry(r.getId().toString()));
-					zip.write(r.getData());
+					zip.write(StreamUtils.copyToByteArray(mediaService.getContent(r)));
 				}
 			}
 			zip.flush();
@@ -123,24 +142,28 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	}
 	
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#importTemplatePack(org.bson.types.ObjectId, java.util.zip.ZipInputStream)
+	 */
 	@Override
-	@PreAuthorize("hasPermission(#owner, 'Templates.MANAGE_TEMPLATES')")
 	public TemplatePack importTemplatePack(ObjectId owner, ZipInputStream stream) throws Exception {
 	
 		// read all entries into a data structure
 		TemplatePack tin = null;
-		Map<UUID, byte[]> files = new HashMap<>();
+		Map<ObjectId, byte[]> files = new HashMap<>();
 			
 		try {
 			ZipEntry e = null;
 			while ((e = stream.getNextEntry()) != null) {
+				
 				// the manifest file
 				if (e.getName().equals("manifest.json")) {
 					tin = jacksonMapper.readValue(StreamUtils.copyToByteArray(stream), TemplatePack.class);
-					//tin = jacksonMapper.readValue(stream, TemplatePack.class);
 				} else {
+			
 					// other resoures go to the map
-					UUID id = UUID.fromString(e.getName());
+					ObjectId id = new ObjectId(e.getName());
 					byte[] data = StreamUtils.copyToByteArray(stream);
 					files.put(id, data);
 				}
@@ -152,22 +175,29 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		if (tin == null)
 			throw new BustaMailException("Unable to read Template Pack from provided file");
 	
+		
+		// create the pack itself
 		TemplatePack nPack = new TemplatePack();
-		nPack.setDescription(tin.getName());
+		nPack.setDescription(tin.getDescription());
 		nPack.setName(tin.getName());
 		nPack.setOwner(owner);
 		nPack.setTemplates(new ArrayList<Template>(tin.getTemplates().size()));
-	
-		// perist the pack
-		nPack = tpRepo.save(nPack);
-	
+		
+		if (nPack.getThemeImage() != null) {
+			Media m = new Media();
+			m.setOwner(nPack.getOwner());
+			m.setName("Theme for " + nPack.getName());
+			m.setData(files.get(tin.getId()));
+			m = mediaService.createMedia(m);
+			nPack.setThemeImage(m);
+		}
+
 		for (Template t : tin.getTemplates()) {
 			Template nt = new Template();
 			nt.setDescription(t.getDescription());
 			nt.setHtmlHead(t.getHtmlHead());
 			nt.setName(t.getName());
 			nt.setSource(t.getSource());
-			//nt.setTemplatePack(nPack);
 			nt.setWidgets(new LinkedList<>());
 			nt.setImages(new LinkedList<>());
 			nt.setResources(new LinkedList<>());
@@ -178,9 +208,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				nw.setSource(w.getSource());
 				nt.getWidgets().add(nw);
 			}
-			
-			// checkpoint for a single template
-			//nt = templateRepo.save(nt);
+			nPack.getTemplates().add(nt);
 			
 			// copy all images and resources for this template
 			for (Media image : t.getImages()) {
@@ -188,6 +216,7 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				mi.setName(image.getName());
 				mi.setOwner(owner);
 				mi.setDescription(image.getDescription());
+				mi.setData(files.get(image.getId()));
 				mi = mediaService.createMedia(mi);
 				nt.getImages().add(mi);
 			}
@@ -197,17 +226,22 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				m.setName(res.getName());
 				m.setDescription(res.getDescription());
 				m.setOwner(owner);
+				m.setData(files.get(res.getId()));
 				m = mediaService.createMedia(m);
 				nt.getResources().add(m);
 			}
-			//templateRepo.save(nt);
 		}
-		return tin;
+
+		// perist the pack
+		return tpRepo.save(nPack);
 	}
 	
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#cloneTemplatePack(de.mfischbo.bustamail.template.domain.TemplatePack)
+	 */
 	@Override
-	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public TemplatePack cloneTemplatePack(@P("pack") TemplatePack o) throws Exception {
 		TemplatePack n = new TemplatePack();
 		n.setDescription(o.getDescription());
@@ -254,24 +288,41 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 	}
 	
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#updateTemplatePack(de.mfischbo.bustamail.template.domain.TemplatePack)
+	 */
 	@Override
 	public TemplatePack updateTemplatePack(TemplatePack pack)
 			throws EntityNotFoundException {
 		return tpRepo.save(pack);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#deleteTemplatePack(de.mfischbo.bustamail.template.domain.TemplatePack)
+	 */
 	@Override
 	public void deleteTemplatePack(TemplatePack pack) {
 		tpRepo.delete(pack);
 	}
+
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#exportAsZip(org.bson.types.ObjectId, de.mfischbo.bustamail.template.domain.TemplatePack)
+	 */
 	@Override
 	public void exportAsZip(ObjectId owner, TemplatePack pack) {
 		
 	}
 
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#createTemplatePackImage(de.mfischbo.bustamail.template.domain.TemplatePack, de.mfischbo.bustamail.media.domain.Media)
+	 */
 	@Override
-	@PreAuthorize("hasPermission(#pack.owner, 'Templates.MANAGE_TEMPLATES')")
 	public Media createTemplatePackImage(@P("pack") TemplatePack pack, Media image) throws Exception {
 		image.setOwner(pack.getOwner());
 		Media retval = mediaService.createMedia(image);
@@ -279,7 +330,67 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		tpRepo.save(pack);
 		return retval;
 	}
+	
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#createTemplateResource(de.mfischbo.bustamail.template.domain.TemplatePack, org.bson.types.ObjectId, de.mfischbo.bustamail.media.domain.Media, java.lang.String)
+	 */
+	@Override
+	public Media createTemplateResource(TemplatePack pack , ObjectId templateId, Media media, String type) throws Exception {
+		media.setOwner(pack.getOwner());
+		for (Template t : pack.getTemplates()) {
+			if (t.getId().equals(templateId)) {
+				Media m = mediaService.createMedia(media);
+				
+				if (type.equals("resource"))
+					t.getResources().add(m);
+				if (type.equals("image"))
+					t.getImages().add(m);
+				tpRepo.save(pack);
+				return m;
+			}
+		}
+		throw new BustaMailException("No template found for id " + templateId);
+	}
+	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#deleteTemplateResource(de.mfischbo.bustamail.template.domain.TemplatePack, org.bson.types.ObjectId, org.bson.types.ObjectId, java.lang.String)
+	 */
+	@Override
+	public void deleteTemplateResource(TemplatePack pack, ObjectId templateId, ObjectId resourceId, String type) throws Exception {
+		for (Template t : pack.getTemplates()) {
+			if (t.getId().equals(templateId)) {
+			
+				List<Media> media = null;
+				if (type.equals("resource")) 
+					media = t.getResources();
+				if (type.equals("image"))
+					media = t.getImages();
+				
+				if (media == null)
+					return;
+				
+				Iterator<Media> mit = media.iterator();
+				while (mit.hasNext()) {
+					Media m = mit.next();
+					if (m.getId().equals(resourceId)) {
+						mit.remove();
+						mediaService.deleteMedia(m);
+						tpRepo.save(pack);
+					}
+				}
+			}
+		}
+	}
+	
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.template.service.TemplateService#getTemplatePackContainingTemplateById(org.bson.types.ObjectId)
+	 */
 	@Override
 	public TemplatePack getTemplatePackContainingTemplateById(ObjectId templateId) throws EntityNotFoundException {
 		TemplatePack tp = tpRepo.findByTemplateWithId(templateId);

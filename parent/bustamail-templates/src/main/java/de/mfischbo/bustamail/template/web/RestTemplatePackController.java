@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -15,126 +14,51 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.mfischbo.bustamail.common.web.BaseApiController;
-import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.service.TemplateService;
-import de.mfischbo.bustamail.views.TemplatePackDetailView;
 
 @RestController
-@RequestMapping("/api/templates")
+@RequestMapping(value = "/api/templatepacks")
 public class RestTemplatePackController extends BaseApiController {
 
 	@Inject
 	private TemplateService		service;
-
-	@Autowired
-	private ObjectMapper		mapper;
 	
-	@RequestMapping(value = "/templates/{id}", method = RequestMethod.GET)
-	public Template getTemplateById(@PathVariable("id") ObjectId templateId) throws Exception {
-		TemplatePack tp = service.getTemplatePackContainingTemplateById(templateId);
-		for (Template t : tp.getTemplates()) {
-			if (t.getId().equals(templateId))
-				return t;
-		}
-		throw new EntityNotFoundException("No template found for id : " + templateId);
+	@RequestMapping(value = "", method = RequestMethod.GET)
+	public Page<TemplatePack> getTemplatePacks(@RequestParam("owner") ObjectId owner, @PageableDefault(size=30) Pageable page) {
+		return service.getAllTemplatePacks(owner, page);
 	}
 	
-	/**
-	 * Returns all template packs visible to the given org unit
-	 * @param owner The org unit
-	 * @param page The page parameters
-	 * @return A page of template packs
-	 */
-	@RequestMapping(value = "/{owner}/packs", method = RequestMethod.GET)
-	@JsonView(Object.class)
-	public Page<TemplatePack> getAllTemplatePacks(@PathVariable("owner") ObjectId owner, 
-			@PageableDefault(page=0, size=30, sort="name") Pageable page) throws Exception {
-		Page<TemplatePack> retval = service.getAllTemplatePacks(owner, page);
-		return retval;
-	}
-
-	/**
-	 * Returns the template pack for the given id
-	 * @param id The id of the template pack to be returned
-	 * @return The template pack
-	 * @throws Exception If there is no such template pack
-	 */
-	@RequestMapping(value = "/packs/{id}", method = RequestMethod.GET)
-	@JsonView(TemplatePackDetailView.class)
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public TemplatePack getTemplatePackById(@PathVariable("id") ObjectId id) throws Exception {
 		return service.getTemplatePackById(id);
 	}
-
-	/**
-	 * Creates a new template pack
-	 * @param pack The template Pack to be created
-	 * @return The persisted instance
-	 * @throws Exception If something went wrong
-	 */
-	@RequestMapping(value = "/packs", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "", method = RequestMethod.POST)
 	public TemplatePack createTemplatePack(@RequestBody TemplatePack pack) throws Exception {
 		return service.createTemplatePack(pack);
 	}
-
-	/**
-	 * Updates the template pack by it's id
-	 * @param id The id of the template pack to be updated
-	 * @param pack The pack
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/packs/{id}", method = RequestMethod.PATCH)
-	public TemplatePack updateTemplatePack(@PathVariable("id") ObjectId id, 
-			@RequestBody TemplatePack pack) throws Exception {
-		TemplatePack ident = service.getTemplatePackById(id);
-		checkOnNull(ident);
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
+	public TemplatePack updateTemplatePack(@RequestBody TemplatePack pack) throws Exception {
 		return service.updateTemplatePack(pack);
 	}
-
-	/**
-	 * Deletes the template pack given it's id
-	 * @param id The id of the template pack to be deleted
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/packs/{id}", method = RequestMethod.DELETE) 
-	public void deleteTemplatePack(@PathVariable("id") ObjectId id) throws Exception {
-		TemplatePack t = service.getTemplatePackById(id);
-		service.deleteTemplatePack(t);
-	}
 	
-	
-	
-	@RequestMapping(value = "/packs/{id}/themeImage", method = RequestMethod.POST)
-	public Media createThemeImage(@PathVariable("id") ObjectId packId, MultipartFile file) throws Exception {
-		TemplatePack tp = service.getTemplatePackById(packId);
-	
-		Media im = new Media();
-		im.setOwner(tp.getOwner());
-		im.setName("Theme for " + tp.getName());
-		im.setData(file.getInputStream());
-		return service.createTemplatePackImage(tp, im);
-	}
-	
-	@RequestMapping(value = "/packs/{id}/clone", method = RequestMethod.PUT)
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 	public TemplatePack cloneTemplatePack(@PathVariable("id") ObjectId id) throws Exception {
 		TemplatePack o = service.getTemplatePackById(id);
 		return service.cloneTemplatePack(o);
 	}
-	
 
-	@RequestMapping(value = "/packs/{id}/download", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/download", method = RequestMethod.GET)
 	public void downloadTemplatePack(@PathVariable("id") ObjectId id, HttpServletResponse response) throws Exception {
-
 		TemplatePack t = service.getTemplatePackById(id);
 		checkOnNull(t);
 		response.setHeader("Content-Type", "application/octet-stream");
@@ -142,11 +66,50 @@ public class RestTemplatePackController extends BaseApiController {
 		response.setHeader("Content-Transfer-Encoding", "binary");
 		service.exportTemplatePack(t, response.getOutputStream());
 	}
-	
-	@RequestMapping(value = "/{owner}/packs/upload", method = RequestMethod.POST)
-	public TemplatePack uploadTemplatePack(@PathVariable("owner") ObjectId owner, MultipartFile file) throws Exception {
+
+	@RequestMapping(value = "/upload", method = RequestMethod.POST)
+	public TemplatePack uploadTemplatePack(@RequestParam(value = "owner", required = true) ObjectId owner, MultipartFile file) throws Exception {
 		ByteArrayInputStream bin = new ByteArrayInputStream(file.getBytes());
 		ZipInputStream zipin = new ZipInputStream(bin);
 		return service.importTemplatePack(owner, zipin);
+	}
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	public void deleteTemplatePack(@PathVariable("id") ObjectId id) throws Exception {
+		TemplatePack pack = service.getTemplatePackById(id);
+		service.deleteTemplatePack(pack);
+	}
+	
+	@RequestMapping(value = "/{id}/image", method = RequestMethod.POST)
+	public Media createThemeImage(@PathVariable("id") ObjectId id, MultipartFile file) throws Exception {
+		TemplatePack pack = service.getTemplatePackById(id);
+		Media m = new Media();
+		m.setOwner(pack.getOwner());
+		m.setName("Theme for " + pack.getName());
+		m.setData(file.getInputStream());
+		return service.createTemplatePackImage(pack, m);
+	}
+	
+	@RequestMapping(value = "/{id}/templates/{tid}/resources", method = RequestMethod.POST)
+	public Media createTemplateStaticResource(@PathVariable("id") ObjectId tpId, 
+			@PathVariable("tid") ObjectId tId,
+			MultipartFile file,
+			@RequestParam(value = "type", required = true) String type) throws Exception {
+		TemplatePack pack = service.getTemplatePackById(tpId);
+		Media m = new Media();
+		m.setOwner(pack.getOwner());
+		m.setName(file.getOriginalFilename());
+		m.setData(file.getInputStream());
+		return service.createTemplateResource(pack, tId, m, type);
+	}
+	
+	
+	@RequestMapping(value = "/{id}/templates/{tid}/resources/{rid}", method = RequestMethod.DELETE)
+	public void deleteTemplateResource(@PathVariable("id") ObjectId packId,
+			@PathVariable("tid") ObjectId templateId, 
+			@PathVariable("rid") ObjectId resourceId,
+			@RequestParam(value = "type", required=true) String type) throws Exception {
+		TemplatePack pack = service.getTemplatePackById(packId);
+		service.deleteTemplateResource(pack, templateId, resourceId, type);
 	}
 }
