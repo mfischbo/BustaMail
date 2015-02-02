@@ -3,23 +3,23 @@ BMApp.LandingPages.config(['$routeProvider', function($routeProvider) {
 
 	$routeProvider
 		.when("/landingpages", {
-			templateUrl	:	'./js/modules/landing-pages/tmpl/landing-pages/index.html',
+			templateUrl	:	'./modules/landing-pages/tmpl/landing-pages/index.html',
 			controller  :	'LPIndexController'
 		})
 		.when("/landingpages/create", {
-			templateUrl :	'./js/modules/landing-pages/tmpl/landing-pages/create.html',
+			templateUrl :	'./modules/landing-pages/tmpl/landing-pages/create.html',
 			controller	:	'LPCreateController'
 		})
 		.when("/landingpages/:id/edit", {
-			templateUrl :	'./js/modules/landing-pages/tmpl/landing-pages/edit.html',
+			templateUrl :	'./modules/landing-pages/tmpl/landing-pages/edit.html',
 			controller	:	'LPEditController'
 		})
 		.when("/landingpages/:id/staticpages/:sid/edit", {
-			templateUrl : 	"./js/modules/landing-pages/tmpl/landing-pages/edit.html",
+			templateUrl : 	"./modules/landing-pages/tmpl/landing-pages/edit.html",
 			controller:		"LPEditController"
 		})
 		.when("/landingpages/:id/details", {
-			templateUrl	:	'./js/modules/landing-pages/tmpl/landing-pages/details.html',
+			templateUrl	:	'./modules/landing-pages/tmpl/landing-pages/details.html',
 			controller	:	'LPDetailsController'
 		});
 }]);
