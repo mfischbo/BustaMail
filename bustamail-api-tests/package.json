@@ -1,0 +1,8 @@
+{
+	"name"			: "copilot-api-tests",
+	"version"		: "1.0.0",
+	"dependencies"  : {
+		"frisby"	: "0.8.5",
+		"moment"	: "2.9.0"
+	}
+}
