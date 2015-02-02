@@ -45,18 +45,7 @@ public class RestOrgUnitController extends BaseApiController {
 	public OrgUnitDTO getOrgUnitById(@PathVariable("id") ObjectId id) throws Exception {
 		return asDTO(service.getOrgUnitById(id), OrgUnitDTO.class);
 	}
-	
-	@RequestMapping(value = "/{id}/users", method = RequestMethod.POST)
-	public UserDTO createUser(@PathVariable("id") ObjectId owner, @RequestBody UserDTO user) throws Exception {
-		return service.createUser(owner, user);
-	}
-	
-	@RequestMapping(value = "/{id}/users", method = RequestMethod.GET)
-	public Page<UserDTO> getUsersByOrgUnit(@PathVariable("id") ObjectId id, @PageableDefault(page = 0, size = 30, sort = "lastName") Pageable page) throws Exception {
-		OrgUnit o = service.getOrgUnitById(id);
-		return service.getUsersByOrgUnit(o, page);
-	}
-	
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public OrgUnitDTO createOrgUnitForParent(@PathVariable("id") ObjectId parentId, @RequestBody OrgUnitDTO dto) throws Exception {
@@ -71,5 +60,16 @@ public class RestOrgUnitController extends BaseApiController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteOrgUnit(@PathVariable("id") ObjectId id) throws Exception {
 		service.deleteOrgUnit(id);
+	}
+	
+	@RequestMapping(value = "/{id}/users", method = RequestMethod.POST)
+	public UserDTO createUser(@PathVariable("id") ObjectId owner, @RequestBody UserDTO user) throws Exception {
+		return service.createUser(owner, user);
+	}
+	
+	@RequestMapping(value = "/{id}/users", method = RequestMethod.GET)
+	public Page<UserDTO> getUsersByOrgUnit(@PathVariable("id") ObjectId id, @PageableDefault(page = 0, size = 30, sort = "lastName") Pageable page) throws Exception {
+		OrgUnit o = service.getOrgUnitById(id);
+		return service.getUsersByOrgUnit(o, page);
 	}
 }

@@ -138,7 +138,6 @@ public interface SecurityService {
 	 * @return
 	 * @throws EntityNotFoundException
 	 */
-	//@Transactional
 	public List<ActorDTO>	updateActors(ObjectId userId, List<ActorDTO> actors) throws EntityNotFoundException;
 	
 }

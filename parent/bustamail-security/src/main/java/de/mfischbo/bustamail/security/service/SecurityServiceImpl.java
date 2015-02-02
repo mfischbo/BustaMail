@@ -3,7 +3,6 @@ package de.mfischbo.bustamail.security.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -75,6 +74,10 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	private ApplicationEventPublisher	publisher;
 
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.security.service.SecurityService#signIn(de.mfischbo.bustamail.security.dto.AuthenticationDTO, javax.servlet.http.HttpServletRequest)
+	 */
 	public UserDTO signIn(AuthenticationDTO dto, HttpServletRequest req) {
 		try {
 			Authentication auth = 
@@ -88,6 +91,10 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.security.service.SecurityService#signOut(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	public void signOut(HttpServletRequest req, HttpServletResponse res) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null) {
@@ -95,6 +102,10 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.security.service.SecurityService#recoverUserPassword(de.mfischbo.bustamail.security.dto.AuthenticationDTO)
+	 */
 	public void recoverUserPassword(AuthenticationDTO dto) throws EntityNotFoundException {
 		User u = userRepo.findByEmail(dto.getEmail());
 		if (u.isLocked() || u.isDeleted())
@@ -124,25 +135,58 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		return asDTO(orgUnitRepo.findOne(ROOT_UNIT_ID), OrgUnitDTO.class);
 	}
 	
+	
 	/*
 	 * (non-Javadoc)
 	 * @see de.mfischbo.bustamail.security.service.SecurityService#getRootOrgUnits()
 	 */
 	@Override
 	public Set<OrgUnitDTO> getTopLevelUnits() {
-		OrgUnit root = orgUnitRepo.findOne(ROOT_UNIT_ID);
-		User current = (User) currentUser.getPrincipal();
-		Set<OrgUnit> units = getOrgUnitsOfUser(current);
 	
-		Set<OrgUnit> retval = new LinkedHashSet<>();
-		Iterator<OrgUnit> oit = orgUnitRepo.findByParent(root).iterator();
-		while (oit.hasNext()) {
-			OrgUnit nxt = oit.next();
-			if (units.contains(nxt))
-				retval.add(nxt);
-				
+		User current = (User) currentUser.getPrincipal();
+		List<OrgUnit> units = orgUnitRepo.findAllWithUserAsActor(current.getId());
+		
+		Set<OrgUnitDTO> roots = new HashSet<>();
+		
+		// find all roots for the current user
+		for (OrgUnit unit : units) {
+			
+			boolean isRoot = true;
+			for (OrgUnit inner : units) {
+				if (unit.getParent() != null && inner.getId().equals(unit.getParent().getId())) {
+					isRoot = false;
+					break;
+				}
+			}
+			
+			if (isRoot)
+				roots.add(asDTO(unit, OrgUnitDTO.class));
 		}
-		return asDTO(retval, OrgUnitDTO.class);
+		
+		// build the tree
+		for (OrgUnitDTO unit : roots) {
+			buildTree(unit, units);
+		}
+		
+		return roots;
+	}
+	
+	private OrgUnitDTO buildTree(OrgUnitDTO current, List<OrgUnit> units) {
+		
+		if (units.size() == 0)
+			return current;
+		
+		Iterator<OrgUnit> uit = units.iterator();
+		while (uit.hasNext()) {
+			OrgUnit u = uit.next();
+			if (u.getParent() != null && u.getParent().getId().equals(current.getId())) {
+				OrgUnitDTO child = asDTO(u, OrgUnitDTO.class);
+				current.getChildren().add(child);
+				uit.remove();
+				return buildTree(child, units);
+			}
+		}
+		return current;
 	}
 
 	/*
