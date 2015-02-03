@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.mailinglist.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StreamUtils;
 
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
@@ -412,8 +414,11 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 		// if cache results in null reparse
 		if (data == null) {
 			try {
+				// ensure to use a buffered stream
 				InputStream stream = mediaService.getContent(media);
-				TableDataReader reader = new TableDataReader(stream, media.getMimetype(), media.getName());
+				ByteArrayInputStream bStream = new ByteArrayInputStream(StreamUtils.copyToByteArray(stream));
+				
+				TableDataReader reader = new TableDataReader(bStream, media.getMimetype(), media.getName());
 				reader.setCsvDelimiterChar(settings.getCsvDelimiter());
 				reader.setCsvQuoteChar(settings.getCsvQuoteChar());
 				reader.setReaderEncoding(Charset.forName(settings.getEncoding().toString()));
