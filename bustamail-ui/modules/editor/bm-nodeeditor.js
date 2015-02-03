@@ -39,9 +39,9 @@ BMNodeEdit.prototype.setup = function() {
 	}
 	
 	var fontSettings = {
-		defaultFontFamily : "Arial",
+		defaultFontFamily 	: "Arial",
 		defaultFontSize 	: "12px;",
-		defaultFontColor	:	"#000"
+		defaultFontColor	: "#000000"
 	};
 	
 	if (this.templateSettings) {

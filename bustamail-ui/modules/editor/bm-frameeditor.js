@@ -69,8 +69,9 @@ BMApp.Editor.controller("EditorIndexController",
 					if (e.type == 'appendWidget') {
 						nodeEdit.appendWidget(e.data);
 						window.setTimeout(function() {
+							$scope.destroyMCE();
 							$scope.initMCE();
-						}, 2000);
+						}, 1000);
 					}
 					
 					if (e.type == 'replaceWidget')
@@ -94,32 +95,46 @@ BMApp.Editor.controller("EditorIndexController",
 	$scope.initMCE = function() {
 		console.log('initializing MCE...');
 		tinyMCE.init({
-			selector 	: '[contenteditable="true"]',
-			inline		: true,
+			selector 			: '[contenteditable="true"]',
+			inline				: true,
+			menubar				: false,
 			browser_spellcheck	: false,
-			toolbar		: 'undo redo | styleselect | bold italic underline',
-			plugins		: ['link'],
-			link_list	: $scope.getMCELinkList()
+			valid_styles		: { '*' : ''},
+			forced_root_block	: 'div',
+			toolbar				: 'undo redo | bold italic underline | link',
+			plugins				: ['link'],
+			link_list			: $scope.getMCELinkList()
 		});
 		console.log('Created instances : ' + tinyMCE.editors.length);
 	};
 	
 	$scope.reinitMCE = function() {
-		for (id in tinyMCE.editors) {
-			console.log("Removing editor with id : " + id);
-			tinyMCE.EditorManager.execCommand('mceRemoveEditor', true, id);
-		}
+		$scope.destroyMCE();
 		$scope.initMCE();
-		console.log("Created " + tinyMCE.editors.length + " new instances");
 	};
 
+	
+	$scope.destroyMCE = function() {
+		for (id in tinyMCE.editors) {
+			console.log("Removing editor with id : " + id);
+			var e = tinyMCE.EditorManager.get(id);
+			var elm = e.getElement();
+			e.destroy();
+			
+			// note: For some reason the attribute is removed when calling destroy(). Add it again.
+			elm.setAttribute("contenteditable", "true");
+		}
+	};
 
 	/**
 	 * Saves the editor contents.
 	 * Copies the content of the editor node and removes all editor markers before saving it
 	 */
 	$scope.saveContents = function() {
-		tinyMCE.EditorManager.remove('[contenteditable="true"]');
+		for (var id in tinyMCE.editors) {
+			console.log("Removing editor for id " + id);
+			tinyMCE.EditorManager.execCommand('mceRemoveControl', true, id);
+		}
 		
 		var content = $("#editor-content").html();
 		content = content.replace(/bm-fragment-hovered/g, "");
@@ -163,6 +178,14 @@ BMApp.Editor.controller("EditorIndexController",
 	$scope.handleResourceChanged = function(data) {
 		nodeEdit.reloadCSSFile(data);
 	};
+	
+	$(document).on("_bmFragmentRemoving", function(event, element) {
+		$scope.destroyMCE();
+	});
+	
+	$(document).on("_bmFragmentRemoved", function(event, elmement) {
+		$scope.initMCE();
+	});
 	
 	
 	$(document).on("_bmElementSelected", function(event, element) {

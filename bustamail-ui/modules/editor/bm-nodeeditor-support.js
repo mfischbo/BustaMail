@@ -310,9 +310,11 @@ BMFragmentControl.prototype.removeFragment = function() {
 	if (this.selectedFragment) {
 		var that = this;
 		this.selectedFragment.animate({"opacity" : 0}, 400, 'swing', function() {
+			$(document).trigger('_bmFragmentRemoving', that.selectedFragment);
 			that.selectedFragment.remove();
 			that.selectedFragment = undefined;
 			that.renderControls();
+			$(document).trigger('_bmFragmentRemoved');
 		});
 	};
 };
@@ -460,6 +462,7 @@ BMTextStyleControl.prototype.setup = function() {
 BMTextStyleControl.prototype.applyStyles = function(nodes) {
 	var that = this;
 	
+	/*
 	nodes.each(function() {
 		var cssStyle = {};
 		var style = $(this).attr("style") || "";
@@ -473,6 +476,7 @@ BMTextStyleControl.prototype.applyStyles = function(nodes) {
 		
 		$(this).css(cssStyle);
 	});
+	*/
 };
 
 
