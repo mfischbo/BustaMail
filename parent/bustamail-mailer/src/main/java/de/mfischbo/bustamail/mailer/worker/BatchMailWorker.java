@@ -96,8 +96,13 @@ public class BatchMailWorker {
 		log.info("Found " + mailings.length + " Mailings to be sent.");
 		
 		// process and send each mailing
-		int i=0;
+		long i=0;
+		long mailsOnSession = 0;
 		for (File f : mailings) {
+			
+			/**
+			 * Read the serialized mailing and move it to .failed on failures
+			 */
 			SerializedMailing m = null;
 			try {
 				m = mapper.readValue(f, SerializedMailing.class);
@@ -108,18 +113,54 @@ public class BatchMailWorker {
 				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.failed/" + f.getName()));
 				continue;
 			}
+		
 			
+			/**
+			 * Send the mailing. On success move it to .success on failure move it to .retry
+			 */
 			try {
 				sendMessage(m);
+				mailsOnSession++;
+				// all went well. Move the file to the success folder
+				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.success/" + f.getName()));
 				log.debug("Sent message\t {} / {} to recipient: {}", ++i, mailings.length, m.getRecipientAddress());
 			} catch (Exception ex) {
 				log.error("Unable to send message. Cause: " + ex.getMessage());
 				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.retry/" + f.getName()));
-				continue;
 			}
+		
 			
-			// all went well. Move the file to the success folder
-			f.renameTo(new File(jobFolder.getAbsolutePath() + "/.success/" + f.getName()));
+			/**
+			 * Check for delay after each sent mail
+			 */
+			if (config.getMailSendingDelay() != -1) {
+				try { Thread.sleep(config.getMailSendingDelay()); } catch (Exception ex) { }
+			}
+		
+			/**
+			 * Check for amount of mails in current session
+			 */
+			if (mailsOnSession >= config.getMaxMailsPerConnection()) {
+				mailsOnSession = 0;
+				log.info("Session limit ({}) reached. Resetting connection.", config.getMaxMailsPerConnection());
+				try {
+					transport.close();
+				} catch (Exception ex) {
+					log.error("Unable to close transport. Cause : " + ex.getMessage());
+				}
+				
+				if (config.getReconnectAfter() > -1) {
+					log.info("Delaying reconnection for {} milliseconds.", config.getReconnectAfter());
+					try { Thread.sleep(config.getReconnectAfter()); } catch (Exception ex) { }
+				}
+				
+				try {
+					log.info("Trying to reconnect.");
+					createMailSessionFromConfiguration();
+				} catch (Exception ex) {
+					log.error("Unable to reconnect to server. Cause: " + ex.getMessage());
+				}
+			}
 		}
 	}
 	
