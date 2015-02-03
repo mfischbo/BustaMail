@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
+import de.mfischbo.bustamail.template.domain.TemplatePack;
 
 @Document(collection = "Mailing_Mailing")
 public class Mailing extends OwnedBaseDomain {
@@ -31,6 +32,9 @@ public class Mailing extends OwnedBaseDomain {
 	@Email
 	@NotBlank
 	private String 		replyAddress;
+
+	@DBRef
+	private TemplatePack	templatePack;
 	
 	private ObjectId	templateId;
 
@@ -218,5 +222,13 @@ public class Mailing extends OwnedBaseDomain {
 
 	public void setSubscriptionLists(List<SubscriptionList> subscriptionLists) {
 		this.subscriptionLists = subscriptionLists;
+	}
+
+	public TemplatePack getTemplatePack() {
+		return templatePack;
+	}
+
+	public void setTemplatePack(TemplatePack templatePack) {
+		this.templatePack = templatePack;
 	}
 }

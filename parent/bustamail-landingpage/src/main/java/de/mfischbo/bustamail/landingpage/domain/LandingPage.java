@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.security.domain.User;
 
+@Document(collection = "LandingPage_LandingPage")
 public class LandingPage extends AbstractHtmlPage implements HTMLPage {
 
 	private static final long serialVersionUID = 1686708887179244769L;

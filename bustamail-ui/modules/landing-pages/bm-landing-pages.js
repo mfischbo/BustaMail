@@ -374,9 +374,9 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 	var cme = undefined;
 	$scope.resource = undefined; 	// the resource being edited
 	
-	$scope.pageId = './frameedit.html?lpid=' + ($routeParams.id);
+	$scope.pageId = './frameedit.html?type=landingpage&cid=' + ($routeParams.id);
 	if ($routeParams.sid)
-		$scope.pageId += '&sid=' + $routeParams.sid;
+		$scope.pageId = './frameedit.html?type=static&cid=' + $routeParams.sid;
 		
 	$scope.tlink = $sce.trustAsUrl($scope.pageId);
 	

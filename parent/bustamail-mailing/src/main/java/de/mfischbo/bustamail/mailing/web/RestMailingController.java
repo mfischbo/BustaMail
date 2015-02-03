@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.mfischbo.bustamail.annotation.IntegrationTested;
 import de.mfischbo.bustamail.common.web.BaseApiController;
-import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
@@ -85,21 +84,18 @@ public class RestMailingController extends BaseApiController {
 	 */
 	@RequestMapping(value = "/unit/{owner}", method = RequestMethod.POST)
 	public Mailing createMailing(@PathVariable("owner") ObjectId owner,
-			@RequestParam(value = "template", required = true) ObjectId templateId, 
 			@RequestBody Mailing m) throws Exception {
 
 		m.setDateCreated(DateTime.now());
 		m.setDateModified(DateTime.now());
 		m.setOwner(owner);
-		
-		TemplatePack tp = tService.getTemplatePackContainingTemplateById(templateId);
-		for (Template t : tp.getTemplates()) {
-			if (t.getId().equals(templateId)) {
-				m = service.createMailing(m, t);
-				return m;			
-			}
-		}
-		throw new BustaMailException("Unable to find template for id : " + templateId);
+
+		TemplatePack tp = tService.getTemplatePackById(m.getTemplatePack().getId());
+		Template t = tp.getTemplates().stream()
+			.filter(q -> q.getId().equals(m.getTemplateId()))
+			.findFirst()
+			.get();
+		return service.createMailing(m, t);
 	}
 
 	/**
@@ -112,19 +108,9 @@ public class RestMailingController extends BaseApiController {
 	 *             On any error
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public MailingDTO getMailingById(@PathVariable("id") ObjectId mailingId)
+	public Mailing getMailingById(@PathVariable("id") ObjectId mailingId)
 			throws Exception {
-		Mailing m = service.getMailingById(mailingId);
-
-		// fetch most recent html / text content
-		VersionedContent chtml = service.getRecentContent(m, ContentType.HTML);
-		VersionedContent cText = service.getRecentContent(m, ContentType.Text);
-
-		MailingDTO retval = asDTO(m, MailingDTO.class);
-		retval.setHtmlContent(asDTO(chtml, VersionedContentDTO.class));
-		retval.setTextContent(asDTO(cText, VersionedContentDTO.class));
-
-		return retval;
+		return service.getMailingById(mailingId);
 	}
 
 	/**
@@ -175,6 +161,14 @@ public class RestMailingController extends BaseApiController {
 				VersionedContentIndexDTO.class);
 	}
 
+	@RequestMapping(value = "/{id}/content/current", method = RequestMethod.GET)
+	public VersionedContent getCurrentContent(
+			@PathVariable("id") ObjectId mailingId,
+			@RequestParam(value = "type", required = false, defaultValue = "HTML") ContentType type) throws Exception {
+		Mailing m = service.getMailingById(mailingId);
+		return service.getRecentContent(m, type);
+	}
+	
 	/**
 	 * Request the approval for the mailing with the specified id
 	 * 
