@@ -17,8 +17,8 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, Ob
 
 	Page<Subscription> findAllBySubscriptionList(SubscriptionList list, Pageable page);
 
-	@Query(" { 'subscriptionList' : ?0 } ")
-	List<Subscription> findAllSubscriptions(SubscriptionList list);
+	@Query(" { 'subscriptionList.$id' : ?0 } ")
+	List<Subscription> findAllSubscriptions(ObjectId listId);
 	
 	@Query(" { 'subscriptionList' : ?0, 'contact' : ?1 } ")
 	Subscription findBySubscriptionListAndContact(SubscriptionList list, Contact contact);

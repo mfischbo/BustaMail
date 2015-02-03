@@ -4,7 +4,7 @@ import org.bson.types.ObjectId;
 
 public interface PersonalizedEmailRecipient {
 
-	ObjectId	getId();
+	ObjectId getId();
 	
 	Gender	getGender();
 	

@@ -312,7 +312,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		// collect all subscribers
 		List<Subscription> subscriptions = new LinkedList<>();
 		for (SubscriptionList l : m.getSubscriptionLists()) {
-			subscriptions.addAll(sRepo.findAllSubscriptions(l));
+			subscriptions.addAll(sRepo.findAllSubscriptions(l.getId()));
 		}
 		
 		try {

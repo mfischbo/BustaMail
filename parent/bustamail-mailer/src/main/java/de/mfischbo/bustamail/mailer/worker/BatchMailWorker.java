@@ -96,6 +96,7 @@ public class BatchMailWorker {
 		log.info("Found " + mailings.length + " Mailings to be sent.");
 		
 		// process and send each mailing
+		int i=0;
 		for (File f : mailings) {
 			SerializedMailing m = null;
 			try {
@@ -104,20 +105,21 @@ public class BatchMailWorker {
 				log.error("Unable to deserialize json from file : " + f.getAbsolutePath());
 				
 				// move the file to the failed folder, since we are not able to read it
-				f.renameTo(new File(jobFolder.getAbsolutePath() + "/failed/" + f.getName()));
+				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.failed/" + f.getName()));
 				continue;
 			}
 			
 			try {
 				sendMessage(m);
+				log.debug("Sent message\t {} / {} to recipient: {}", ++i, mailings.length, m.getRecipientAddress());
 			} catch (Exception ex) {
 				log.error("Unable to send message. Cause: " + ex.getMessage());
-				f.renameTo(new File(jobFolder.getAbsolutePath() + "/retry/" + f.getName()));
+				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.retry/" + f.getName()));
 				continue;
 			}
 			
 			// all went well. Move the file to the success folder
-			f.renameTo(new File(jobFolder.getAbsolutePath() + "/success/" + f.getName()));
+			f.renameTo(new File(jobFolder.getAbsolutePath() + "/.success/" + f.getName()));
 		}
 	}
 	
@@ -129,6 +131,7 @@ public class BatchMailWorker {
 	private void sendMessage(final SerializedMailing m) throws Exception {
 		
 		MimeMessage message = new MimeMessage(this.session);
+		
 		if (senderAddress != null || !m.getSenderAddress().equals(senderAddress.toString())) {
 			try {
 				senderAddress = new InternetAddress(m.getSenderAddress());
@@ -150,18 +153,23 @@ public class BatchMailWorker {
 		}
 		message.setSubject(m.getSubject());
 		message.setHeader("Content-Type", "text/html;charset=utf-8");
+
 		
 		MimeMultipart content = new MimeMultipart("alternative");
+		
 		MimeBodyPart htmlBody = new MimeBodyPart();
 		htmlBody.setText(m.getHtmlContent());
 		htmlBody.setHeader("Content-Type", "text/html;charset=UTF-8");
 		htmlBody.setHeader("Content-Transfer-Encoding", "quoted-printable");
 		content.addBodyPart(htmlBody);
+
+		if (m.getTextContent() != null && m.getTextContent().trim().length() > 0) {
+			MimeBodyPart textBody = new MimeBodyPart();
+			textBody.setText(m.getTextContent());
+			textBody.setHeader("Content-Type", "text/plain;charset=UTF-8");
+			content.addBodyPart(textBody);
+		}
 		
-		MimeBodyPart textBody = new MimeBodyPart();
-		textBody.setText(m.getTextContent());
-		textBody.setHeader("Content-Type", "text/plain;charset=UTF-8");
-		content.addBodyPart(textBody);
 		message.setContent(content);
 		message.saveChanges();
 		this.transport.sendMessage(message, message.getAllRecipients());

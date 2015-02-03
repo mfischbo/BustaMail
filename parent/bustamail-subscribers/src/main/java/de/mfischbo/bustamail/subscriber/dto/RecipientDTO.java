@@ -1,7 +1,5 @@
 package de.mfischbo.bustamail.subscriber.dto;
 
-import org.bson.types.ObjectId;
-
 import de.mfischbo.bustamail.common.domain.Gender;
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 import de.mfischbo.bustamail.common.dto.BaseDTO;
@@ -16,8 +14,6 @@ public class RecipientDTO extends BaseDTO implements PersonalizedEmailRecipient 
 	private Gender			gender;
 	private	String		 	email;
 	private boolean			formalSalutation;
-	private ObjectId		subscriberId;
-
 
 	@Override
 	public String getFirstName() {
@@ -61,14 +57,4 @@ public class RecipientDTO extends BaseDTO implements PersonalizedEmailRecipient 
 	public void setFormalSalutation(boolean formalSalutation) {
 		this.formalSalutation = formalSalutation;
 	}
-	
-	public ObjectId getSubscriberId() {
-		return this.subscriberId;
-	}
-	
-	public void setSubscriberId(ObjectId id) {
-		this.subscriberId = id;
-	}
-	
-	
 }

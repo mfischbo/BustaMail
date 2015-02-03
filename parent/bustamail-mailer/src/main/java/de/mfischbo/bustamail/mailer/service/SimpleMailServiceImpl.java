@@ -141,9 +141,9 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 			
 			log.info("Creating subfolders for success/failed/retry mailings");
 			boolean sub = true;
-			File success = new File(jobFolder.getAbsolutePath() + "/success");
-			File failed  = new File(jobFolder.getAbsolutePath() + "/failed");
-			File retry   = new File(jobFolder.getAbsolutePath() + "/retry");
+			File success = new File(jobFolder.getAbsolutePath() + "/.success");
+			File failed  = new File(jobFolder.getAbsolutePath() + "/.failed");
+			File retry   = new File(jobFolder.getAbsolutePath() + "/.retry");
 			sub &= success.mkdir();
 			sub &= failed.mkdir();
 			sub &= retry.mkdir();
