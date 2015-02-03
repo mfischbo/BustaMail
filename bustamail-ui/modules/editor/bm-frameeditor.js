@@ -59,7 +59,7 @@ BMApp.Editor.controller("EditorIndexController",
 				nodeEdit = new BMNodeEdit($scope.document, data);
 				window.setTimeout(function() {
 					nodeEdit.setup();
-					$scope.reinitMCE(); 
+					$scope.initMCE();
 				}, 1000);
 	
 				
@@ -69,8 +69,8 @@ BMApp.Editor.controller("EditorIndexController",
 					if (e.type == 'appendWidget') {
 						nodeEdit.appendWidget(e.data);
 						window.setTimeout(function() {
-							$scope.reinitMCE();
-						}, 200);
+							$scope.initMCE();
+						}, 2000);
 					}
 					
 					if (e.type == 'replaceWidget')
@@ -91,25 +91,26 @@ BMApp.Editor.controller("EditorIndexController",
 	};
 	
 
-	$scope.reinitMCE = function() {
-		for (id in tinymce.editors) {
-			console.log("Removing editor with id : " + id);
-			tinymce.editors[id].remove();
-		}
+	$scope.initMCE = function() {
+		console.log('initializing MCE...');
+		tinyMCE.init({
+			selector 	: '[contenteditable="true"]',
+			inline		: true,
+			browser_spellcheck	: false,
+			toolbar		: 'undo redo | styleselect | bold italic underline',
+			plugins		: ['link'],
+			link_list	: $scope.getMCELinkList()
+		});
+		console.log('Created instances : ' + tinyMCE.editors.length);
+	};
 	
-		console.log("Setting up new editors");
-		// setup tinymce
-		tinymce.init({
-			selector : '[contenteditable="true"]',
-			//selector : ".bm-fragment",
-			inline   : true,
-			browser_spellcheck : false,
-			toolbar	 :	'undo redo | styleselect | bold italic underline',
-			plugins  :  ['link'],
-			link_list : $scope.getMCELinkList()
-		});	
-		
-		console.log("Created " + tinymce.editors.length + " new instances");
+	$scope.reinitMCE = function() {
+		for (id in tinyMCE.editors) {
+			console.log("Removing editor with id : " + id);
+			tinyMCE.EditorManager.execCommand('mceRemoveEditor', true, id);
+		}
+		$scope.initMCE();
+		console.log("Created " + tinyMCE.editors.length + " new instances");
 	};
 
 
@@ -118,10 +119,7 @@ BMApp.Editor.controller("EditorIndexController",
 	 * Copies the content of the editor node and removes all editor markers before saving it
 	 */
 	$scope.saveContents = function() {
-		for (id in tinymce.editors) {
-			tinymce.editors[id].remove();
-		}
-		
+		tinyMCE.EditorManager.remove('[contenteditable="true"]');
 		
 		var content = $("#editor-content").html();
 		content = content.replace(/bm-fragment-hovered/g, "");
@@ -135,7 +133,7 @@ BMApp.Editor.controller("EditorIndexController",
 		};
 		
 		$http.post(apiPath + "/content", d).success(function(data) {
-			$scope.reinitMCE();
+			$scope.initMCE();
 		});
 	};
 	

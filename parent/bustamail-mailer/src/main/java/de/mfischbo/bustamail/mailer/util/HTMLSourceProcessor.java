@@ -1,8 +1,9 @@
 package de.mfischbo.bustamail.mailer.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +12,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 
+/**
+ * Class that holds methods to modify the HTML source of a document
+ * @author M. Fischboeck
+ *
+ */
 public class HTMLSourceProcessor {
 
 	public static Document replaceSpanCells(Document doc, URL baseUrl, String blankPixelUrl) {
@@ -39,6 +45,18 @@ public class HTMLSourceProcessor {
 		});
 		return doc;
 	}
+	
+	public static Document attachOpeningPixel(Document doc, URL baseUrl) {
+		StringBuilder b = new StringBuilder("<img src=\"");
+		b.append(baseUrl.toString())
+		.append("/public/t/o.png?m=${")
+		.append(MailingSerializer.KEY_MAILING_ID)
+		.append("}&s=${")
+		.append(MailingSerializer.KEY_SUBSCRIBER_ID)
+		.append("}\" width=\"0\" height=\"0\">");
+		doc.select("body").append(b.toString());
+		return doc;
+	}
 
 	
 	public static Document replaceSourceURLs(Document doc, URL baseUrl, String disableTrackingClass) {
@@ -53,18 +71,27 @@ public class HTMLSourceProcessor {
 		return doc;
 	}
 	
-	public static Document createTrackingUrls(Document doc, URL baseUrl, String disableTrackingClass, UUID mailingId, UUID subscriberId) {
+	public static Document createTrackingUrls(Document doc, URL baseUrl, String disableTrackingClass) {
 		doc.select("*[href]").forEach(new Consumer<Element>() {
 			@Override
 			public void accept(Element t) {
 				if (!t.hasClass(disableTrackingClass)) {
-					String target = t.attr("src");
+					String target = t.attr("href");
 					String finalUrl = HTMLSourceProcessor.createTrackingUrl(baseUrl, target);
 					t.attr("href", finalUrl);
 				}
 			}
 		});
 		return doc;
+	}
+
+	private static String createTrackingUrl(URL base, String target) {
+		String retval = base.toString() + "/public/t/c.png?m=${"+ MailingSerializer.KEY_MAILING_ID +"}&s=${"+ MailingSerializer.KEY_SUBSCRIBER_ID+"}&t=";
+		try {
+			return retval + URLEncoder.encode(target, "UTF8"); 
+		} catch (UnsupportedEncodingException ex) {
+			return retval + target;
+		}
 	}
 	
 	public static Document removeAttributes(Document doc, List<String> attributes) {
@@ -166,8 +193,5 @@ public class HTMLSourceProcessor {
 	}
 	
 	
-	private static String createTrackingUrl(URL base, String target) {
-		// TODO: To be implemented
-		return target;
-	}
+
 }

@@ -211,6 +211,16 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 			doc = HTMLSourceProcessor.replaceSpanCells(doc, m.getContentProviderBaseURL(), "/img/blank.gif");
 		}
 		
+		if (m.isEnableOpeningTracking()) {
+			log.info("Attaching opening tracking pixel...");
+			doc = HTMLSourceProcessor.attachOpeningPixel(doc, m.getContentProviderBaseURL());
+		}
+		
+		if (m.isEnableLinkTracking()) {
+			log.info("Replacing link tracking urls...");
+			doc = HTMLSourceProcessor.createTrackingUrls(doc, m.getContentProviderBaseURL(), m.getDisableLinkTrackClass());
+		}
+		
 		log.info("Replacing source URLs");
 		doc = HTMLSourceProcessor.replaceSourceURLs(doc, m.getContentProviderBaseURL(), m.getDisableLinkTrackClass());
 		
