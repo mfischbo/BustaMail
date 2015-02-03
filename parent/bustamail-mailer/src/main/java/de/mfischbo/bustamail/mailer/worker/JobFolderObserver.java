@@ -35,7 +35,7 @@ public class JobFolderObserver {
 	}
 	
 	
-	@Scheduled(fixedRate=5000)
+	@Scheduled(fixedRate=30000)
 	void observeJobFolders() {
 		File[] jobs = this.jobBasedir.listFiles(new FileFilter() {
 			@Override
@@ -48,6 +48,12 @@ public class JobFolderObserver {
 			}
 		});
 		
+		// check if the mailer is enabled or not
+		Boolean enabled = env.getProperty("de.mfischbo.bustamail.mailer.enabled", Boolean.class);
+		if (!enabled)
+			return;
+	
+		// execute a BatchMailWorker for every directory
 		if (jobs != null) {
 			for (File j : jobs) {
 				BatchMailWorker w = new BatchMailWorker(j, mapper, this.fallbackConfig);
