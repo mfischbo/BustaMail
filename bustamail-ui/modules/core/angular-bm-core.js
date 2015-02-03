@@ -23,13 +23,13 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 			},
 			
 			'responseError'	: function(rejection) {
-				/*
+				
 				if (rejection.status == 401 || rejection.status == 503)
 					window.location.href = "./login";
 				
 				if (rejection.status == 405 || rejection.status == 415)
 					BMApp.alert("Leider ist ein Fehler aufgetreten", 'error');
-				*/
+				
 				if (rejection.status == 403) {
 					var m = rejection.config.method;
 					if (m == "POST" || m == "PATCH" || m == "PUT" || m == "DELETE")
