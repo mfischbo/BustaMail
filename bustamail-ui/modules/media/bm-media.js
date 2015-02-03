@@ -114,6 +114,10 @@ BMApp.Media.controller("ImagePickerModalController",
 					}
 			});
 		});
+		
+		$http.get('/api/media/directory/' + node.id + '/children').success(function(data) {
+			node.children = data;
+		});
 	});
 	
 	$scope.$on("setCurrentImage", function(e, image) {

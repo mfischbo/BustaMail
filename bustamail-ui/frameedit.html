@@ -2,47 +2,48 @@
 <html data-ng-app="BMFrameEdit">
 <head>
 	<link rel="stylesheet" type="text/css" href="./resources/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="./resources/angular-treeview/angular-treeview.css">
 	<link rel="stylesheet" type="text/css" href="./resources/bustamail/frameedit-style.css">
 </head>
 
 <body style="background-color:#FFF; margin:0px; padding:0px;">
-		<script type="text/javascript" src="./resources/jquery/dist/jquery.min.js"></script>	
-		<script type="text/javascript" src="./resources/ng-file-upload/angular-file-upload-shim.min.js"></script>
-		<script type="text/javascript" src="./resources/angular/angular.min.js"></script>
-		<script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
-		
+	<script type="text/javascript" src="./resources/jquery/dist/jquery.min.js"></script>	
+	<script type="text/javascript" src="./resources/ng-file-upload/angular-file-upload-shim.min.js"></script>
+	<script type="text/javascript" src="./resources/angular/angular.min.js"></script>
+	<script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+	
 
-		<script type="text/javascript" src="./resources/angular-route/angular-route.min.js"></script>
-		<script type="text/javascript" src="./resources/angular-treeview/angular-treeview.min.js"></script>
-		<script type="text/javascript" src="./resources/angular-bootstrap/ui-bootstrap.min.js"></script>
-		<script type="text/javascript" src="./resources/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-		<script type="text/javascript" src="./resources/ng-file-upload/angular-file-upload.min.js"></script>
-		<script type="text/javascript" src="./resources/rangy/rangy-core.min.js"></script>
-		<script type="text/javascript" src="./resources/rangy/rangy-cssclassapplier.min.js"></script>
+	<script type="text/javascript" src="./resources/angular-route/angular-route.min.js"></script>
+	<script type="text/javascript" src="./resources/angular-treeview/angular-treeview.js"></script>
+	<script type="text/javascript" src="./resources/angular-bootstrap/ui-bootstrap.min.js"></script>
+	<script type="text/javascript" src="./resources/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script type="text/javascript" src="./resources/ng-file-upload/angular-file-upload.min.js"></script>
+	<script type="text/javascript" src="./resources/rangy/rangy-core.min.js"></script>
+	<script type="text/javascript" src="./resources/rangy/rangy-cssclassapplier.min.js"></script>
 
-		<script type="text/javascript">
-			var BMApp = angular.module("BMFrameEdit", ['ngRoute', 'BMEditorModule']);
-			BMApp.run(function($http) {
-				$http.get("/api/configuration").success(function(data) {
-					BMApp.uiConfig = data;
-				});
+	<script type="text/javascript">
+		var BMApp = angular.module("BMFrameEdit", ['ngRoute', 'BMEditorModule', 'angularTreeview']);
+		BMApp.run(function($http) {
+			$http.get("/api/configuration").success(function(data) {
+				BMApp.uiConfig = data;
 			});
-		</script>
-		<script type="text/javascript" src="./modules/core/bm-utils.js"></script>
-		<script type="text/javascript" src="./modules/media/bm-media.js"></script>
-		<script type="text/javascript" src="./modules/editor/bm-nodeeditor-support.js"></script>
-		<script type="text/javascript" src="./modules/editor/bm-nodeeditor.js"></script>
-		<script type="text/javascript" src="./modules/editor/bm-frameeditor.js"></script>
+		});
+	</script>
+	<script type="text/javascript" src="./modules/core/bm-utils.js"></script>
+	<script type="text/javascript" src="./modules/media/bm-media.js"></script>
+	<script type="text/javascript" src="./modules/editor/bm-nodeeditor-support.js"></script>
+	<script type="text/javascript" src="./modules/editor/bm-nodeeditor.js"></script>
+	<script type="text/javascript" src="./modules/editor/bm-frameeditor.js"></script>
+	
+	<div data-ng-controller="EditorIndexController">
+		<div id="editor" style="height:100vh;">
 		
-		<div data-ng-controller="EditorIndexController">
-			<div id="editor" style="height:100vh;">
-				<div id="slider" data-ng-controller="ImagePickerModalController">
-					<div class="wrapper" data-ng-include data-src="'./modules/media/tmpl/image-picker-modal.html'"></div>
-				</div>
-				<div id="editor-content" data-ng-bind-html="html">
-				
-				</div>
+			<div id="slider" data-ng-controller="ImagePickerModalController">
+				<div class="wrapper" data-ng-include data-src="'./modules/media/tmpl/image-picker-modal.html'"></div>
 			</div>
+	
+			<div id="editor-content" data-ng-bind-html="html"></div>
 		</div>
+	</div>
 </body>
 </html>

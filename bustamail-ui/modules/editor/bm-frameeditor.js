@@ -220,7 +220,7 @@ BMApp.Editor.controller("EditorIndexController",
 	};
 	
 	$scope.$on("_bmSetImageRequest", function(e, image) {
-		jE.attr("src", "./img/media/" + image.id);
+		jE.attr("src", "/api/files/" + image.id);
 	});
 	
 	$scope.metaDataFor = function(element) {

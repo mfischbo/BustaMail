@@ -17,7 +17,7 @@
 		<ul class="media-list" style="margin-top:0;margin-bottom:10px;padding-left:0;list-style:none;">
 			<li class="media" data-ng-repeat="i in images">
 				<a class="pull-left">
-					<img class="media-object" data-ng-src="{{i.thumbnail}}" width="64">
+					<img class="media-object" data-ng-src="/api/files/{{i.id}}?w=64" width="64">
 				</a>
 				<div class="media-body">
 						<h5>{{i.name}}</h5>
