@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.security.domain.User;
+import de.mfischbo.bustamail.template.domain.TemplatePack;
 
 public class AbstractHtmlPage extends OwnedBaseDomain {
 
@@ -33,6 +34,9 @@ public class AbstractHtmlPage extends OwnedBaseDomain {
 	@DBRef
 	private User		userModified;
 
+	@DBRef
+	private TemplatePack	templatePack;
+	
 	private ObjectId templateId;
 
 	public String getName() {
@@ -89,6 +93,14 @@ public class AbstractHtmlPage extends OwnedBaseDomain {
 
 	public void setUserModified(User userModified) {
 		this.userModified = userModified;
+	}
+
+	public TemplatePack getTemplatePack() {
+		return templatePack;
+	}
+
+	public void setTemplatePack(TemplatePack templatePack) {
+		this.templatePack = templatePack;
 	}
 
 	public ObjectId getTemplateId() {

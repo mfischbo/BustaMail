@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import de.mfischbo.bustamail.common.web.BaseApiController;
 import de.mfischbo.bustamail.media.domain.Media;
+import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 import de.mfischbo.bustamail.template.service.TemplateService;
 
@@ -78,6 +79,15 @@ public class RestTemplatePackController extends BaseApiController {
 	public void deleteTemplatePack(@PathVariable("id") ObjectId id) throws Exception {
 		TemplatePack pack = service.getTemplatePackById(id);
 		service.deleteTemplatePack(pack);
+	}
+	
+	@RequestMapping(value = "/{id}/templates/{tid}", method = RequestMethod.GET)
+	public Template getTemplateById(@PathVariable("id") ObjectId packId, @PathVariable("tid") ObjectId templateId) throws Exception {
+		TemplatePack pack = service.getTemplatePackById(packId);
+		return pack.getTemplates().stream()
+				.filter(t -> t.getId().equals(templateId))
+				.findFirst()
+				.get();
 	}
 	
 	@RequestMapping(value = "/{id}/image", method = RequestMethod.POST)

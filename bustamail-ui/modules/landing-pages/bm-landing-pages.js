@@ -99,6 +99,7 @@ BMApp.LandingPages.controller('LPIndexController', ['$scope', '$http', function(
 BMApp.LandingPages.controller('LPCreateController', ['$scope', '$http', '$location', function($scope, $http, $location) {
 	
 	$scope.templates = [];
+	
 	$scope.owner = undefined;
 	$scope.page  = {};
 	
@@ -106,10 +107,10 @@ BMApp.LandingPages.controller('LPCreateController', ['$scope', '$http', '$locati
 		if (!val) return;
 		
 		BMApp.showSpinner();
-		$http.get('/api/templates/' + val + '/packs').success(function(data) {
+		$http.get('/api/templatepacks?owner=' + val).success(function(data) {
 			$scope.templates = [];
 			for (var i in data.content) {
-				var p = data.content[i].name;
+				var p = data.content[i];
 				for (var t in data.content[i].templates) {
 					data.content[i].templates[t].pack = p;
 					$scope.templates.push(data.content[i].templates[t]);
@@ -120,8 +121,12 @@ BMApp.LandingPages.controller('LPCreateController', ['$scope', '$http', '$locati
 	});
 	
 	$scope.createLandingPage = function() {
-		var id = $scope.page.template;
-		$scope.page.template = { id : id };
+		
+		$scope.page.templatePack = $scope.page.template.pack;
+		$scope.page.template.pack = undefined;
+		$scope.page.templateId = $scope.page.template.id;
+		$scope.page.template = undefined;
+		
 		$scope.page.owner    = $scope.owner;
 		$http.post("/api/landingpages", $scope.page).success(function() {
 			BMApp.alert("Die Landing Page wurde erfolgreich angelegt");
@@ -395,7 +400,7 @@ BMApp.LandingPages.controller('LPEditController', ['$scope', '$http', '$routePar
 		$scope.document = data;
 		
 		// fetch the full graph for the given template
-		$http.get("/api/templates/templates/" + $scope.document.template.id).success(function(data) {
+		$http.get("/api/templatepacks/" + $scope.document.templatePack.id + "/templates/" + $scope.document.templateId).success(function(data) {
 			$scope.document.template = data;
 			$scope.widgets = data.widgets;
 			for (var i in $scope.widgets) 

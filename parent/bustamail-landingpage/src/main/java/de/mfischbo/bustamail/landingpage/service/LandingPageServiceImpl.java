@@ -101,18 +101,15 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#createLandingPage(de.mfischbo.bustamail.landingpage.domain.LandingPage)
 	 */
 	@Override
-	public LandingPage createLandingPage(LandingPage page) throws EntityNotFoundException {
+	public LandingPage createLandingPage(final LandingPage page) throws EntityNotFoundException {
 		User current = (User) auth.getPrincipal();
 		
-		Template t = null;
-		TemplatePack tp = tService.getTemplatePackContainingTemplateById(page.getTemplateId());
-		for (Template tx : tp.getTemplates()) {
-			if (tx.getId().equals(page.getTemplateId())) {
-				t = tx;
-				break;
-			}
-		}
-	
+		TemplatePack pack = tService.getTemplatePackById(page.getTemplatePack().getId());
+		Template t = pack.getTemplates().stream()
+				.filter(q -> q.getId().equals(page.getTemplateId()))
+				.findFirst()
+				.get();
+		
 		if (t == null)
 			throw new EntityNotFoundException("No template found for the given id");
 		
@@ -138,17 +135,17 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 				log.warn("Unable to copy resource file : " + m.getId());
 			}
 		}
-		page = lpRepo.save(page);
+		LandingPage retval = lpRepo.save(page);
 		
 		// create a versioned content
 		VersionedContent html = new VersionedContent();
 		html.setContent(t.getSource());
-		html.setDateCreated(page.getDateCreated());
-		html.setForeignId(page.getId());
+		html.setDateCreated(retval.getDateCreated());
+		html.setForeignId(retval.getId());
 		html.setUserCreated(current);
 		html.setType(ContentType.HTML);
 		vcRepo.save(html);
-		return page;
+		return retval;
 	}
 
 	/*
@@ -322,18 +319,16 @@ public class LandingPageServiceImpl extends BaseService implements LandingPageSe
 	 * @see de.mfischbo.bustamail.landingpage.service.LandingPageService#createStaticPage(de.mfischbo.bustamail.landingpage.domain.LandingPage, de.mfischbo.bustamail.landingpage.domain.StaticPage)
 	 */
 	@Override
-	public StaticPage createStaticPage(LandingPage parent, StaticPage staticPage) throws EntityNotFoundException {
+	public StaticPage createStaticPage(final LandingPage parent, final StaticPage staticPage) throws EntityNotFoundException {
 		
 		User current = (User) auth.getPrincipal();
 		DateTime now = DateTime.now();
-		
-		Template t = null;//tService.getTemplateById(staticPage.getTemplate().getId());
-		TemplatePack tp = tService.getTemplatePackContainingTemplateById(staticPage.getTemplateId());
-		for (Template tx : tp.getTemplates()) {
-			if (tx.getId().equals(staticPage.getTemplateId())) {
-				t = tx;
-			}
-		}
+
+		Template t = parent.getTemplatePack().getTemplates().stream()
+				.filter(q -> q.getId().equals(staticPage.getTemplateId()))
+				.findFirst()
+				.get();
+
 		if (t == null)
 			throw new EntityNotFoundException("Unable to find template for id " + staticPage.getTemplateId());
 	

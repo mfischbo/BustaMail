@@ -39,48 +39,52 @@ BMApp.Editor.controller("EditorIndexController",
 	 */
 	$scope.initializeDocument = function(data) {
 		$scope.document = data;
-		$scope.html = $sce.trustAsHtml($scope.document.htmlContent.content);
 
 		// fetch the full graph for the given template
-		$http.get("/api/templates/templates/" + $scope.document.template.id).success(function(data) {
+		$http.get("/api/templatepacks/"+ $scope.document.templatePack.id +"/templates/" + $scope.document.templateId).success(function(template) {
 
-			$scope.widgets = data.widgets;
-			for (var i in $scope.widgets)
-				if ($scope.widgets[i].source.indexOf("bm-on-replace") > 0)
-					$scope.widgets[i].nestable = true;
+			// fetch the current content
+			$http.get('/api/landingpages/' + $scope.document.id + '/content/current').success(function(data) {
+				$scope.html = $sce.trustAsHtml(data.content);
 			
-			// create the editor
-			// bind editor after content is inserted into DOM
-			nodeEdit = new BMNodeEdit($scope.document, data);
-			window.setTimeout(function() {
-				nodeEdit.setup();
-				$scope.reinitMCE(); 
-			}, 1000);
-
-			
-			// bind events from the outside world
-			window.addEventListener("message", function(e) {
-				e = e.data;
-				if (e.type == 'appendWidget') {
-					nodeEdit.appendWidget(e.data);
-					window.setTimeout(function() {
-						$scope.reinitMCE();
-					}, 200);
-				}
+				$scope.widgets = template.widgets;
+				for (var i in $scope.widgets)
+					if ($scope.widgets[i].source.indexOf("bm-on-replace") > 0)
+						$scope.widgets[i].nestable = true;
 				
-				if (e.type == 'replaceWidget')
-					nodeEdit.replaceWidget(e.data);
+				// create the editor
+				// bind editor after content is inserted into DOM
+				nodeEdit = new BMNodeEdit($scope.document, data);
+				window.setTimeout(function() {
+					nodeEdit.setup();
+					$scope.reinitMCE(); 
+				}, 1000);
+	
 				
-				if (e.type == 'saveDocument') 
-					$scope.saveContents();
-				
-				if (e.type == 'rollBackTo')
-					$scope.rollBackTo(e.data);
-				
-				if (e.type == 'resourceChanged')
-					$scope.handleResourceChanged(e.data);
-				
-			}, false);
+				// bind events from the outside world
+				window.addEventListener("message", function(e) {
+					e = e.data;
+					if (e.type == 'appendWidget') {
+						nodeEdit.appendWidget(e.data);
+						window.setTimeout(function() {
+							$scope.reinitMCE();
+						}, 200);
+					}
+					
+					if (e.type == 'replaceWidget')
+						nodeEdit.replaceWidget(e.data);
+					
+					if (e.type == 'saveDocument') 
+						$scope.saveContents();
+					
+					if (e.type == 'rollBackTo')
+						$scope.rollBackTo(e.data);
+					
+					if (e.type == 'resourceChanged')
+						$scope.handleResourceChanged(e.data);
+					
+				}, false);
+			});
 		});
 	};
 	
@@ -94,8 +98,8 @@ BMApp.Editor.controller("EditorIndexController",
 		console.log("Setting up new editors");
 		// setup tinymce
 		tinymce.init({
-			//selector : '[contenteditable="true"]',
-			selector : ".bm-fragment",
+			selector : '[contenteditable="true"]',
+			//selector : ".bm-fragment",
 			inline   : true,
 			browser_spellcheck : false,
 			toolbar	 :	'undo redo | styleselect | bold italic underline',

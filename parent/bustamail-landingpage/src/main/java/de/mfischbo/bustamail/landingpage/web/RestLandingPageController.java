@@ -21,7 +21,6 @@ import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
-import de.mfischbo.bustamail.landingpage.dto.LandingPageDTO;
 import de.mfischbo.bustamail.landingpage.service.LandingPageService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
@@ -59,11 +58,9 @@ public class RestLandingPageController extends BaseApiController {
 	 * @throws EntityNotFoundException If no such landing page exists
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public LandingPageDTO getLandingPageById(@PathVariable("id") ObjectId id) throws EntityNotFoundException {
+	public LandingPage getLandingPageById(@PathVariable("id") ObjectId id) throws EntityNotFoundException {
 		LandingPage page = service.getLandingPageById(id);
-		LandingPageDTO retval = asDTO(page, LandingPageDTO.class);
-		retval.setHtmlContent(asDTO(service.getRecentContentVersionByPage(page), VersionedContentDTO.class));
-		return retval;
+		return page;
 	}
 	
 	@RequestMapping(value = "/{id}/export", method = RequestMethod.GET)
@@ -131,6 +128,12 @@ public class RestLandingPageController extends BaseApiController {
 		return asDTO(service.getContentVersions(p), VersionedContentIndexDTO.class);
 	}
 	
+	
+	@RequestMapping(value = "/{id}/content/current", method = RequestMethod.GET)
+	public VersionedContent getCurrentContent(@PathVariable("id") ObjectId page) throws EntityNotFoundException {
+		LandingPage p = service.getLandingPageById(page);
+		return service.getRecentContentVersionByPage(p);
+	}
 	
 	/**
 	 * Returns the versioned content given it's id
