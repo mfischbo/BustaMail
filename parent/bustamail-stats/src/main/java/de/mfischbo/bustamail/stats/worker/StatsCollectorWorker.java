@@ -8,6 +8,8 @@ import javax.inject.Inject;
 
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,8 @@ public class StatsCollectorWorker {
 	
 	private File baseDir;
 	
+	private Logger log = LoggerFactory.getLogger(getClass());
+	
 	@PostConstruct
 	public void init() {
 		this.baseDir = new File(env.getProperty("de.mfischbo.bustamail.mailer.batch.basedir"));
@@ -34,6 +38,7 @@ public class StatsCollectorWorker {
 	@Scheduled(fixedDelay=30000)
 	public void executeStatsSorting() {
 		
+		log.debug("Executing stats collector");
 		File[] jobs = this.baseDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File j) {
@@ -44,7 +49,8 @@ public class StatsCollectorWorker {
 				return false;
 			}
 		});
-	
+		
+		log.debug("Found {} jobs to collect stats from", jobs.length);
 		for (File f : jobs) {
 			try {
 				// setup and validate the environment
@@ -77,7 +83,7 @@ public class StatsCollectorWorker {
 					s.delete();
 				}
 			} catch (Exception ex) {
-				
+				log.error("Failed creating stats entries for jobfile {}. Cause: {}", f.getName(), ex.getMessage());
 			}
 		}
 	}
