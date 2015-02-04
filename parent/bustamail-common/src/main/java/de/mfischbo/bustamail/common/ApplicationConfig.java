@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.fasterxml.jackson.databind.Module;
@@ -68,15 +69,13 @@ public class ApplicationConfig {
 		return factory.createMultipartConfig();
 	}
 
-	/*
 	@Bean
-	public CommonsMultipartResolver getMPResolver() {
-		CommonsMultipartResolver retval = new CommonsMultipartResolver();
-		retval.setMaxUploadSize(1024 * 1024 * 12);
-		return retval;
+	public ScheduledExecutorFactoryBean executorService() {
+		ScheduledExecutorFactoryBean b = new ScheduledExecutorFactoryBean();
+		b.setPoolSize(5);
+		return b;
 	}
-	*/
-	
+
 	@Bean
 	public FreeMarkerConfigurer getFreeMarkerConfigurer() {
 		FreeMarkerConfigurer fmc = new FreeMarkerConfigurer();
