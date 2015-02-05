@@ -181,11 +181,14 @@ public class BatchMailWorker {
 		
 		MimeMessage message = new MimeMessage(this.session);
 		
-		if (senderAddress != null || !m.getSenderAddress().equals(senderAddress.toString())) {
-			try {
-				senderAddress = new InternetAddress(m.getSenderAddress());
-			} catch (Exception ex) { }
+		if (senderAddress != null) {
+			if (!m.getSenderAddress().equals(senderAddress.toString())) {
+				try {
+					senderAddress = new InternetAddress(m.getSenderAddress());
+				} catch (Exception ex) { }
+			}
 		}
+			
 		
 		message.addRecipient(RecipientType.TO, new InternetAddress(m.getRecipientAddress()));
 		message.setSender(senderAddress);

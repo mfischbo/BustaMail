@@ -412,11 +412,12 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		ou.getActors().add(a);
 		orgUnitRepo.save(ou);
 		
-		InternetAddress from = null;
 		try {
-			from = new InternetAddress("noreply-bustamail@example.com");
-		} catch (Exception ex) { }
-		mailService.sendSimpleMail(from, iadr, "Your password", passwd);
+			InternetAddress from = new InternetAddress("noreply-bustamail@example.com");
+			mailService.sendSimpleMail(from, iadr, "Your password", passwd);
+		} catch (Exception ex) {
+			log.error("Unable to send password mail to user : " + u.getEmail());
+		}
 		return asDTO(u, UserDTO.class);
 	}
 

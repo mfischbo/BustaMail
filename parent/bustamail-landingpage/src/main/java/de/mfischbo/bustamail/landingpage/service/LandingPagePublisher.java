@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.bson.types.ObjectId;
@@ -263,7 +262,7 @@ class LandingPagePublisher {
 		Elements els = d.getElementsByTag("a");
 		for (Element e : els) {
 			try {
-				UUID id = UUID.fromString(e.attr("href"));
+				ObjectId id = new ObjectId(e.attr("href"));
 				e.attr("href", createPageName(linkMap.get(id) + ".html"));
 			} catch (Exception ex) {
 				// this is a external link... ignore it

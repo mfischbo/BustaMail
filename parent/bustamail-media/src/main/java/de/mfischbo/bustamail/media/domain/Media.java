@@ -154,7 +154,7 @@ public class Media extends OwnedBaseDomain {
 	public static String getExtension(Media m) {
 		if (!m.getName().contains("."))
 			return "";
-		String[] t = m.getName().split(".");
+		String[] t = m.getName().split("\\.");
 		return t[t.length-1];
 	}
 	
