@@ -10,6 +10,6 @@ public interface StatsService {
 
 	public StatsEntry createStatsEntry(StatsEntry e);
 
-	@PreAuthorize("hasPermission(#m.owner, 'Mailing.USE_MAILING')")
+	@PreAuthorize("hasPermission(#m.owner, 'Mailings.USE_MAILINGS')")
 	public MailingStats getStatsByMailing(Mailing m);
 }

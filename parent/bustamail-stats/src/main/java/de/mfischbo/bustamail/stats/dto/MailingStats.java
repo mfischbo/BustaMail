@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.stats.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -11,10 +12,10 @@ public class MailingStats {
 		long   clickAmount = 0;
 		long   uniqueClickAmount = 0;
 		
-		public ClickEntry(String url, long clickAmnt, long uClickAmnt) {
-			this.targetUrl = url;
-			this.clickAmount = clickAmnt;
-			this.uniqueClickAmount = uClickAmnt;
+		public ClickEntry(String targetUrl, long clickAmount, long uniqueClickAmount) {
+			this.targetUrl = targetUrl;
+			this.clickAmount = clickAmount;
+			this.uniqueClickAmount = uniqueClickAmount;
 		}
 
 		public String getTargetUrl() {
@@ -34,20 +35,18 @@ public class MailingStats {
 	private DateTime	finishedAt;
 	
 	private long		mailsSentSuccess;
-	private long		mailsSentRetry;
 	private long		mailsSentFailure;
 	
 	private long		recipientAmount;
 	
 	private long		openingAmount;
-	private long		openingRate;
+	private BigDecimal	openingRate;
 	private long		uniqueOpeningAmount;
-	private long		uniqueOpeningRate;
 	
 	private long		clickAmount;
-	private long		clickRate;
 	private long		uniqueClickAmount;
-	private long		uniqueClickRate;
+	
+	private BigDecimal	mailsPerMinute;
 	
 	private List<ClickEntry>	clickDetails;
 
@@ -75,14 +74,6 @@ public class MailingStats {
 		this.mailsSentSuccess = mailsSentSuccess;
 	}
 
-	public long getMailsSentRetry() {
-		return mailsSentRetry;
-	}
-
-	public void setMailsSentRetry(long mailsSentRetry) {
-		this.mailsSentRetry = mailsSentRetry;
-	}
-
 	public long getMailsSentFailure() {
 		return mailsSentFailure;
 	}
@@ -107,14 +98,6 @@ public class MailingStats {
 		this.openingAmount = openingAmount;
 	}
 
-	public long getOpeningRate() {
-		return openingRate;
-	}
-
-	public void setOpeningRate(long openingRate) {
-		this.openingRate = openingRate;
-	}
-
 	public long getUniqueOpeningAmount() {
 		return uniqueOpeningAmount;
 	}
@@ -123,12 +106,12 @@ public class MailingStats {
 		this.uniqueOpeningAmount = uniqueOpeningAmount;
 	}
 
-	public long getUniqueOpeningRate() {
-		return uniqueOpeningRate;
+	public BigDecimal getOpeningRate() {
+		return openingRate;
 	}
 
-	public void setUniqueOpeningRate(long uniqueOpeningRate) {
-		this.uniqueOpeningRate = uniqueOpeningRate;
+	public void setOpeningRate(BigDecimal openingRate) {
+		this.openingRate = openingRate;
 	}
 
 	public long getClickAmount() {
@@ -139,14 +122,6 @@ public class MailingStats {
 		this.clickAmount = clickAmount;
 	}
 
-	public long getClickRate() {
-		return clickRate;
-	}
-
-	public void setClickRate(long clickRate) {
-		this.clickRate = clickRate;
-	}
-
 	public long getUniqueClickAmount() {
 		return uniqueClickAmount;
 	}
@@ -155,19 +130,19 @@ public class MailingStats {
 		this.uniqueClickAmount = uniqueClickAmount;
 	}
 
-	public long getUniqueClickRate() {
-		return uniqueClickRate;
-	}
-
-	public void setUniqueClickRate(long uniqueClickRate) {
-		this.uniqueClickRate = uniqueClickRate;
-	}
-
 	public List<ClickEntry> getClickDetails() {
 		return clickDetails;
 	}
 
 	public void setClickDetails(List<ClickEntry> clickDetails) {
 		this.clickDetails = clickDetails;
+	}
+
+	public BigDecimal getMailsPerMinute() {
+		return mailsPerMinute;
+	}
+
+	public void setMailsPerMinute(BigDecimal mailsPerMinute) {
+		this.mailsPerMinute = mailsPerMinute;
 	}
 }
