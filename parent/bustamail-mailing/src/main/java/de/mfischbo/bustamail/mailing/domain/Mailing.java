@@ -69,6 +69,8 @@ public class Mailing extends OwnedBaseDomain {
 
 	private boolean		published;
 	
+	private Integer		recipientCount;
+	
 	@DBRef
 	private List<SubscriptionList>		subscriptionLists;
 
@@ -231,4 +233,13 @@ public class Mailing extends OwnedBaseDomain {
 	public void setTemplatePack(TemplatePack templatePack) {
 		this.templatePack = templatePack;
 	}
+
+	public Integer getRecipientCount() {
+		return recipientCount;
+	}
+
+	public void setRecipientCount(Integer recipientCount) {
+		this.recipientCount = recipientCount;
+	}
+	
 }

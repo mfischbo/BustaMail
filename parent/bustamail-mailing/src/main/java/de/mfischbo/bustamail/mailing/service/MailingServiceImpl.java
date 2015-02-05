@@ -343,6 +343,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 				m.setPublished(true);
 				m.setDatePublished(DateTime.now());
 				m.setUserPublished((User) auth.getPrincipal());
+				m.setRecipientCount(subscriptions.size());
 				mRepo.save(m);
 			}
 			return success;

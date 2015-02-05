@@ -65,7 +65,8 @@ public class StatsServiceImpl extends BaseService implements StatsService {
 		
 		retval.setMailsSentSuccess(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.SENT_SUCCESS));
 		retval.setMailsSentFailure(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.SENT_FAILURE));
-		retval.setRecipientAmount(retval.getMailsSentSuccess() + retval.getMailsSentFailure());
+		retval.setRecipientAmount(m.getRecipientCount());
+		retval.setActualRecipientAmount(retval.getMailsSentSuccess() + retval.getMailsSentFailure());
 		
 		if (retval.getRecipientAmount() != 0) {
 			long rquot = retval.getMailsSentSuccess() * 100;
@@ -169,7 +170,7 @@ public class StatsServiceImpl extends BaseService implements StatsService {
 			long diff = retval.getFinishedAt().getMillis() - retval.getStartedAt().getMillis();
 			float diffM = diff / (1000 * 60);
 			retval.setMailsPerMinute(
-					BigDecimal.valueOf(retval.getRecipientAmount() / diffM));
+					BigDecimal.valueOf(retval.getActualRecipientAmount() / diffM));
 		}
 		return retval;
 	}

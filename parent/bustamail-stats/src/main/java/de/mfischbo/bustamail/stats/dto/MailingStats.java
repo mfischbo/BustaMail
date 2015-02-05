@@ -31,25 +31,63 @@ public class MailingStats {
 		}
 	}
 	
+	/*
+	 * Start and end time of the mailing. 
+	 * Values are calculated from the actual time the mailer sent the first and the last mail
+	 */
 	private DateTime	startedAt;
 	private DateTime	finishedAt;
-	
+
+	/*
+	 * Amount of mails that have been sent successfully or failed. 
+	 * The value is based on how the mailer decides upon the success of a sent mailing.
+	 * The values represent the amount of serialized mailings in the .success and .failed directories
+	 */
 	private long		mailsSentSuccess;
 	private long		mailsSentFailure;
+
+	/*
+	 * recipientAmount:	The number of subscribers when the mailing has been published
+	 * actualRecipientAmount: The number of mailings the mailer tried to send
+	 * If both values differ the mailer has had an unexpected shutdown or some other issue.
+	 */
+	private long		recipientAmount;
+	private long		actualRecipientAmount;
 	
+	
+	/*
+	 * The rate of successfully sent mails based on the recipientAmount and the amount
+	 * of successfully sent mails
+	 */
 	private BigDecimal	sendingSuccessRate;
 	
-	private long		recipientAmount;
-	
+
+	/*
+	 * The amount of times the mailing has been opened by a client.
+	 * openingAmount : Openings over all (each opening counts, even from the same recipient)
+	 * uniqueOpeningAmount : Openings counted once for each subscriber
+	 * openingRate   : The rate of openings based on the uniqueOpenings and the recipientAmount
+	 */
 	private long		openingAmount;
 	private BigDecimal	openingRate;
 	private long		uniqueOpeningAmount;
-	
+
+	/*
+	 * The amount of clicks in the mailing
+	 * clickAmount : Each click counted
+	 * uniqueClickAmount : Clicks are grouped by recipient and targetUrl
+	 */
 	private long		clickAmount;
 	private long		uniqueClickAmount;
-	
+
+	/*
+	 * The amount of mails the mailer sent per minute. Based on the start/finish time and the amount of actual recipients 
+	 */
 	private BigDecimal	mailsPerMinute;
-	
+
+	/*
+	 * Detailed list of clicks
+	 */
 	private List<ClickEntry>	clickDetails;
 
 	public DateTime getStartedAt() {
@@ -154,5 +192,13 @@ public class MailingStats {
 
 	public void setSendingSuccessRate(BigDecimal sendingSuccessRate) {
 		this.sendingSuccessRate = sendingSuccessRate;
+	}
+
+	public long getActualRecipientAmount() {
+		return actualRecipientAmount;
+	}
+
+	public void setActualRecipientAmount(long actualRecipientAmount) {
+		this.actualRecipientAmount = actualRecipientAmount;
 	}
 }
