@@ -30,6 +30,9 @@ public interface MailingService {
 	@PreAuthorize("hasPermission(#owner, 'Mailings.USE_MAILINGS')")
 	Page<Mailing>		getAllMailings(ObjectId owner, Pageable page);
 
+
+	Page<Mailing>		getAllVisibleMailings(Pageable page);
+	
 	/**
 	 * Returns the mailing with the specified id
 	 * @param id The id of the mailng to be returnd
@@ -99,7 +102,7 @@ public interface MailingService {
 	 * @param type The type of the content to return 
 	 * @return
 	 */
-	@PreAuthorize("hasPermission(#m.owner, 'Mailings.USE_MAILINGS')")
+	@PreAuthorize("hasPe#/dashboardrmission(#m.owner, 'Mailings.USE_MAILINGS')")
 	VersionedContent	getRecentContent(@P("m") Mailing m, ContentType type);
 
 	/**

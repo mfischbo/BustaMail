@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
+import de.mfischbo.bustamail.security.domain.Permission;
 import de.mfischbo.bustamail.security.dto.ActorDTO;
 import de.mfischbo.bustamail.security.dto.AuthenticationDTO;
 import de.mfischbo.bustamail.security.dto.OrgUnitDTO;
@@ -79,6 +80,13 @@ public interface SecurityService {
 	 * @return
 	 */
 	public Set<OrgUnit>		getOrgUnitsByCurrentUser();
+	
+	/**
+	 * Returns a set of org units the current user is member of and has all the required permissions
+	 * @param permissions
+	 * @return
+	 */
+	public Set<OrgUnit>		getOrgUnitsByCurrentUserWithPermissions(Set<Permission> permissions);
 	
 	/**
 	 * Creates a new org unit

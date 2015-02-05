@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.mail.internet.InternetAddress;
@@ -38,6 +39,7 @@ import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailer.service.SimpleMailService;
 import de.mfischbo.bustamail.security.domain.Actor;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
+import de.mfischbo.bustamail.security.domain.Permission;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.security.dto.ActorDTO;
 import de.mfischbo.bustamail.security.dto.AuthenticationDTO;
@@ -329,6 +331,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	 * (non-Javadoc)
 	 * @see de.mfischbo.bustamail.security.service.SecurityService#getOrgUnitsByCurrentUser()
 	 */
+	@Override
 	public Set<OrgUnit> getOrgUnitsByCurrentUser() {
 		User current = (User) currentUser.getPrincipal();
 		List<OrgUnit> units = orgUnitRepo.findAllWithUserAsActor(current.getId());
@@ -336,6 +339,20 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		retval.addAll(units);
 		return retval;
 	}
+	
+	
+	@Override
+	public Set<OrgUnit>		getOrgUnitsByCurrentUserWithPermissions(Set<Permission> permissions) {
+		User current = (User) currentUser.getPrincipal();
+		List<UUID> permIds = new ArrayList<>(permissions.size());
+		permissions.forEach(p -> permIds.add(p.getId()));
+	
+		List<OrgUnit> units = orgUnitRepo.findAllWithUserAsActorAndAllPermissions(current.getId(), permIds);
+		Set<OrgUnit> retval = new HashSet<>();
+		units.forEach( u -> retval.add(u) );
+		return retval;
+	}
+	
 	
 	/*
 	 * (non-Javadoc)

@@ -1,7 +1,7 @@
 var BMApp = angular.module("BMApp", 
 		['ngRoute', 'SecurityModule', 'SubscriberModule', 
 		 'BMEditorModule', 'TemplatesModule', 'MailingModule', 'MailingListModule', 'MediaModule', 'LandingPageModule',
-		 'ui.bootstrap']);
+		 'StatsModule', 'DashBoardModule', 'ui.bootstrap']);
 
 BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
     
@@ -49,7 +49,7 @@ BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpP
 	
 	$routeProvider
 		.otherwise({
-			redirectTo 	: "/subscriber"
+			redirectTo 	: "/dashboard/"
 		});
 }]);
 

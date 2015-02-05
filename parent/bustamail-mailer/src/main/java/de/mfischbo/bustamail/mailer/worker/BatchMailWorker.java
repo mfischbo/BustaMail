@@ -13,6 +13,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
 import javax.mail.internet.MimeMultipart;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -110,7 +111,9 @@ public class BatchMailWorker {
 				log.error("Unable to deserialize json from file : " + f.getAbsolutePath());
 				
 				// move the file to the failed folder, since we are not able to read it
-				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.failed/" + f.getName()));
+				File dst = new File(jobFolder.getAbsolutePath() + "/.failed/" + f.getName());
+				f.renameTo(dst);
+				dst.setLastModified(DateTime.now().getMillis());
 				continue;
 			}
 		
@@ -122,11 +125,16 @@ public class BatchMailWorker {
 				sendMessage(m);
 				mailsOnSession++;
 				// all went well. Move the file to the success folder
-				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.success/" + f.getName()));
+				File dst = new File(jobFolder.getAbsolutePath() + "/.success/" + f.getName());
+				f.renameTo(dst);
+				dst.setLastModified(DateTime.now().getMillis());
+				
 				log.debug("Sent message\t {} / {} to recipient: {}", ++i, mailings.length, m.getRecipientAddress());
 			} catch (Exception ex) {
 				log.error("Unable to send message. Cause: " + ex.getMessage());
-				f.renameTo(new File(jobFolder.getAbsolutePath() + "/.retry/" + f.getName()));
+				File dst = new File(jobFolder.getAbsolutePath() + "/.retry/" + f.getName());
+				f.renameTo(dst);
+				dst.setLastModified(DateTime.now().getMillis());
 			}
 		
 			

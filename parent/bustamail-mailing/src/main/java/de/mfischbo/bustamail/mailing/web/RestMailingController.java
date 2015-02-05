@@ -53,6 +53,12 @@ public class RestMailingController extends BaseApiController {
 	@Inject
 	private MailingListService mListService;
 
+	
+	@RequestMapping(value = "", method = RequestMethod.GET)
+	public Page<MailingIndexDTO> getAllVisible(@PageableDefault Pageable page) {
+		return asDTO(service.getAllVisibleMailings(page), MailingIndexDTO.class, page);
+	}
+	
 	/**
 	 * Returns all mailings owned by the specified owner id
 	 * 
