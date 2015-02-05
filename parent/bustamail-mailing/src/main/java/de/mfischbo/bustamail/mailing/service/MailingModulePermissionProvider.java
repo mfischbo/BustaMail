@@ -1,6 +1,8 @@
 package de.mfischbo.bustamail.mailing.service;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,4 +36,11 @@ public class MailingModulePermissionProvider implements PermissionProvider {
 		return perms;
 	}
 
+	Set<Permission> getByNames(String ... names ) {
+		
+		final List<String> permNames = Arrays.asList(names);
+		Set<Permission>  modPerms = this.getModulePermissions();
+		modPerms.stream().filter(p -> permNames.contains(p.getIdentificator()));
+		return modPerms;
+	}
 }

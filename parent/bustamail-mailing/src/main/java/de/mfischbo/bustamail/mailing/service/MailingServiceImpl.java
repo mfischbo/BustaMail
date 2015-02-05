@@ -4,16 +4,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +37,10 @@ import de.mfischbo.bustamail.mailing.repository.MailingRepository;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
+import de.mfischbo.bustamail.security.domain.OrgUnit;
+import de.mfischbo.bustamail.security.domain.Permission;
 import de.mfischbo.bustamail.security.domain.User;
+import de.mfischbo.bustamail.security.service.SecurityService;
 import de.mfischbo.bustamail.template.domain.Template;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
@@ -53,25 +58,28 @@ import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 public class MailingServiceImpl extends BaseService implements MailingService {
 
 	private static final String 	BASE_URL_KEY = "de.mfischbo.bustamail.mailing.baseUrl";
+
+	@Inject
+	private		SecurityService			secService;
 	
-	@Autowired
+	@Inject
 	private		MailingRepository		mRepo;
 	
-	@Autowired
+	@Inject
 	private		VersionedContentRepository	vcRepo;
 	
-	@Autowired
+	@Inject
 	private		SubscriptionRepository		sRepo;
 	
-	@Autowired
+	@Inject
 	private		Authentication				auth;
 	
-	@Autowired
+	@Inject
 	private		SimpleMailService			simpleMailer;
 	
-	@Autowired
+	@Inject
 	private		Environment				env;
-	
+
 
 	/*
 	 * (non-Javadoc)
@@ -82,6 +90,19 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		return mRepo.findAllByOwner(owner, page);
 	}
 
+	
+	@Override
+	public Page<Mailing> getAllVisibleMailings(Pageable page) {
+		
+		MailingModulePermissionProvider prov = new MailingModulePermissionProvider();
+		Set<Permission> perms = prov.getByNames("Mailings.USE_MAILINGS");
+		Set<OrgUnit> units = secService.getOrgUnitsByCurrentUserWithPermissions(perms);
+		Set<ObjectId> oids = new HashSet<>();
+		
+		units.forEach(u -> oids.add(u.getId()));
+		return mRepo.getByOwnership(oids, page);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see de.mfischbo.bustamail.mailing.service.MailingService#getMailingById(java.util.UUID)

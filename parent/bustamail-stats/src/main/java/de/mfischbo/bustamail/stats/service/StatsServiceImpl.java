@@ -70,6 +70,16 @@ public class StatsServiceImpl extends BaseService implements StatsService {
 		retval.setClickAmount(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.CLICK));
 
 		// aggregate unique openings
+		/*
+		 db.Stats_StatsEntry.aggregate( [
+    		{ $match : { 
+        		"mailingId" : ObjectId("54d028a1e4b033d47d9609c9"),
+        		"type"      : "OPEN"
+    		}},
+    		{ $group : { _id : "$subscriptionId" } },
+    		{ $group : { _id : 1, count : { $sum : 1 } } }
+		]);
+		 */
 		Aggregation uOpen = newAggregation(
 				match(Criteria.where("mailingId").is(m.getId()).and("type").is(RecordType.OPEN.toString())),
 				group("subscriptionId"),
