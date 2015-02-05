@@ -83,7 +83,7 @@ public class MailingStats {
 	/*
 	 * The amount of mails the mailer sent per minute. Based on the start/finish time and the amount of actual recipients 
 	 */
-	private BigDecimal	mailsPerMinute;
+	private double 		mailsPerMinute;
 
 	/*
 	 * Detailed list of clicks
@@ -178,11 +178,11 @@ public class MailingStats {
 		this.clickDetails = clickDetails;
 	}
 
-	public BigDecimal getMailsPerMinute() {
+	public double getMailsPerMinute() {
 		return mailsPerMinute;
 	}
 
-	public void setMailsPerMinute(BigDecimal mailsPerMinute) {
+	public void setMailsPerMinute(double mailsPerMinute) {
 		this.mailsPerMinute = mailsPerMinute;
 	}
 

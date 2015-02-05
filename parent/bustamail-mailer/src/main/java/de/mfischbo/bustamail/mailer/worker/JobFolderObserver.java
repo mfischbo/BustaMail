@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.mfischbo.bustamail.mailer.dto.SMTPConfiguration;
-import de.mfischbo.bustamail.mailer.service.SimpleMailServiceImpl;
+import de.mfischbo.bustamail.mailer.processor.JobFolderProcessingStep;
 
 @Component
 public class JobFolderObserver {
@@ -30,7 +30,7 @@ public class JobFolderObserver {
 	
 	@PostConstruct
 	public void afterPropertiesSet() {
-		this.jobBasedir = new File(env.getProperty(SimpleMailServiceImpl.CNF_JOBDIR_KEY));
+		this.jobBasedir = new File(env.getProperty(JobFolderProcessingStep.CNF_JOBDIR_KEY));
 		this.fallbackConfig = new SMTPConfiguration(env);
 	}
 	

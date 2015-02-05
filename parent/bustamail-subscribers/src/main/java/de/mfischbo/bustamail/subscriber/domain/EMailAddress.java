@@ -43,16 +43,6 @@ public class EMailAddress extends BaseDomain {
 		this.domainPart = domainPart;
 	}
 
-	/*
-	public Contact getContact() {
-		return contact;
-	}
-
-	public void setContact(Contact contact) {
-		this.contact = contact;
-	}
-	*/
-
 	@Override
 	public String toString() {
 		return localPart + "@" + domainPart;

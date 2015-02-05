@@ -52,8 +52,8 @@ public class MailingSerializer {
 		}
 	}
 	
-	public boolean serializeMailing(File jobFolder, LiveMailing lm, String preparedHTML, String preparedText, PersonalizedEmailRecipient r) {
-		
+	public boolean serializeMailing(File jobFolder, LiveMailing lm, PersonalizedEmailRecipient r) {
+	
 		try {
 			String fName = jobFolder.getAbsolutePath() + "/" + r.getId();
 			SerializedMailing m = new SerializedMailing();
@@ -73,7 +73,7 @@ public class MailingSerializer {
 			model.put(KEY_SUBSCRIBER_ID, r.getId().toHexString());
 		
 			
-			Template ht = new Template("htDummy", preparedHTML, fmCfger.getConfiguration());
+			Template ht = new Template("htDummy", lm.getHtmlContent(), fmCfger.getConfiguration());
 			m.setHtmlContent(FreeMarkerTemplateUtils.processTemplateIntoString(ht, model));
 		
 			/*

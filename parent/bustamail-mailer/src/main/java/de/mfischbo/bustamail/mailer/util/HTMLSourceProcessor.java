@@ -3,14 +3,19 @@ package de.mfischbo.bustamail.mailer.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bson.types.ObjectId;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class that holds methods to modify the HTML source of a document
@@ -58,14 +63,45 @@ public class HTMLSourceProcessor {
 		return doc;
 	}
 
+	public static Map<ObjectId, List<Integer>> getStaticResourceIds(Document doc) {
+		Map<ObjectId, List<Integer>> retval = new HashMap<ObjectId, List<Integer>>();
+		
+		doc.select("*[src]").forEach(e -> {
+			String[] val = e.attr("src").split("/");
+			ObjectId key = new ObjectId(val[val.length -1]);
+			
+			// check if a width is set
+			Integer w = -1;
+			if (e.attr("width") != null) {
+				String ws = e.attr("width");
+				ws = ws.replaceAll("\\D", "");
+				w = Integer.parseInt(ws);
+			}
+			
+			if (retval.containsKey(key)) {
+				List<Integer> sizes = retval.get(key);
+				if (!sizes.contains(w))
+					sizes.add(w);
+			} else {
+				List<Integer> vals = new LinkedList<Integer>();
+				vals.add(w);
+				retval.put(key, vals);
+			}
+		});
+		return retval;
+	}
 	
-	public static Document replaceSourceURLs(Document doc, URL baseUrl, String disableTrackingClass) {
-		doc.select("*[src]").forEach(new Consumer<Element>() {
-			@Override
-			public void accept(Element t) {
-				String target = t.attr("src");
-				String finalUrl = HTMLSourceProcessor.createAbsoluteUrl(baseUrl, target);
-				t.attr("src", finalUrl);
+	
+	public static Document replaceSourceURLs(Document doc, URL baseUrl, final Map<ObjectId, ObjectId> resourceMap, String disableTrackingClass) {
+		
+		doc.select("*[src]").forEach(e -> {
+			String[] target = e.attr("src").split("/");
+			try {
+				ObjectId key = new ObjectId(target[target.length-1]);
+				e.attr("src", baseUrl + "/" + resourceMap.get(key).toString());
+			} catch (Exception ex) {
+				LoggerFactory.getLogger(HTMLSourceProcessor.class)
+					.error("Unable to set image for source {}. Cause: {}", target, ex.getMessage());
 			}
 		});
 		return doc;

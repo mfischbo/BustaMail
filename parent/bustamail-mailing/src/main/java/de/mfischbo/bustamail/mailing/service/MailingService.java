@@ -102,7 +102,7 @@ public interface MailingService {
 	 * @param type The type of the content to return 
 	 * @return
 	 */
-	@PreAuthorize("hasPe#/dashboardrmission(#m.owner, 'Mailings.USE_MAILINGS')")
+	@PreAuthorize("hasPermission(#m.owner, 'Mailings.USE_MAILINGS')")
 	VersionedContent	getRecentContent(@P("m") Mailing m, ContentType type);
 
 	/**

@@ -1,15 +1,18 @@
 package de.mfischbo.bustamail.mailinglist.domain;
 
 import org.joda.time.DateTime;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
+import de.mfischbo.bustamail.common.domain.Gender;
+import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 import de.mfischbo.bustamail.subscriber.domain.Contact;
 import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 
 @Document(collection = "MailingList_Subscription")
-public class Subscription extends BaseDomain {
+public class Subscription extends BaseDomain implements PersonalizedEmailRecipient {
 
 	private static final long serialVersionUID = 3316987035776229064L;
 
@@ -95,5 +98,43 @@ public class Subscription extends BaseDomain {
 
 	public void setSubscriptionList(SubscriptionList subscriptionList) {
 		this.subscriptionList = subscriptionList;
+	}
+
+	@Override
+	@Transient
+	public Gender getGender() {
+		if (contact == null)
+			return Gender.N;
+		return contact.getGender();
+	}
+
+	@Override
+	@Transient
+	public String getFirstName() {
+		if (contact == null)
+			return "";
+		return contact.getFirstName();
+	}
+
+	@Override
+	@Transient
+	public String getLastName() {
+		if (contact == null)
+			return "";
+		return contact.getLastName();
+	}
+
+	@Override
+	@Transient
+	public boolean hasFormalSalutation() {
+		if (contact == null)
+			return true;
+		return contact.isFormalSalutation();
+	}
+
+	@Override
+	@Transient
+	public String getEmail() {
+		return emailAddress.toString();
 	}
 }

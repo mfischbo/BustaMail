@@ -24,7 +24,7 @@ public class TrackingController {
 	@Inject
 	private StatsService		service;
 	
-	@RequestMapping("o.png")
+	@RequestMapping("/o.png")
 	public void createOpeningTrack(
 			@RequestParam(value = "m", required = false, defaultValue = "") String mailingId,
 			@RequestParam(value = "s", required = false, defaultValue = "") String subscriptionId,
@@ -53,7 +53,7 @@ public class TrackingController {
 		}
 	}
 	
-	@RequestMapping("t.png")
+	@RequestMapping("/c.png")
 	public void createClickTrack(
 			@RequestParam(value = "m", required = false, defaultValue = "") String mailingId,
 			@RequestParam(value = "s", required = false, defaultValue = "") String subscriptionId,

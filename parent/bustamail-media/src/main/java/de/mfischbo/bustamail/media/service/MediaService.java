@@ -18,6 +18,9 @@ public interface MediaService {
 	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
 	Media			getMediaById(ObjectId id) throws EntityNotFoundException;
 
+	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
+	Media			getMediaById(ObjectId id, int preferedSize) throws EntityNotFoundException;
+	
 	@PreAuthorize("hasPermission(#m.owner, 'Media.USE_MEDIA')")
 	void			getContent(Media m, OutputStream stream) throws Exception;
 	

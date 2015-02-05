@@ -75,6 +75,22 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 	
 	@Override
+	public Media getMediaById(ObjectId id, int preferedSize) throws EntityNotFoundException {
+		
+		int s = getBestMatchingSize(preferedSize);
+		GridFSDBFile f = gridTemplate.findOne(
+				Query.query(
+					Criteria.where("metadata.parent").is(id)	
+					.and("metadata.width").is(s)
+				));
+		if (f == null) {
+			// fallback to default
+			return getMediaById(id);
+		}
+		return convertFile(f);
+	}
+	
+	@Override
 	public void getContent(Media m, OutputStream stream) throws IOException {
 		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(m.getId())));
 		if (f != null) {
@@ -90,13 +106,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 			return;
 		}
 	
-		// find the upper and lower boundary sizes to be returned
-		int s = 1024;
-		if (preferedSize < 1024 && preferedSize > 512) s = 1024;
-		if (preferedSize <= 512 && preferedSize > 128) s = 512;
-		if (preferedSize <= 128 && preferedSize > 64 ) s = 128;
-		if (preferedSize <= 64  && preferedSize > 0  ) s = 64;
-		
+		int s = getBestMatchingSize(preferedSize);
 		GridFSDBFile f = gridTemplate.findOne(
 				Query.query(
 						Criteria.where("metadata.parent").is(m.getId())
@@ -108,6 +118,16 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 			getContent(m, stream);
 			return;
 		}
+	}
+	
+	private int getBestMatchingSize(int preferedSize) {
+		// find the upper and lower boundary sizes to be returned
+		int s = 1024;
+		if (preferedSize < 1024 && preferedSize > 512) s = 1024;
+		if (preferedSize <= 512 && preferedSize > 128) s = 512;
+		if (preferedSize <= 128 && preferedSize > 64 ) s = 128;
+		if (preferedSize <= 64  && preferedSize > 0  ) s = 64;
+		return s;
 	}
 	
 	@Override

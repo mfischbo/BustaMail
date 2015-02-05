@@ -3,21 +3,25 @@ package de.mfischbo.bustamail.mailing.service;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.bson.types.ObjectId;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 import de.mfischbo.bustamail.mailer.dto.LiveMailing;
+import de.mfischbo.bustamail.mailer.util.HTMLSourceProcessor;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
-import de.mfischbo.bustamail.mailinglist.domain.Subscription;
-import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
-import de.mfischbo.bustamail.subscriber.dto.RecipientDTO;
+import de.mfischbo.bustamail.media.domain.Media;
+import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 
@@ -44,53 +48,28 @@ public class MailingPreProcessor {
 	 * @throws AddressException
 	 * @throws MalformedURLException
 	 */
-	public static LiveMailing createLiveMailing(Mailing m, Collection<Subscription> subscriptions, VersionedContent html, 
-			VersionedContent text, String contentBaseUrl) throws AddressException, MalformedURLException {
+	public static LiveMailing createLiveMailing(Mailing m, Collection<PersonalizedEmailRecipient> recipients, VersionedContent html, 
+			VersionedContent text, String webServerURL, String apiURL, MediaService mService) throws Exception {
 	
 		Logger log = LoggerFactory.getLogger(MailingPreProcessor.class);
 	
-		URL u = new URL(contentBaseUrl);
+		URL u = new URL(webServerURL);
+		URL api = new URL(apiURL);
 		
 		LiveMailing lm = null;
 		if (text != null)
-			lm = new LiveMailing(m.getId(), m.getSubject(), html.getContent(), text.getContent(), u);
+			lm = new LiveMailing(m.getId(), m.getSubject(), html.getContent(), text.getContent(), u, api);
 		if (text == null)
-			lm = new LiveMailing(m.getId(), m.getSubject(), html.getContent(), u);
-		
-		// collect all recipients
-		Set<PersonalizedEmailRecipient> recipients = new HashSet<>();
-		for (Subscription s : subscriptions) {
-			
-			if (s.getState() != State.ACTIVE)
-				continue;
-			
-			RecipientDTO d = new RecipientDTO();
-			d.setAddress(s.getEmailAddress());
-			d.setFirstName(s.getContact().getFirstName());
-			d.setLastName(s.getContact().getLastName());
-			d.setFormalSalutation(s.getContact().isFormalSalutation());
-			d.setGender(s.getContact().getGender());
-			d.setId(s.getId());
-			recipients.add(d);
-		}
-		
-		lm.setRecipients(recipients);
-		log.info("Added " + recipients.size() + " subscribers to this mailing");
+			lm = new LiveMailing(m.getId(), m.getSubject(), html.getContent(), u, api);
 		
 		log.info("Configuring the HTML Parser...");
 		lm.setRemoveClasses(DefaultTemplateMarkers.getTemplateClassMarkers());
 		lm.setRemoveAttributes(DefaultTemplateMarkers.getTemplateAttributeMarkers());
 		lm.setDisableLinkTrackClass(DefaultTemplateMarkers.getDiableLinkTrackClass());
-
-		// check for cell padding optimization
-		/*
-		Template t = m.getTemplate();
-		if (t.getSettings().containsKey(Template.SKEY_CELLPADDING_OPTIMIZATION)) {
-			log.info("Enabling cell padding optimizations");
-			lm.setSpanCellReplacement(Boolean.parseBoolean(t.getSettings().get(Template.SKEY_CELLPADDING_OPTIMIZATION)));
-		}
-		*/
 		
+		log.info("Adding {} recipients to the mailing", recipients.size());
+		lm.setRecipients(recipients);
+
 		// set sender / reply to addresses and names
 		log.info("Setting sender address to : " + m.getSenderAddress());
 		lm.setSenderAddress(new InternetAddress(m.getSenderAddress()));
@@ -100,7 +79,26 @@ public class MailingPreProcessor {
 		
 		log.info("Setting sender name to : " + m.getSenderName());
 		lm.setSenderName(m.getSenderName());
-	
+		
+		// gather resources from the mailing
+		log.info("Gathering resources to be used in the mailing");
+		Document doc = Jsoup.parse(html.getContent());
+		Map<ObjectId, List<Integer>> resources = HTMLSourceProcessor.getStaticResourceIds(doc);
+		Map<ObjectId, ObjectId> resourceMap = new HashMap<>();
+		
+		for (ObjectId id : resources.keySet()) {
+			for (Integer width : resources.get(id)) {
+				Media media = null;
+				if (width == -1)
+					media = mService.getMediaById(id);
+				else
+					media = mService.getMediaById(id, width);
+				
+				lm.getResources().put(media.getId(), mService.getContent(media));
+				resourceMap.put(id, media.getId());
+			}
+		}
+		lm.setResourceMap(resourceMap);
 		return lm;
 	}
 }

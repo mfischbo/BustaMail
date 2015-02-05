@@ -1,7 +1,5 @@
 package de.mfischbo.bustamail.mailing.service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -11,8 +9,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
@@ -25,24 +21,23 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.ConfigurationException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailer.dto.LiveMailing;
-import de.mfischbo.bustamail.mailer.dto.PreviewMailing;
 import de.mfischbo.bustamail.mailer.service.SimpleMailService;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailing.repository.MailingRepository;
-import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
+import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.domain.Permission;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.security.service.SecurityService;
 import de.mfischbo.bustamail.template.domain.Template;
-import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
@@ -57,10 +52,14 @@ import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 @Service
 public class MailingServiceImpl extends BaseService implements MailingService {
 
-	private static final String 	BASE_URL_KEY = "de.mfischbo.bustamail.mailing.baseUrl";
-
+	private static final String 	BASE_API_KEY = "de.mfischbo.bustamail.mailing.baseUrl";
+	private static final String		WEBSERVER_KEY= "de.mfischbo.bustamail.env.liveUrl";
+	
 	@Inject
 	private		SecurityService			secService;
+	
+	@Inject
+	private 	MediaService			mediaService;
 	
 	@Inject
 	private		MailingRepository		mRepo;
@@ -161,42 +160,6 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		vcRepo.delete(contents);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see de.mfischbo.bustamail.mailing.service.MailingService#sendPreview(de.mfischbo.bustamail.mailing.domain.Mailing)
-	 */
-	@Override
-	public void sendPreview(Mailing m) {
-		User u = (User) auth.getPrincipal();
-		VersionedContent c = getRecentContent(m, ContentType.HTML);
-	
-		PreviewMailing pm = new PreviewMailing(m.getSubject(), c.getContent(), null, u);
-		for (String s : DefaultTemplateMarkers.getTemplateClassMarkers())
-			pm.addRemoveClass(s);
-		
-		for (String s : DefaultTemplateMarkers.getTemplateAttributeMarkers())
-			pm.addRemoveAttribute(s);
-	
-		pm.setDisableLinkTrackClass(DefaultTemplateMarkers.getDiableLinkTrackClass());
-		
-		try {
-			pm.setContentProviderBaseURL(new URL(env.getProperty(BASE_URL_KEY)));
-		} catch (Exception ex) {
-			log.error("The provided base url is not valid! Check the configuration property de.mfischbo.bustamail.mailing.baseUrl!");
-		}
-		
-		try {
-			InternetAddress sender = new InternetAddress(m.getSenderAddress());
-			pm.setSenderAddress(sender);
-		} catch (Exception ex) {
-			log.error("Unable to set the senders address. Provided Address was: " + m.getSenderAddress());
-		}
-	
-		pm.setSenderName(m.getSenderName());
-		
-		if (pm.isValid())
-			simpleMailer.sendPreviewMailing(pm);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -324,34 +287,60 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		mRepo.save(m);
 	}
 
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.mailing.service.MailingService#sendPreview(de.mfischbo.bustamail.mailing.domain.Mailing)
+	 */
+	@Override
+	public void sendPreview(Mailing m) {
+		User u = (User) auth.getPrincipal();
+		VersionedContent html = getRecentContent(m, ContentType.HTML);
+		VersionedContent text = getRecentContent(m, ContentType.Text);
+
+		String webServerURL = env.getProperty(WEBSERVER_KEY) + "/mailing_" + m.getId();
+		String apiURL		= env.getProperty(BASE_API_KEY);
+
+		Set<PersonalizedEmailRecipient> recipients = new HashSet<>();
+		recipients.add(u);
+		
+		try {
+			LiveMailing mailing = MailingPreProcessor.createLiveMailing(m, recipients, html, text, webServerURL, apiURL, mediaService);
+			simpleMailer.sendPreviewMailing(mailing);
+		} catch (Exception ex) {
+			log.error("Unable to create preview mailing. Cause: {}", ex.getMessage());
+		}
+	}
+
+	
 	@Override
 	public boolean publishMailing(Mailing m) throws ConfigurationException {
 		VersionedContent html = getRecentContent(m, ContentType.HTML);
 		VersionedContent text = getRecentContent(m, ContentType.Text);
-		String baseUrl 		  = env.getProperty(BASE_URL_KEY);
+		
+		String webServerURL = env.getProperty(WEBSERVER_KEY) + "/mailing_" + m.getId();
+		String apiURL       = env.getProperty(BASE_API_KEY);
 		
 		// collect all subscribers
-		List<Subscription> subscriptions = new LinkedList<>();
+		Set<PersonalizedEmailRecipient> recipients = new HashSet<>();
+		
 		for (SubscriptionList l : m.getSubscriptionLists()) {
-			subscriptions.addAll(sRepo.findAllSubscriptions(l.getId()));
+			recipients.addAll(sRepo.findAllSubscriptions(l.getId()));
 		}
 		
 		try {
-			LiveMailing liveMailing = MailingPreProcessor.createLiveMailing(m, subscriptions, html, text, baseUrl);
+			LiveMailing liveMailing = MailingPreProcessor.createLiveMailing(m, recipients, html, text, webServerURL, apiURL, mediaService);
 			boolean success = simpleMailer.scheduleLiveMailing(liveMailing);
 			if (success) {
 				m.setPublished(true);
 				m.setDatePublished(DateTime.now());
 				m.setUserPublished((User) auth.getPrincipal());
-				m.setRecipientCount(subscriptions.size());
+				m.setRecipientCount(recipients.size());
 				mRepo.save(m);
 			}
 			return success;
-		} catch (MalformedURLException ex) {
-			throw new ConfigurationException("The value provided : " + baseUrl + " is not a valid URL");
-		} catch (AddressException ex2) {
-			log.error("Sender address is not a valid InternetAddress. Got: " + ex2.getMessage());
-			// this should not occur, since we're checking the addresses when setting it on the mailing
+		} catch (Exception ex2) {
+			log.error("Failed during preparation of the mailing. Cause {}", ex2.getMessage());
 		}
 		return false;
 	}

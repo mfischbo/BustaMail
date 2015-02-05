@@ -1,9 +1,12 @@
 package de.mfischbo.bustamail.mailer.dto;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
 
@@ -24,7 +27,7 @@ public class LiveMailing {
 	private ObjectId								mailingId;
 	
 	/* The set of recipients for this mailing */
-	private Set<PersonalizedEmailRecipient>			recipients;
+	private Collection<PersonalizedEmailRecipient>	recipients;
 	
 	/* The senders address */
 	private InternetAddress							senderAddress;
@@ -44,8 +47,17 @@ public class LiveMailing {
 	/* The mailings text body part */
 	private String									textContent;
 	
+	/* The mailings resources (e.g. images) */
+	private Map<ObjectId, InputStream>				resources;
+
+	/* Mapping from the objectIds used in the editor to those with prefered sizes */
+	private Map<ObjectId, ObjectId>					resourceMap;
+	
 	/* The base url from where to retrieve resources and contents (e.g. Images) */
-	private URL										contentProviderBaseURL;
+	private URL										webServerBaseURL;
+
+	/* The base url where to access the bustamail api (for tracking pixel, click counts...) */
+	private URL										apiURL;
 
 	/* The list of html/css class names that will be removed from any node of the HTML */
 	private List<String>							removeClasses = new LinkedList<>();
@@ -65,19 +77,23 @@ public class LiveMailing {
 	/* Flag indicating if global link tracking is enabled for the mailing */
 	private boolean									enableLinkTracking = true;
 	
-	public LiveMailing(ObjectId mailingId, String subject, String htmlContent, URL contentBaseUrl) {
+	public LiveMailing(ObjectId mailingId, String subject, String htmlContent, URL webServerBaseURL, URL apiURL) {
 		this.mailingId = mailingId;
 		this.subject = subject;
 		this.htmlContent = htmlContent;
-		this.contentProviderBaseURL = contentBaseUrl;
+		this.webServerBaseURL = webServerBaseURL;
+		this.apiURL = apiURL;
+		this.resources = new HashMap<>();
 	}
 	
-	public LiveMailing(ObjectId mailingId, String subject, String htmlContent, String textContent, URL contentBaseUrl) {
+	public LiveMailing(ObjectId mailingId, String subject, String htmlContent, String textContent, URL webServerBaseURL, URL apiURL) {
 		this.mailingId = mailingId;
 		this.subject = subject;
 		this.htmlContent = htmlContent;
 		this.textContent = textContent;
-		this.contentProviderBaseURL = contentBaseUrl;
+		this.webServerBaseURL = webServerBaseURL;
+		this.apiURL = apiURL;
+		this.resources = new HashMap<>();
 	}
 
 	public ObjectId getMailingId() {
@@ -88,11 +104,11 @@ public class LiveMailing {
 		this.mailingId = mailingId;
 	}
 
-	public Set<PersonalizedEmailRecipient> getRecipients() {
+	public Collection<PersonalizedEmailRecipient> getRecipients() {
 		return recipients;
 	}
 
-	public void setRecipients(Set<PersonalizedEmailRecipient> recipients) {
+	public void setRecipients(Collection<PersonalizedEmailRecipient> recipients) {
 		this.recipients = recipients;
 	}
 
@@ -144,12 +160,20 @@ public class LiveMailing {
 		this.textContent = textContent;
 	}
 
-	public URL getContentProviderBaseURL() {
-		return contentProviderBaseURL;
+	public URL getWebServerBaseURL() {
+		return webServerBaseURL;
 	}
 
-	public void setContentProviderBaseURL(URL contentProviderBaseURL) {
-		this.contentProviderBaseURL = contentProviderBaseURL;
+	public void setWebServerBaseURL(URL webServerBaseURL) {
+		this.webServerBaseURL = webServerBaseURL;
+	}
+
+	public URL getApiURL() {
+		return apiURL;
+	}
+
+	public void setApiURL(URL apiURL) {
+		this.apiURL = apiURL;
 	}
 
 	public List<String> getRemoveClasses() {
@@ -198,5 +222,21 @@ public class LiveMailing {
 
 	public void setEnableLinkTracking(boolean enableLinkTracking) {
 		this.enableLinkTracking = enableLinkTracking;
+	}
+
+	public Map<ObjectId, InputStream> getResources() {
+		return resources;
+	}
+
+	public void setResources(Map<ObjectId, InputStream> resources) {
+		this.resources = resources;
+	}
+
+	public Map<ObjectId, ObjectId> getResourceMap() {
+		return resourceMap;
+	}
+
+	public void setResourceMap(Map<ObjectId, ObjectId> resourceMap) {
+		this.resourceMap = resourceMap;
 	}
 }

@@ -168,9 +168,8 @@ public class StatsServiceImpl extends BaseService implements StatsService {
 		// calculate sending rate
 		if (retval.getFinishedAt() != null && retval.getStartedAt() != null) {
 			long diff = retval.getFinishedAt().getMillis() - retval.getStartedAt().getMillis();
-			float diffM = diff / (1000 * 60);
-			retval.setMailsPerMinute(
-					BigDecimal.valueOf(retval.getActualRecipientAmount() / diffM));
+			double diffM = (diff / (1000d * 60d));
+			retval.setMailsPerMinute(retval.getActualRecipientAmount() / diffM);
 		}
 		return retval;
 	}
