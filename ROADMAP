@@ -1,0 +1,27 @@
+=============================================================
+||		Feature Requests									\\	
+===============================================================
+
+[bustamail-bouncemails]
+- general implementation
+- process and sort incoming mails
+
+[bustamail-mailer]
+- API for controlling running jobs from outside (pause / resume / abort / list)
+- partitioned batch mail worker (multiple mail workers sending the same job)
+
+[bustamail-mailinglist]
+- recipient filter (join multiple lists and filter recipients by criteria)
+
+[public-api]
+- general implementation
+
+[bustamail-stats]
+- add bouncemail stats for each mailing (requires bouncemail implementation)
+- deep linking capabilities
+
+[general environment]
+- system history (who does what) and general timeline on a dashboard
+- settings module to configure the application on multiple layers (admin, ou admin, user)
+
+
