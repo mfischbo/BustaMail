@@ -66,6 +66,15 @@ public class StatsServiceImpl extends BaseService implements StatsService {
 		retval.setMailsSentSuccess(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.SENT_SUCCESS));
 		retval.setMailsSentFailure(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.SENT_FAILURE));
 		retval.setRecipientAmount(retval.getMailsSentSuccess() + retval.getMailsSentFailure());
+		
+		if (retval.getRecipientAmount() != 0) {
+			long rquot = retval.getMailsSentSuccess() * 100;
+			float rDiv = retval.getRecipientAmount();
+			retval.setSendingSuccessRate(BigDecimal.valueOf(rquot / rDiv));
+		} else {
+			retval.setSendingSuccessRate(null);
+		}
+		
 		retval.setOpeningAmount(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.OPEN));
 		retval.setClickAmount(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.CLICK));
 
@@ -156,10 +165,12 @@ public class StatsServiceImpl extends BaseService implements StatsService {
 		retval.setUniqueClickAmount(uniqueClickAmount);
 		
 		// calculate sending rate
-		long diff = retval.getFinishedAt().getMillis() - retval.getStartedAt().getMillis();
-		float diffM = diff / (1000 * 60);
-		retval.setMailsPerMinute(
-				BigDecimal.valueOf(retval.getRecipientAmount() / diffM));
+		if (retval.getFinishedAt() != null && retval.getStartedAt() != null) {
+			long diff = retval.getFinishedAt().getMillis() - retval.getStartedAt().getMillis();
+			float diffM = diff / (1000 * 60);
+			retval.setMailsPerMinute(
+					BigDecimal.valueOf(retval.getRecipientAmount() / diffM));
+		}
 		return retval;
 	}
 }

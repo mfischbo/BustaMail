@@ -1,0 +1,42 @@
+<h5>Aktuelle Mailings</h5>
+
+<accordion>	
+	<accordion-group data-ng-repeat="m in mailings" data-ng-click="toggleState(m)">
+		<accordion-heading>
+				<div class="col-md-1">
+				<span class="fa fa-envelope" style="font-size:24px;"></span> 
+			</div>	
+			<div class="col-md-8">
+				{{m.subject}}<br/>
+				<small><i>(versendet am {{ m.datePublished|date:'dd.MM.yyyy HH:mm' }} von {{m.userPublished.firstName}} {{m.userPublished.lastName}})</i></small>
+			</div>	
+			<div class="col-md-3">
+				<div class="pull-right">
+					<span class="fa fa-bar-chart"></span>
+				</div>
+			</div>
+			<div class="clearfix"></div>	
+		</accordion-heading>
+		
+			<div class="col-md-3" style="text-align:center;">
+				<span style="font-size:24px; color:green; text-align:center;">{{currentStats.openingRate.toFixed(2)}}%</span><br/>
+				<small>&Ouml;ffnungsrate</small>
+			</div>	
+			
+			<div class="col-md-3" style="text-align:center;">
+				<span style="font-size:24px; color:green; text-align:center;">{{currentStats.clickAmount}}</span><br/>
+				<small>Clicks</small>
+			</div>
+			
+			<div class="col-md-3" style="text-align:center;">
+				<span style="font-size:24px; color:green; text-align:center;">{{currentStats.sendingSuccessRate.toFixed(2)}}%</span><br/>
+				<small>Zustellrate</small>		
+			</div>
+			
+			<div class="col-md-3" style="text-align:center;">
+				<span style="font-size:24px; color:green;">{{currentStats.recipientAmount}}</span><br/>
+				<small>Abonnenten</small>		
+			</div>
+	
+	</accordion-group>
+</accordion>

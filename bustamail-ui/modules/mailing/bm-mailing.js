@@ -18,8 +18,33 @@ BMApp.Mailing.config(['$routeProvider', function($routeProvider) {
 		.when("/mailings/:id/envelope", {
 			templateUrl	:	"./modules/mailing/tmpl/mailing/envelope.html",
 			controller	:	"MailingEnvelopeController"
+		})
+		.when('/mailings/:id/report', {
+			templateUrl : './modules/mailings/tmpl/mailing/report.html',
+			controller	: 'MailingReportController'
 		});
 }]);
+
+
+BMApp.Mailing.service('MailingService', ['$http', function($http) {
+	return {
+		
+		getAllVisibleMailings : function(pageSort, pageDirection, pageSize) {
+			
+			var q = '?';
+			if (pageSort) q += 'page.sort=' + pageSort;
+			if (pageDirection) 
+				q+= ',' + pageDirection;
+			else
+				q+= ',asc'; 
+			if (pageSize) q+= '&page.size=' + pageSize;
+			return $http.get('/api/mailings' + q).success(function(page) {
+				return page;
+			});
+		}
+	}
+}])
+
 
 BMApp.Mailing.controller("MailingIndexController", ['$scope', '$http', function($scope, $http) {
 	
@@ -130,6 +155,11 @@ BMApp.Mailing.controller("MailingEnvelopeController", ['$scope', '$http', '$rout
 			});
 		}
 	};
+}]);
+
+
+BMApp.Mailing.controller('MailingReportController', [function() {
+	
 }]);
 
 

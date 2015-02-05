@@ -37,6 +37,8 @@ public class MailingStats {
 	private long		mailsSentSuccess;
 	private long		mailsSentFailure;
 	
+	private BigDecimal	sendingSuccessRate;
+	
 	private long		recipientAmount;
 	
 	private long		openingAmount;
@@ -144,5 +146,13 @@ public class MailingStats {
 
 	public void setMailsPerMinute(BigDecimal mailsPerMinute) {
 		this.mailsPerMinute = mailsPerMinute;
+	}
+
+	public BigDecimal getSendingSuccessRate() {
+		return sendingSuccessRate;
+	}
+
+	public void setSendingSuccessRate(BigDecimal sendingSuccessRate) {
+		this.sendingSuccessRate = sendingSuccessRate;
 	}
 }

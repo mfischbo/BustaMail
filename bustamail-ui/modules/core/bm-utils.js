@@ -117,7 +117,6 @@ BMApp.hideSpinner = function() {
 	$("#spinner").hide();
 }
 
-
 BMApp.confirm = function(txt, callback) {
 	
 	//var $modal = angular.injector().get("$modal");

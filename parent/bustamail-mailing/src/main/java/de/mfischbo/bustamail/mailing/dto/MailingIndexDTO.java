@@ -25,6 +25,7 @@ public class MailingIndexDTO extends OwnedBaseDTO {
 	private UserDTO				userCreated;
 	private UserDTO				userApprovalRequested;
 	private UserDTO				userApproved;
+	private UserDTO				userPublished;
 	
 	private boolean				approvalRequested;
 	private boolean				approved;
@@ -125,5 +126,11 @@ public class MailingIndexDTO extends OwnedBaseDTO {
 	}
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+	public UserDTO getUserPublished() {
+		return userPublished;
+	}
+	public void setUserPublished(UserDTO userPublished) {
+		this.userPublished = userPublished;
 	}
 }
