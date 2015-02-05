@@ -54,7 +54,7 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 		
 		if (m.isSpanCellReplacement()) {
 			log.info("Running span cell optimization...");
-			doc = HTMLSourceProcessor.replaceSpanCells(doc, m.getApiURL(), "/public/api/blank.gif");
+			doc = HTMLSourceProcessor.replaceSpanCells(doc, m.getWebServerBaseURL(), "/blank.gif");
 		}
 		
 		if (m.isEnableOpeningTracking()) {

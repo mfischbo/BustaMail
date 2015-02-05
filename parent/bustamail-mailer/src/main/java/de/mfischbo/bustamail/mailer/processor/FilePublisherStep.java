@@ -2,11 +2,13 @@ package de.mfischbo.bustamail.mailer.processor;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StreamUtils;
+import org.zeroturnaround.zip.commons.FileUtils;
 
 import de.mfischbo.bustamail.exception.BustaMailException;
 import de.mfischbo.bustamail.mailer.dto.LiveMailing;
@@ -37,6 +39,18 @@ public class FilePublisherStep implements IMailingProcessorStep {
 		File resourceRoot = new File(env.getProperty(DOC_ROOT_KEY) + "/mailing_" + mailing.getMailingId());
 		if (!resourceRoot.exists())
 			resourceRoot.mkdirs();
+		
+		// publish the blank.gif file
+		if (mailing.isSpanCellReplacement()) {
+			try {
+				InputStream in = getClass().getResourceAsStream("/blank.gif");
+				File blank = new File(resourceRoot.getAbsolutePath() + "/blank.gif");
+				FileUtils.copy(in, blank);
+			} catch (Exception ex) {
+				log.error("Unable to copy blank.gif file.");
+				throw new BustaMailException("Unable to copy blank.gif file");
+			}
+		}
 
 		mailing.getResources().keySet().forEach(k -> {
 			try {

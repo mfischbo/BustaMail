@@ -26,6 +26,8 @@ public class HTMLSourceProcessor {
 
 	public static Document replaceSpanCells(Document doc, URL baseUrl, String blankPixelUrl) {
 
+		final String url = baseUrl.toString() + blankPixelUrl;
+		
 		doc.select("td").forEach(new Consumer<Element>() {
 			@Override
 			public void accept(Element t) {
@@ -41,7 +43,7 @@ public class HTMLSourceProcessor {
 					if (height.trim().length() > 0)
 						n.attr("height", height);
 					
-					n.attr("src", blankPixelUrl);
+					n.attr("src", url);
 					n.attr("border", "0");
 					t.empty();
 					t.appendChild(n);
@@ -97,11 +99,15 @@ public class HTMLSourceProcessor {
 		doc.select("*[src]").forEach(e -> {
 			String[] target = e.attr("src").split("/");
 			try {
+				// skip the blank.gif
+				if (target[target.length-1].equals("blank.gif"))
+					return;
+				
 				ObjectId key = new ObjectId(target[target.length-1]);
 				e.attr("src", baseUrl + "/" + resourceMap.get(key).toString());
 			} catch (Exception ex) {
 				LoggerFactory.getLogger(HTMLSourceProcessor.class)
-					.error("Unable to set image for source {}. Cause: {}", target, ex.getMessage());
+					.error("Unable to set image for source {}. Cause: {}", target[target.length-1], ex.getMessage());
 			}
 		});
 		return doc;
@@ -182,17 +188,6 @@ public class HTMLSourceProcessor {
 		
 		return doc;
 	}
-	
-	private static String createAbsoluteUrl(URL base, String target) {
-		String retval = base.toExternalForm() + "/" + target;
-		String schema = retval.substring(0, retval.indexOf("://") + 3);
-		String url    = retval.substring(schema.length());
-		
-		url = url.replaceAll("//", "/");
-		url = url.replaceAll("/\\./", "/");
-		return schema + url;
-	}
-	
 	
 	private static String rgb2Hex(String rgb) {
 		
