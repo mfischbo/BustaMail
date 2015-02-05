@@ -62,6 +62,7 @@ public class StatsCollectorWorker {
 					continue;
 				
 				File[] subs = successDir.listFiles();
+				log.debug("Processing {} file from .success directory", subs.length);
 				for (File s : subs) {
 					StatsEntry e = new StatsEntry();
 					e.setMailingId(mailingId);
@@ -71,8 +72,9 @@ public class StatsCollectorWorker {
 					sRepo.save(e);
 					s.delete();
 				}
-				
+			
 				subs = failDir.listFiles();
+				log.debug("Processing {} files from .filure directory", subs.length);
 				for (File s : subs) {
 					StatsEntry e = new StatsEntry();
 					e.setMailingId(mailingId);
