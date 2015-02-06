@@ -19,7 +19,8 @@ public class Subscription extends BaseDomain implements PersonalizedEmailRecipie
 	public enum SourceType {
 		UserAction,
 		ImportAction,
-		FormAction
+		FormAction,
+		PublicAPIAction
 	}
 	
 	public enum State {

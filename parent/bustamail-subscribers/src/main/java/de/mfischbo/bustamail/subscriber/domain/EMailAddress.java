@@ -13,7 +13,8 @@ public class EMailAddress extends BaseDomain {
 	
 	@NotBlank
 	private String domainPart;
-	
+
+	private String address;
 
 	public EMailAddress() {
 		
@@ -25,6 +26,7 @@ public class EMailAddress extends BaseDomain {
 		assert(s.length == 2);
 		this.localPart = s[0];
 		this.domainPart = s[1];
+		this.address = address;
 	}
 	
 	public String getLocalPart() {
@@ -41,6 +43,14 @@ public class EMailAddress extends BaseDomain {
 
 	public void setDomainPart(String domainPart) {
 		this.domainPart = domainPart;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	@Override
