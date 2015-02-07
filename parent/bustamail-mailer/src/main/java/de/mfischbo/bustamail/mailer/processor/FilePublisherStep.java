@@ -1,5 +1,6 @@
 package de.mfischbo.bustamail.mailer.processor;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -50,6 +51,15 @@ public class FilePublisherStep implements IMailingProcessorStep {
 				log.error("Unable to copy blank.gif file.");
 				throw new BustaMailException("Unable to copy blank.gif file");
 			}
+		}
+		
+		// publish the content as index.html to be displayed static
+		try {
+			File staticFile = new File(resourceRoot.getAbsolutePath() + "/index.html");
+			FileUtils.copy(new ByteArrayInputStream(mailing.getHtmlContent().getBytes()), staticFile);
+		} catch (Exception ex) {
+			log.error("Unable to publish static file. Cause: {}", ex.getMessage());
+			throw new BustaMailException("Unable to publish mailings static file");
 		}
 
 		mailing.getResources().keySet().forEach(k -> {

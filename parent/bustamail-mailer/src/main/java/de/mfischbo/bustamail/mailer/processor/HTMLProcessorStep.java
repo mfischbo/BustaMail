@@ -56,6 +56,9 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 			log.info("Running span cell optimization...");
 			doc = HTMLSourceProcessor.replaceSpanCells(doc, m.getWebServerBaseURL(), "/blank.gif");
 		}
+	
+		log.info("Replacing static link if present");
+		doc = HTMLSourceProcessor.replaceStaticLink(doc, m.getWebServerBaseURL(), m.getDisableLinkTrackClass());
 		
 		if (m.isEnableOpeningTracking()) {
 			log.info("Attaching opening tracking pixel...");
@@ -69,7 +72,8 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 		
 		log.info("Replacing source URLs");
 		doc = HTMLSourceProcessor.replaceSourceURLs(doc, m.getWebServerBaseURL(), m.getResourceMap(), m.getDisableLinkTrackClass());
-		
+	
+	
 		log.info("Removing Editor class/attribute markers");
 		doc = HTMLSourceProcessor.removeAttributes(doc, m.getRemoveAttributes());
 		doc = HTMLSourceProcessor.removeClasses(doc, m.getRemoveClasses());

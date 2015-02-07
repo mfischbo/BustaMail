@@ -38,6 +38,7 @@
 - save editor contents as widget in the given template pack (allowing larger template elements to be reused without rewriting)
 
 [v0.6]
+- add capability to send mailings with text content
 - settings store integration
 - customized contact fields
 - recipient filtering (joining lists and filter segments)

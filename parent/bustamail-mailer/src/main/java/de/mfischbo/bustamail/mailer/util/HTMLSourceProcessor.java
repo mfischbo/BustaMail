@@ -126,6 +126,15 @@ public class HTMLSourceProcessor {
 		});
 		return doc;
 	}
+	
+	public static Document replaceStaticLink(Document doc, URL baseUrl, String disableTrackingClass) {
+		doc.select("a[rel=static-link]").forEach( e -> {
+			String target = baseUrl.toString() + "/index.html";
+			e.attr("href", target);
+			e.addClass(disableTrackingClass);
+		});
+		return doc;
+	}
 
 	private static String createTrackingUrl(URL base, String target) {
 		String retval = base.toString() + "/public/t/c.png?m=${"+ MailingSerializer.KEY_MAILING_ID +"}&s=${"+ MailingSerializer.KEY_SUBSCRIBER_ID+"}&t=";

@@ -25,6 +25,8 @@ public class RestStatsController extends BaseApiController {
 	@RequestMapping(value = "/{mid}", method = RequestMethod.GET)
 	public MailingStats getStatsByMailingId(@PathVariable("mid") ObjectId mailingId) throws EntityNotFoundException {
 		Mailing m = mService.getMailingById(mailingId);
+		if (!m.isPublished())
+			return null;
 		return service.getStatsByMailing(m);
 	}
 }

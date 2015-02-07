@@ -51,7 +51,7 @@ public class StatsServiceImpl extends BaseService implements StatsService {
 	@Override
 	public MailingStats getStatsByMailing(Mailing m) {
 		MailingStats retval = new MailingStats();
-		
+			
 		retval.setOpeningAmount(sRepo.countEntriesByMailingAndType(m.getId(), RecordType.OPEN));
 		
 		// start and end time of the mailing
