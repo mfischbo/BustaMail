@@ -67,7 +67,25 @@
 	</div>
 	
 	<button class="btn btn-success btn-sm" data-ng-click="saveContents()">Speichern</button>
-	<button class="btn btn-primary btn-sm" data-ng-click="createPreview()">Vorschau anzeigen</button>
+	<button class="btn btn-primary btn-sm" data-ng-click="createPreview()">Vorschau senden</button>
+	
+	<h5>Erweitert</h5>
+	<a href="javascript:void('');" data-ng-click="asTemplate.visible = !asTemplate.visible">Inhalt als neues Template speichern</a>
+	<div data-ng-if="asTemplate.visible">
+		<div class="form-group">
+			<label>Template Name</label>
+			<input type="text" data-ng-model="asTemplate.name" class="form-control" placeholder="Template Name"/>
+		</div>
+		
+		<div class="checkbox">
+			<label>
+				<input type="checkbox" data-ng-model="asTemplate.editable"> Bearbeitbar
+			</label>
+		</div>
+		<button class="btn btn-success" data-ng-click="saveAsTemplate()">Speichern</button>
+	</div>
+	
+		
 </div>
 
 <div id="resourceConsole" data-ng-show="resource && resource.id">

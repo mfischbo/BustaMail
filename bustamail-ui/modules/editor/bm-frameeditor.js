@@ -86,6 +86,9 @@ BMApp.Editor.controller("EditorIndexController",
 					if (e.type == 'resourceChanged')
 						$scope.handleResourceChanged(e.data);
 					
+					if (e.type == 'saveAsTemplate')
+						$scope.saveAsTemplate(e.data);
+					
 				}, false);
 			});
 		});
@@ -137,11 +140,7 @@ BMApp.Editor.controller("EditorIndexController",
 		}
 		
 		var content = $("#editor-content").html();
-		content = content.replace(/bm-fragment-hovered/g, "");
-		content = content.replace(/bm-fragment-focused/g, "");
-		content = content.replace(/bm-element-hovered/g, "");
-		content = content.replace(/bm-element-focused/g, "");
-		content = content.replace(/bm-text-focused/g, "");
+		content = $scope.sanitizeContent(content);
 		var d = {
 			type : "HTML",
 			content : content 
@@ -150,6 +149,46 @@ BMApp.Editor.controller("EditorIndexController",
 		$http.post(apiPath + "/content", d).success(function(data) {
 			$scope.initMCE();
 		});
+	};
+	
+	/**
+	 * Saves the current editor contents as new template
+	 */
+	$scope.saveAsTemplate = function(config) {
+		
+		// fetch the template pack
+		$http.get("/api/templatepacks/" + $scope.document.templatePack.id).success(function(pack) {
+			
+			var origin = BMApp.utils.find('id', $scope.document.templateId, pack.templates);
+			var template = {};
+			angular.copy(origin, template);
+			
+			$scope.destroyMCE();
+			var content = $('#editor-content').html();
+			content = $scope.sanitizeContent(content);
+			template.id = undefined;
+			template.source = content;
+			template.name   = config.name;
+			template.editable = config.editable;
+			pack.templates.push(template);
+			$http.patch('/api/templatepacks/' + $scope.document.templatePack.id, pack).success(function() {
+				BMApp.alert('Content saved as new template');
+				$scope.initMCE();
+			}).error(function() {
+				BMApp.alert('Failed saving content as new template')
+				$scope.initMCE();
+			});
+		});
+	};
+
+	
+	$scope.sanitizeContent = function(html) {
+		html = html.replace(/bm-fragment-hovered/g, "");
+		html = html.replace(/bm-fragment-focused/g, "");
+		html = html.replace(/bm-element-hovered/g, "");
+		html = html.replace(/bm-element-focused/g, "");
+		html = html.replace(/bm-text-focused/g, "");
+		return html;
 	};
 	
 	/**

@@ -30,6 +30,8 @@ public class Template {
 	private List<Media>		resources = new LinkedList<>();
 
 	private Map<String, String>		settings = new LinkedHashMap<>();
+	
+	private boolean			editable = true;
 
 	public Template() {
 		this.id = new ObjectId();
@@ -105,5 +107,13 @@ public class Template {
 
 	public void setResources(List<Media> resources) {
 		this.resources = resources;
+	}
+
+	public boolean isEditable() {
+		return editable;
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 }
