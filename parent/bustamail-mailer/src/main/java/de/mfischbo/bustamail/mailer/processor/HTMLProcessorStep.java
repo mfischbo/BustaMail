@@ -23,15 +23,10 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 		
 		try {
 			String html = "";
-			String text = "";
 		
 			if (mailing.getHtmlContent() != null && mailing.getHtmlContent().trim().length() > 0) 
 				html = prepareBaseHTMLContent(mailing);
-			if (mailing.getTextContent() != null && mailing.getTextContent().trim().length() > 0)
-				text = prepareBaseTextContent(mailing);
-			
 			mailing.setHtmlContent(html);
-			mailing.setTextContent(text);
 		} catch (Exception ex) {
 			log.error("Failed to prepare HTML/TEXT contents. Cause: "	 + ex.getMessage());
 			log.error("Scheduling of live mailing for id : " + mailing.getMailingId() + " failed");
@@ -39,12 +34,6 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 		}
 		return mailing;
 	}
-	
-	private String prepareBaseTextContent(LiveMailing m) {
-		// TODO Implement this
-		return m.getTextContent();
-	}
-	
 	
 	private String prepareBaseHTMLContent(LiveMailing m) {
 		String html = m.getHtmlContent();
@@ -80,6 +69,8 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 		
 		log.info("Cleaning up the document");
 		doc = HTMLSourceProcessor.cleanUp(doc);
+		
+		m.setTextContent(doc.text());
 		return doc.html();
 	}
 }

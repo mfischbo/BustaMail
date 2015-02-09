@@ -204,23 +204,27 @@ public class BatchMailWorker {
 			}
 		}
 		message.setSubject(m.getSubject());
+		
+		/*
 		message.setHeader("Content-Type", "text/html;charset=utf-8");
-
+		message.setHeader("Content-Transfer-Encoding", "quoted-printable");
+		message.setText(m.getHtmlContent());
+		*/
 		
 		MimeMultipart content = new MimeMultipart("alternative");
-		
-		MimeBodyPart htmlBody = new MimeBodyPart();
-		htmlBody.setText(m.getHtmlContent());
-		htmlBody.setHeader("Content-Type", "text/html;charset=UTF-8");
-		htmlBody.setHeader("Content-Transfer-Encoding", "quoted-printable");
-		content.addBodyPart(htmlBody);
-
+	
 		if (m.getTextContent() != null && m.getTextContent().trim().length() > 0) {
 			MimeBodyPart textBody = new MimeBodyPart();
 			textBody.setText(m.getTextContent());
 			textBody.setHeader("Content-Type", "text/plain;charset=UTF-8");
 			content.addBodyPart(textBody);
 		}
+		
+		MimeBodyPart htmlBody = new MimeBodyPart();
+		htmlBody.setText(m.getHtmlContent());
+		htmlBody.setHeader("Content-Type", "text/html;charset=UTF-8");
+		htmlBody.setHeader("Content-Transfer-Encoding", "quoted-printable");
+		content.addBodyPart(htmlBody);
 		
 		message.setContent(content);
 		message.saveChanges();

@@ -75,6 +75,7 @@ public class MailingSerializer {
 			
 			Template ht = new Template("htDummy", lm.getHtmlContent(), fmCfger.getConfiguration());
 			m.setHtmlContent(FreeMarkerTemplateUtils.processTemplateIntoString(ht, model));
+			m.setTextContent(lm.getTextContent());
 		
 			/*
 			Template tt = new Template("txDummy", preparedText, fmCfger.getConfiguration());
