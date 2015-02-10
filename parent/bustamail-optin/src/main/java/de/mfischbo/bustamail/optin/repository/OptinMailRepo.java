@@ -12,4 +12,7 @@ public interface OptinMailRepo extends OwnerMongoRepository<OptinMail, ObjectId>
 
 	@Query(" { 'activated' : true } ")
 	List<OptinMail> findAllActivated();
+	
+	@Query(" { 'activated' : true, 'owner' : ?0 } ")
+	OptinMail findActivatedByOwner(ObjectId owner);
 }

@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.publicapi.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,16 +12,23 @@ import javax.inject.Inject;
 
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.service.BaseService;
+import de.mfischbo.bustamail.exception.ApiException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
+import de.mfischbo.bustamail.mailer.dto.LiveMailing;
+import de.mfischbo.bustamail.mailer.processor.MailingPreProcessor;
+import de.mfischbo.bustamail.mailer.service.SimpleMailService;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription.SourceType;
 import de.mfischbo.bustamail.mailinglist.domain.Subscription.State;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionListRepository;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
+import de.mfischbo.bustamail.optin.domain.OptinMail;
+import de.mfischbo.bustamail.optin.repository.OptinMailRepo;
 import de.mfischbo.bustamail.publicapi.dto.PublicSubscriber;
 import de.mfischbo.bustamail.publicapi.dto.PublicSubscriber.PubSubscription;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
@@ -28,10 +36,14 @@ import de.mfischbo.bustamail.security.repository.OrgUnitRepository;
 import de.mfischbo.bustamail.subscriber.domain.Contact;
 import de.mfischbo.bustamail.subscriber.domain.EMailAddress;
 import de.mfischbo.bustamail.subscriber.repository.ContactRepository;
+import de.mfischbo.bustamail.vc.domain.VersionedContent;
+import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 
 @Service
 public class PublicAPIServiceImpl extends BaseService implements PublicAPIService {
 
+	@Inject Environment					env;
+	
 	@Inject	SubscriptionListRepository 	mlRepo;
 	
 	@Inject OrgUnitRepository			orgUnitRepo;
@@ -40,6 +52,18 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 	
 	@Inject ContactRepository			cRepo;
 	
+	@Inject OptinMailRepo				optMailRepo;
+	
+	@Inject VersionedContentRepository  vcRepo;
+	
+	@Inject SimpleMailService			mailer;
+	
+	@Inject MailingPreProcessor			preProcessor;
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#getPublicSubscriptionListByOrgUnit(org.bson.types.ObjectId, boolean)
+	 */
 	@Override
 	public List<SubscriptionList> getPublicSubscriptionListByOrgUnit(
 			ObjectId id, boolean deep) {
@@ -71,6 +95,12 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		}
 	}
 	
+	/**
+	 * Returns whether or not the provided contact holds the given email address
+	 * @param c The contact to be testes
+	 * @param email the email address
+	 * @return True, if the contact hols that email address, false otherwise
+	 */
 	private boolean isAuthenticated(Contact c, String email) {
 		Iterator<EMailAddress> emt = c.getEmailAddresses().iterator();
 		while (emt.hasNext()) {
@@ -82,6 +112,11 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		return false;
 	}
 	
+	/**
+	 * Finds a given contact for a collection of email addresses
+	 * @param addresses The collection of email addresses
+	 * @return True, if a contact exists, that holds one of the given addresses, null otherwise
+	 */
 	private Contact findByEmail(Collection<EMailAddress> addresses) {
 		Iterator<EMailAddress> eit = addresses.iterator();
 		while (eit.hasNext()) {
@@ -94,6 +129,10 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 	}
 
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#getSubscriberById(org.bson.types.ObjectId, java.lang.String)
+	 */
 	@Override
 	public PublicSubscriber getSubscriberById(ObjectId id, String email) throws EntityNotFoundException {
 		Contact c = cRepo.findOne(id);
@@ -110,8 +149,12 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		return retval;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#createSubscriber(de.mfischbo.bustamail.publicapi.dto.PublicSubscriber, java.lang.String)
+	 */
 	@Override
-	public PublicSubscriber createSubscriber(PublicSubscriber subscriber, String sourceIP) {
+	public PublicSubscriber createSubscriber(PublicSubscriber subscriber, String sourceIP) throws ApiException {
 		Contact c = findByEmail(subscriber.getEmailAddresses()); 
 		if (c == null) {
 			c = asDTO(subscriber, Contact.class);
@@ -123,9 +166,23 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 			primary = c.getEmailAddresses().iterator().next();
 		
 		final UUID transactionId = UUID.randomUUID();
+		final List<SubscriptionList> lists = new ArrayList<>();
 		final EMailAddress a = primary;
 		final Contact x = c;
 		PublicSubscriber retval = asDTO(c, PublicSubscriber.class);
+		
+		// check for a valid optin mail before creating subscriptions
+		OptinMail mail = null;
+		for (PubSubscription ps : subscriber.getSubscriptions()) {
+			SubscriptionList slist = mlRepo.findOne(ps.getId());
+			if (slist != null) {
+				mail = optMailRepo.findActivatedByOwner(slist.getOwner());
+				if (mail != null) break;
+			}
+		}
+	
+		if (mail == null)
+			throw new ApiException("Unable to process subscription. No optin mail defined");
 		
 		// create a subscription for each PubSubscription
 		subscriber.getSubscriptions().forEach(s -> {
@@ -142,15 +199,27 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 			if (slist != null) {
 				sub.setSubscriptionList(slist);
 				subRepo.save(sub);
+				lists.add(slist);
 				retval.getSubscriptions().add(new PubSubscription(slist));
 			}
 		});
 		if (subscriber.getSubscriptions().size() > 0) {
-			// create a optin mail for the given transaction id
+			VersionedContent html = vcRepo.findByForeignId(mail.getId(), oneByDateCreatedDesc()).getContent().get(0);
+			try {
+				LiveMailing m = preProcessor.createLiveMailing(mail, Collections.singleton(c), html.getContent(), null);
+				mailer.sendPreviewMailing(m);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 		return retval;
 	}
 	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#updateSubscriber(de.mfischbo.bustamail.publicapi.dto.PublicSubscriber, java.lang.String)
+	 */
 	@Override
 	public PublicSubscriber updateSubscriber(PublicSubscriber subscriber, String email) throws EntityNotFoundException {
 		Contact c = cRepo.findOne(subscriber.getId());
@@ -163,6 +232,11 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		return retval;
 	}
 	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#deleteSubscriber(de.mfischbo.bustamail.publicapi.dto.PublicSubscriber, java.lang.String)
+	 */
 	@Override
 	public void deleteSubscriber(PublicSubscriber subscriber, String email) throws EntityNotFoundException {
 		Contact c = cRepo.findOne(subscriber.getId());
@@ -179,6 +253,10 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		// hmm... maybe we should remove the contact as well or flag it deleted?
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#createSubscriptions(de.mfischbo.bustamail.publicapi.dto.PublicSubscriber, java.lang.String, java.util.List, java.lang.String)
+	 */
 	@Override
 	public PublicSubscriber createSubscriptions(PublicSubscriber subscriber, String email, List<ObjectId> listIds, String ipAddr) throws EntityNotFoundException {
 		Contact c = cRepo.findOne(subscriber.getId());
@@ -205,6 +283,11 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		return subscriber;
 	}
 
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#deleteSubscriptions(de.mfischbo.bustamail.publicapi.dto.PublicSubscriber, java.lang.String, java.util.List)
+	 */
 	@Override
 	public PublicSubscriber deleteSubscriptions(PublicSubscriber subscriber, String email, List<ObjectId> listIds) throws EntityNotFoundException {
 		Contact c = cRepo.findOne(subscriber.getId());
@@ -232,6 +315,11 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		return subscriber;
 	}
 	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.publicapi.service.PublicAPIService#activateSubscriptions(java.util.UUID)
+	 */
 	@Override
 	public void activateSubscriptions(UUID transactionId) {
 		List<Subscription> subs = subRepo.findByTransactionId(transactionId);

@@ -7,9 +7,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.common.domain.Gender;
+import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
 
 @Document(collection = "Subscribers_Contact")
-public class Contact extends BaseDomain {
+public class Contact extends BaseDomain implements PersonalizedEmailRecipient {
 
 	private static final long serialVersionUID = -7625104438651224536L;
 
@@ -81,5 +82,18 @@ public class Contact extends BaseDomain {
 
 	public void setEmailAddresses(Set<EMailAddress> emailAddresses) {
 		this.emailAddresses = emailAddresses;
+	}
+
+	@Override
+	public boolean hasFormalSalutation() {
+		return formalSalutation;
+	}
+
+	@Override
+	public String getEmail() {
+		if (emailAddresses.size() > 0) {
+			return emailAddresses.iterator().next().toString();
+		}
+		return null;
 	}
 }

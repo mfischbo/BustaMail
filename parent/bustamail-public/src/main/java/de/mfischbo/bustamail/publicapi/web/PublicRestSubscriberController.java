@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.mfischbo.bustamail.exception.ApiException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.publicapi.dto.PublicSubscriber;
 import de.mfischbo.bustamail.publicapi.service.PublicAPIService;
@@ -31,7 +32,7 @@ public class PublicRestSubscriberController {
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public PublicSubscriber createSubscriber(@RequestBody PublicSubscriber subscriber,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws ApiException {
 		return service.createSubscriber(subscriber, request.getRemoteAddr());
 	}
 	

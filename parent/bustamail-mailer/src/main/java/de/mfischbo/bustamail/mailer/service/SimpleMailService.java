@@ -26,6 +26,8 @@ public interface SimpleMailService {
 	public void sendSimpleHtmlMail(InternetAddress from, String senderName, String replyToAddress, InternetAddress to, String subject, String html);
 	
 	
+	public void scheduleOptinMailing(LiveMailing mailing) throws Exception;
+	
 	public void sendPreviewMailing(LiveMailing mailing) throws Exception;
 	
 

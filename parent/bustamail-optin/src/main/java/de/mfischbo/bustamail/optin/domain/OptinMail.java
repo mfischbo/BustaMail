@@ -1,5 +1,8 @@
 package de.mfischbo.bustamail.optin.domain;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
@@ -7,11 +10,12 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
+import de.mfischbo.bustamail.mailer.dto.IMailableMail;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 
 @Document(collection = "Optin_OptinMail")
-public class OptinMail extends OwnedBaseDomain {
+public class OptinMail extends OwnedBaseDomain implements IMailableMail {
 
 	private static final long serialVersionUID = 6647303761639662254L;
 
@@ -141,5 +145,23 @@ public class OptinMail extends OwnedBaseDomain {
 
 	public void setActivated(boolean activated) {
 		this.activated = activated;
+	}
+
+	@Override
+	public InternetAddress getSender() {
+		try {
+			return new InternetAddress(senderAddress);
+		} catch (AddressException ex) {
+			throw new IllegalStateException(ex.getMessage());
+		}
+	}
+
+	@Override
+	public InternetAddress getReplyTo() {
+		try {
+			return new InternetAddress(replyAddress);
+		} catch (AddressException ex) {
+			throw new IllegalStateException(ex.getMessage());
+		}
 	}
 }

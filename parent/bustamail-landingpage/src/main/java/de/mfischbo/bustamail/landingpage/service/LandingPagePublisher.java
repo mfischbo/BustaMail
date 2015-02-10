@@ -23,13 +23,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.zeroturnaround.zip.ZipUtil;
 
+import de.mfischbo.bustamail.common.domain.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.landingpage.domain.LPForm;
 import de.mfischbo.bustamail.landingpage.domain.LandingPage;
 import de.mfischbo.bustamail.landingpage.domain.StaticPage;
 import de.mfischbo.bustamail.mailer.util.HTMLSourceProcessor;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
-import de.mfischbo.bustamail.template.util.DefaultTemplateMarkers;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 

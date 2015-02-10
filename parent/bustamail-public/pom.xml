@@ -22,5 +22,20 @@
   		<artifactId>bustamail-mailinglist</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+  	<dependency>
+  		<groupId>de.mfischbo.bustamail</groupId>
+  		<artifactId>bustamail-mailer</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>de.mfischbo.bustamail</groupId>
+  		<artifactId>bustamail-optin</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>de.mfischbo.bustamail</groupId>
+  		<artifactId>bustamail-media</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
   </dependencies>
 </project>

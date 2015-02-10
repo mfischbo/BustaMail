@@ -30,7 +30,6 @@ import de.mfischbo.bustamail.mailer.util.MailingSerializer;
 @Service
 public class SimpleMailServiceImpl implements SimpleMailService {
 
-	
 	@Inject
 	private JavaMailSender mailSender;
 	
@@ -135,8 +134,24 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 		m = s5.process(m);
 		return true;
 	}
-
 	
+	@Override
+	public void scheduleOptinMailing(LiveMailing m) throws Exception {
+		log.debug("Processing HTML / Text content preparations");
+		IMailingProcessorStep s1 = new HTMLProcessorStep();
+		m = s1.process(m);
+		IMailingProcessorStep s2 = new FilePublisherStep(env);
+		m = s2.process(m);
+		for (PersonalizedEmailRecipient r : m.getRecipients()) {
+			try {
+				InternetAddress rec = new InternetAddress(r.getEmail());
+				this.sendSimpleHtmlMail(m.getSenderAddress(), m.getSenderName(), "", rec, m.getSubject(), m.getHtmlContent());
+			} catch (Exception ex) {
+				log.error("Unable to send optin mail. Cause: " + ex.getMessage());
+			}
+		}
+		
+	}
 	
 	/*
 	 * (non-Javadoc)
