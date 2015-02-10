@@ -51,6 +51,11 @@ public class EMailAddress extends BaseDomain {
 
 	public void setAddress(String address) {
 		this.address = address;
+		String[] s = this.address.split("@");
+		if (s.length > 1) {
+			this.localPart = s[0];
+			this.domainPart = s[1];
+		}
 	}
 
 	@Override

@@ -1,23 +1,29 @@
 package de.mfischbo.bustamail.publicapi.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.bson.types.ObjectId;
 
+import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
-import de.mfischbo.bustamail.publicapi.dto.PublicSubscription;
+import de.mfischbo.bustamail.publicapi.dto.PublicSubscriber;
 
 public interface PublicAPIService {
 
 	public List<SubscriptionList> getPublicSubscriptionListByOrgUnit(ObjectId id, boolean deep);
-	
-	public PublicSubscription getSubscriptionById(ObjectId id, String email);
-	
-	public PublicSubscription createSubscription(PublicSubscription subscription);
-	
-	public PublicSubscription updateSubscription(PublicSubscription subscription);
 
-	public PublicSubscription activateSubscription(PublicSubscription subscription);
+	public PublicSubscriber getSubscriberById(ObjectId id, String email) throws EntityNotFoundException;
 	
-	public void deleteSubscripton(PublicSubscription subscription);
+	public PublicSubscriber createSubscriber(PublicSubscriber subscriber, String sourceIP);
+	
+	public PublicSubscriber updateSubscriber(PublicSubscriber subscriber, String email) throws EntityNotFoundException;
+	
+	public void				deleteSubscriber(PublicSubscriber subscriber, String email) throws EntityNotFoundException;
+	
+	public PublicSubscriber createSubscriptions(PublicSubscriber subscriber, String email, List<ObjectId> listIds, String ipAddr) throws EntityNotFoundException;
+	
+	public PublicSubscriber deleteSubscriptions(PublicSubscriber subscriver, String email, List<ObjectId> listIds) throws EntityNotFoundException;
+	
+	public void				activateSubscriptions(UUID transactionId);
 }
