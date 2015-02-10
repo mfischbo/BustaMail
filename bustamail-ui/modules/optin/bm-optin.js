@@ -12,7 +12,7 @@ BMApp.optin.config(['$routeProvider', function($routeProvider) {
 		})
 		.when('/optin/:id/edit', {
 			controller : 'OptinMailEditController',
-			templateUrl: './modules/optin/views/edit.html'
+			templateUrl: './modules/editor/tmpl/environment.html'
 		})
 		.when('/optin/:id/envelope', {
 			controller : 'OptinMailEnvelopeController',
@@ -160,6 +160,19 @@ BMApp.optin.controller('OptinMailEnvelopeController', ['$scope', '$routeParams',
 	};
 }]);
 
-BMApp.optin.controller('OptinMailEditController', ['$scope', 'OptinService', function($scope, service) {
+BMApp.optin.controller('OptinMailEditController', ['$scope', '$routeParams', 'EditorFactory', 'OptinService', 'TemplateService',
+                                                   function($scope, $routeParams, EditorFactory, service, tService) {
 	
+	EditorFactory.prepareScope($scope, $routeParams, 'optinmail');
+	service.getOptinMailById($routeParams.id).success(function(optin) {
+		$scope.document = optin;
+		for (var i in optin.templatePack.templates) 
+			if (optin.templatePack.templates[i].id == optin.templateId) 
+				$scope.document.template = optin.templatePack.templates[i];
+
+		// load the content
+		service.getContentVersions(optin).success(function(page) {
+			$scope.contentVersions = page;
+		});
+	});
 }]);

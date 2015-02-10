@@ -1,11 +1,12 @@
 package de.mfischbo.bustamail.web;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import de.mfischbo.bustamail.optin.domain.OptinMail;
 import de.mfischbo.bustamail.optin.service.OptinMailService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
+import de.mfischbo.bustamail.vc.dto.VersionedContentIndexDTO;
 
 @RestController
 @RequestMapping(value = "/api/optin")
@@ -38,7 +40,7 @@ public class RestOptinMailController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public OptinMail createOptinMail(@RequestBody OptinMail mail) {
+	public OptinMail createOptinMail(@RequestBody OptinMail mail) throws Exception {
 		return service.createOptinMail(mail);
 	}
 	
@@ -61,10 +63,16 @@ public class RestOptinMailController extends BaseApiController {
 	}
 	
 	@RequestMapping(value = "/{id}/contents", method = RequestMethod.GET)
-	public Page<VersionedContent> getContents(@PathVariable("id") ObjectId id,
-			@RequestParam(value = "type", required = true, defaultValue = "HTML") ContentType type,
-			@PageableDefault(size=10, sort = "dateCreated", direction = Sort.Direction.DESC) Pageable page) {
+	public List<VersionedContentIndexDTO> getContents(@PathVariable("id") ObjectId id,
+			@RequestParam(value = "type", required = true, defaultValue = "HTML") ContentType type) {
 		OptinMail m = service.getOptinMailById(id);
-		return service.getContents(m, type, page);
+		return asDTO(service.getContents(m, type), VersionedContentIndexDTO.class);
+	}
+	
+	@RequestMapping(value = "/{id}/contents", method = RequestMethod.POST)
+	public VersionedContent createContentVersion(@PathVariable("id") ObjectId id,
+			@RequestBody VersionedContent vc) {
+		OptinMail m = service.getOptinMailById(id);
+		return service.createContentVersion(m, vc);
 	}
 }

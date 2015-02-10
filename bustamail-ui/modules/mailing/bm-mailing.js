@@ -247,7 +247,7 @@ BMApp.controller('MailingEditController', ['$scope', '$http', '$routeParams', '$
             } else $scope.widgets = [];
         });
 
-        $http.get('/api/mailings/' + $scope.document.id + '/content').success(function(data) {
+        $http.get('/api/mailings/' + $scope.document.id + '/contents').success(function(data) {
            $scope.contentVersions = data;
         });
     });

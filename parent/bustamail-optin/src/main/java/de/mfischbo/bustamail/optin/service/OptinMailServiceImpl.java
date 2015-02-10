@@ -14,9 +14,13 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.optin.domain.OptinMail;
 import de.mfischbo.bustamail.optin.repository.OptinMailRepo;
 import de.mfischbo.bustamail.security.domain.User;
+import de.mfischbo.bustamail.template.domain.Template;
+import de.mfischbo.bustamail.template.domain.TemplatePack;
+import de.mfischbo.bustamail.template.service.TemplateService;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
 import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
@@ -24,6 +28,8 @@ import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 @Service
 public class OptinMailServiceImpl implements OptinMailService {
 
+	@Inject private TemplateService tService;
+	
 	@Inject private OptinMailRepo oRepo;
 
 	@Inject private VersionedContentRepository vcRepo;
@@ -42,14 +48,37 @@ public class OptinMailServiceImpl implements OptinMailService {
 	}
 
 	@Override
-	public OptinMail createOptinMail(OptinMail mail) {
+	public OptinMail createOptinMail(OptinMail mail) throws EntityNotFoundException {
 		User current = (User) auth.getPrincipal();
 		
 		mail.setDateCreated(DateTime.now());
 		mail.setDateModified(mail.getDateCreated());
 		mail.setUserCreated(current);
 		mail.setUserModified(current);
-		return oRepo.save(mail);
+		
+		// find the template
+		final ObjectId tmplId = mail.getTemplateId();
+		TemplatePack tp = tService.getTemplatePackById(mail.getTemplatePack().getId());
+		Template tmpl = tp.getTemplates().stream()
+			.filter(t ->  t.getId().equals(tmplId))
+			.findFirst()
+			.get();
+		
+		
+		if (tmpl == null) 
+			throw new EntityNotFoundException("The given template could not be found");
+
+		// crate a content version for it
+		VersionedContent vc = new VersionedContent();
+		vc.setContent(tmpl.getSource());
+		vc.setType(ContentType.HTML);
+		vc.setDateCreated(DateTime.now());
+		vc.setUserCreated(current);
+		
+		mail = oRepo.save(mail);
+		vc.setForeignId(mail.getId());
+		vcRepo.save(vc);
+		return mail;
 	}
 
 	@Override
@@ -79,7 +108,7 @@ public class OptinMailServiceImpl implements OptinMailService {
 
 	@Override
 	public VersionedContent getCurrentContent(OptinMail mail, ContentType type) {
-		PageRequest pr = new PageRequest(1, 1, Direction.DESC, "dateCreated");
+		PageRequest pr = new PageRequest(0, 1, Direction.DESC, "dateCreated");
 		List<ContentType> t = Collections.singletonList(type);
 		Page<VersionedContent> p = vcRepo.findByForeignIdAndType(mail.getId(), t, pr);
 		if (p.getContent().size() > 0)
@@ -88,10 +117,18 @@ public class OptinMailServiceImpl implements OptinMailService {
 	}
 
 	@Override
-	public Page<VersionedContent> getContents(OptinMail mail, ContentType type,
-			Pageable page) {
-		List<ContentType> t = Collections.singletonList(type);
-		return vcRepo.findByForeignIdAndType(mail.getId(), t, page);
+	public List<VersionedContent> getContents(OptinMail mail, ContentType type) {
+		// TODO: Distinguish between content types here
+		return vcRepo.findByForeignId(mail.getId());
 	}
 
+	@Override
+	public VersionedContent createContentVersion(OptinMail mail,
+			VersionedContent vc) {
+		User current = (User) auth.getPrincipal();
+		vc.setForeignId(mail.getId());
+		vc.setDateCreated(DateTime.now());
+		vc.setUserCreated(current);
+		return vcRepo.save(vc);
+	}
 }

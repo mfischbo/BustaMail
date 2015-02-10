@@ -27,11 +27,16 @@ BMApp.Editor.controller("EditorIndexController",
 	var id = params.id;
 	
 	var apiPath = '/api/landingpages/' + params.cid;
+	
 	if (params.type == 'static')
 		apiPath += '/staticpages/' + params.cid;
+	
 	if (params.type == 'mailing')
         apiPath = '/api/mailings/' + params.cid;
 
+	if (params.type == 'optinmail')
+		apiPath = '/api/optin/' + params.cid;
+	
 	$http.get(apiPath).success(function(data) {
 		$scope.initializeDocument(data);
 	});
@@ -46,7 +51,7 @@ BMApp.Editor.controller("EditorIndexController",
 		$http.get("/api/templatepacks/"+ $scope.document.templatePack.id +"/templates/" + $scope.document.templateId).success(function(template) {
 
 			// fetch the current content
-			$http.get(apiPath + '/content/current').success(function(data) {
+			$http.get(apiPath + '/contents/current').success(function(data) {
 				$scope.html = $sce.trustAsHtml(data.content);
 			
 				$scope.widgets = template.widgets;
@@ -146,7 +151,7 @@ BMApp.Editor.controller("EditorIndexController",
 			content : content 
 		};
 		
-		$http.post(apiPath + "/content", d).success(function(data) {
+		$http.post(apiPath + "/contents", d).success(function(data) {
 			$scope.initMCE();
 		});
 	};

@@ -1,0 +1,102 @@
+<div class="row">
+<div class="col-md-2">
+	<div class="panel-group" id="editor-accordion">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#widgetTab">
+					Widgets
+				</a>
+			</div>
+			<div id="widgetTab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div data-ng-repeat="w in widgets">
+						<a href="javascript:void('');" class="pull-right" data-ng-click="appendWidget(w.id)" title="Widget einfügen">
+							<span class="fa fa-plus"></span>
+						</a>
+						<a href="javascript:void('');" class="pull-right" data-ng-click="replaceElement(w.id)" data-ng-if="w.nestable && element" title="Markiertes Element ersetzen">
+							<span class="fa fa-refresh"></span>
+						</a>
+						{{w.name}} <small data-ng-if="w.nestable">(einbettbar)</small><br/>
+						<small>{{w.description}}</small>
+						<hr/>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#resourcesTab">
+					CSS / JS Files	
+				</a>
+			</div>
+			<div id="resourcesTab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div data-ng-repeat="r in document.resources">
+						{{r.name}}
+						<a href="javascript:void('');" data-ng-click="editResource(r.id)" class="pull-right" title="Inhalt bearbeiten">
+							<span class="fa fa-pencil" data-ng-click="editResource(r.id)"></span>
+						</a>
+					</div>
+				</div>
+			</div>	
+		</div>
+	
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<a data-toggle="collapse" data-parent="#editor-accordion" data-target="#versionsTab">
+					Versionen
+				</a>
+			</div>
+			<div id="versionsTab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div data-ng-repeat="v in contentVersions|orderBy:'dateCreated':true">
+						<small class="pull-left">
+						{{v.dateCreated|date:'dd.MM.yyyy HH:mm:ss'}}<br/>
+						von {{v.userCreated.firstName}} {{v.userCreated.lastName}}<br/>
+						</small>
+						<a href="javascript:void('');" class="pull-right" data-ng-click="rollBackTo(v.id)" title="Wiederherstellen">
+							<span class="fa fa-refresh"></span>
+						</a>
+						<div class="clearfix"></div><br/>
+					</div>
+				</div>
+			</div>
+		</div>
+	
+	</div>
+	
+	<button class="btn btn-success btn-sm" data-ng-click="saveContents()">Speichern</button>
+	<button class="btn btn-primary btn-sm" data-ng-click="createPreview()">Vorschau senden</button>
+	
+	<h5>Erweitert</h5>
+	<a href="javascript:void('');" data-ng-click="asTemplate.visible = !asTemplate.visible">Inhalt als neues Template speichern</a>
+	<div data-ng-if="asTemplate.visible">
+		<div class="form-group">
+			<label>Template Name</label>
+			<input type="text" data-ng-model="asTemplate.name" class="form-control" placeholder="Template Name"/>
+		</div>
+		
+		<div class="checkbox">
+			<label>
+				<input type="checkbox" data-ng-model="asTemplate.editable"> Bearbeitbar
+			</label>
+		</div>
+		<button class="btn btn-success" data-ng-click="saveAsTemplate()">Speichern</button>
+	</div>
+	
+		
+</div>
+
+<div id="resourceConsole" data-ng-show="resource && resource.id">
+	<div style="background-color:#ddd;" class="pull-right">
+		<button class="btn btn-xs btn-danger" data-ng-click="unfocusResource()"><span class="fa fa-chevron-down"></span></button>
+		<button class="btn btn-xs btn-success" data-ng-click="updateResource()"><span class="fa fa-save"></span></button>	
+	</div>
+	<div class="clearfix"></div>
+	<div data-ui-codemirror="{onLoad: setupResourceCM}"></div>
+</div>
+
+<div class="col-md-10" id="editor" style="padding-left:0px; padding-right:0px;">
+	<iframe id="documentFrame" src="{{tlink.toString()}}" style="border:0px; width:100%; height:100vh;"></iframe>
+</div>

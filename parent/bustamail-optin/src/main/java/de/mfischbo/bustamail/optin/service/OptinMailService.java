@@ -1,11 +1,14 @@
 package de.mfischbo.bustamail.optin.service;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.optin.domain.OptinMail;
 import de.mfischbo.bustamail.vc.domain.VersionedContent;
 import de.mfischbo.bustamail.vc.domain.VersionedContent.ContentType;
@@ -19,7 +22,7 @@ public interface OptinMailService {
 	public OptinMail		getOptinMailById(ObjectId id);
 	
 	@PreAuthorize("hasPermission(#mail.owner, 'OptinMails.MANAGE_OPTIN_MAILS')")
-	public OptinMail		createOptinMail(OptinMail mail);
+	public OptinMail		createOptinMail(OptinMail mail) throws EntityNotFoundException;
 	
 	@PreAuthorize("hasPermission(#mail.owner, 'OptinMails.MANAGE_OPTIN_MAILS')")
 	public OptinMail		updateOptinMail(OptinMail mail);
@@ -29,5 +32,8 @@ public interface OptinMailService {
 	
 	public VersionedContent getCurrentContent(OptinMail mail, ContentType type);
 	
-	public Page<VersionedContent> getContents(OptinMail mail, ContentType type, Pageable page);
+	public List<VersionedContent> getContents(OptinMail mail, ContentType type);
+
+	@PreAuthorize("hasPermission(#mail.owner, 'OptinMails.MANAGE_OPTIN_MAILS')")
+	public VersionedContent createContentVersion(OptinMail mail, VersionedContent vc);
 }

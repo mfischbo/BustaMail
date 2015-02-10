@@ -157,7 +157,7 @@ public class RestMailingController extends BaseApiController {
 	 * @throws Exception
 	 *             On any error
 	 */
-	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/contents", method = RequestMethod.GET)
 	public List<VersionedContentIndexDTO> getAllVersions(
 			@PathVariable("id") ObjectId mailingId,
 			@RequestParam(value = "type", required = false) List<ContentType> types)
@@ -167,7 +167,7 @@ public class RestMailingController extends BaseApiController {
 				VersionedContentIndexDTO.class);
 	}
 
-	@RequestMapping(value = "/{id}/content/current", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/contents/current", method = RequestMethod.GET)
 	public VersionedContent getCurrentContent(
 			@PathVariable("id") ObjectId mailingId,
 			@RequestParam(value = "type", required = false, defaultValue = "HTML") ContentType type) throws Exception {
@@ -238,7 +238,7 @@ public class RestMailingController extends BaseApiController {
 	 * @throws Exception
 	 *             On any error
 	 */
-	@RequestMapping(value = "/{id}/content", method = RequestMethod.POST)
+	@RequestMapping(value = "/{id}/contents", method = RequestMethod.POST)
 	public VersionedContentDTO createContentVersion(
 			@PathVariable("id") ObjectId mailingId,
 			@RequestBody VersionedContentDTO dto) throws Exception {
