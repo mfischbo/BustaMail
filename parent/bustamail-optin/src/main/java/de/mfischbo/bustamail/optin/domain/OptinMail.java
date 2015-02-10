@@ -23,6 +23,11 @@ public class OptinMail extends OwnedBaseDomain {
 	
 	@NotBlank
 	private String		replyAddress;
+	
+	@NotBlank
+	private String		senderName;
+	
+	private boolean		activated;
 
 	@NotBlank
 	private String		subject;
@@ -121,6 +126,20 @@ public class OptinMail extends OwnedBaseDomain {
 	public void setDateModified(DateTime dateModified) {
 		this.dateModified = dateModified;
 	}
-	
-	
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
+	}
+
+	public boolean isActivated() {
+		return activated;
+	}
+
+	public void setActivated(boolean activated) {
+		this.activated = activated;
+	}
 }

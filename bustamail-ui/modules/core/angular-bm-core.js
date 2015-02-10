@@ -1,6 +1,6 @@
 var BMApp = angular.module("BMApp", 
 		['ngRoute', 'SecurityModule', 'SubscriberModule', 
-		 'BMEditorModule', 'TemplatesModule', 'MailingModule', 'MailingListModule', 'MediaModule', 'LandingPageModule',
+		 'BMEditorModule', 'TemplatesModule', 'TemplateServiceModule', 'MailingModule', 'MailingListModule', 'MediaModule', 'LandingPageModule',
 		 'StatsModule', 'OptinModule', 'DashBoardModule', 'ui.bootstrap']);
 
 BMApp.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {

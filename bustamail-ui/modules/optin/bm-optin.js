@@ -1,4 +1,4 @@
-BMApp.optin = angular.module("OptinModule", []);
+BMApp.optin = angular.module("OptinModule", ['SecurityModule', 'TemplateServiceModule']);
 BMApp.optin.config(['$routeProvider', function($routeProvider) {
 
 	$routeProvider
@@ -13,6 +13,10 @@ BMApp.optin.config(['$routeProvider', function($routeProvider) {
 		.when('/optin/:id/edit', {
 			controller : 'OptinMailEditController',
 			templateUrl: './modules/optin/views/edit.html'
+		})
+		.when('/optin/:id/envelope', {
+			controller : 'OptinMailEnvelopeController',
+			templateUrl: './modules/optin/views/envelope.html'
 		})
 		.otherwise({ redirectTo : '/' });
 }]);
@@ -34,7 +38,7 @@ BMApp.optin.service("OptinService", ['$http', function($http) {
 		},
 		
 		createOptinMail : function(optin) {
-			return $http.post('/api/optin', optin).succcess(function(optin) {
+			return $http.post('/api/optin', optin).success(function(optin) {
 				return optin;
 			});
 		},
@@ -46,7 +50,7 @@ BMApp.optin.service("OptinService", ['$http', function($http) {
 		},
 		
 		deleteOptinMail : function(optin) {
-			$http({
+			return $http({
 				method  : 'DELETE',
 				url		: '/api/optin/' + optin.id
 			});
@@ -80,10 +84,80 @@ BMApp.optin.service("OptinService", ['$http', function($http) {
 
 BMApp.optin.controller('OptinMailIndexController', ['$scope', 'OptinService', function($scope, service) {
 	
+	$scope.owner = '';
+	$scope.optinmails = [];
+	
+	$scope.$watch('owner', function(nval) {
+		if (!nval) return;
+		
+		service.getAllOptinMails($scope.owner).success(function(page) {
+			$scope.optinmails = page.content;
+		});
+	});
+	
+	$scope.deleteOptinMail = function(optin) {
+		BMApp.confirm('Soll die Optin Mail wirklich entfernt werden?', function() {
+			service.deleteOptinMail(optin).success(function() {
+				BMApp.utils.remove('id', optin.id, $scope.optinmails);
+			});
+		});
+	};
+	
+	$scope.activate = function(optin) {
+		optin.activated = true;
+		service.updateOptinMail(optin).success(function() {
+			BMApp.alert('Die Optin Mail wurde erfolgreich aktiviert');
+			for (var q in $scope.optinmails) {
+				if ($scope.optinmails[q].id != optin.id && $scope.optinmails[q].activated)
+					$scope.optinmails[q].activated = false;
+			}
+		});
+	};
 }]);
 
-BMApp.optin.controller('OptinMailCreateController', ['$scope', 'OptinService', function($scope, service) {
+BMApp.optin.controller('OptinMailCreateController', ['$scope', '$location', 'OptinService', 'TemplateService', 
+                                                     function($scope, $location, service, tService) {
 	
+	$scope.owner = '';
+	$scope.templates = [];
+	$scope.packs 	 = [];
+	
+	$scope.mail = service.newInstance();
+	
+	$scope.$watch('owner', function(nval) {
+		if (!nval) return;
+		tService.getTemplatePacksByOwner($scope.owner).success(function(page) {
+			$scope.templates = tService.prepareForSelection(page);
+			$scope.packs     = page.content;
+		});
+	});
+	
+	$scope.submitAction = function() {
+		var pack = tService.getTemplatePackByTemplateId($scope.mail.templateId, $scope.packs);
+		$scope.mail.templatePack = { id : pack.id };
+		$scope.mail.owner = $scope.owner;
+		service.createOptinMail($scope.mail).success(function() {
+			BMApp.alert("Die Optin Mail wurde erfolgreich angelegt");
+			$location.path('/optin');
+		});
+	};
+}]);
+
+BMApp.optin.controller('OptinMailEnvelopeController', ['$scope', '$routeParams', '$location', 'OptinService', 'TemplateService',
+                                                       function($scope, $routeParams, $location, service, tService) {
+	$scope.owner = '';
+	$scope.packs = [];
+
+	service.getOptinMailById($routeParams.id).success(function(mail) {
+		$scope.mail = mail;
+	});
+	
+	$scope.submitAction = function() {
+		service.updateOptinMail($scope.mail).success(function() {
+			BMApp.alert('Die Optin Mail wurde erfolgreich bearbeitet');
+			$location.path('/optin');
+		});
+	};
 }]);
 
 BMApp.optin.controller('OptinMailEditController', ['$scope', 'OptinService', function($scope, service) {

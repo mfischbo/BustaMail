@@ -12,6 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import de.mfischbo.bustamail.common.domain.BaseDomain;
 import de.mfischbo.bustamail.common.domain.Gender;
 import de.mfischbo.bustamail.common.domain.PersonalizedEmailRecipient;
@@ -110,32 +112,38 @@ public class User extends BaseDomain implements UserDetails, PersonalizedEmailRe
 	}
 	
 	@Override
+	@JsonIgnore
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
+	@JsonIgnore
 	public String getUsername() {
 		return email;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonExpired() {
 		return true;
 	}
 	
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonLocked() {
 		return !locked;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isEnabled() {
 		return !locked;
 	}

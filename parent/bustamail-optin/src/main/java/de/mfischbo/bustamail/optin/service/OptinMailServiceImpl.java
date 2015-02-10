@@ -58,6 +58,17 @@ public class OptinMailServiceImpl implements OptinMailService {
 		
 		mail.setDateModified(DateTime.now());
 		mail.setUserModified(current);
+		
+		if (mail.isActivated()) {
+			// find all currently activated an deactivate them
+			List<OptinMail> active = oRepo.findAllActivated();
+			active.forEach(m -> {
+				if (m.isActivated() && !m.getId().equals(mail.getId())) {
+					m.setActivated(false);
+				}
+			});
+			oRepo.save(active);
+		}
 		return oRepo.save(mail);
 	}
 

@@ -1,10 +1,42 @@
 BMApp.TemplateService = angular.module("TemplateServiceModule", []);
-BMApp.TemplateService.service("TemplateService", ['$http', '$q', function($http, $q) {
+BMApp.TemplateService.service("TemplateService", ['$http', function($http) {
+	
 	return {
+		/**
+		 * Returns all template packs for the given owner ObjectId
+		 * @returns A page containing template packs
+		 */
 		getTemplatePacksByOwner : function(owner) {
 			return $http.get('/api/templatepacks?owner=' + owner).success(function(data) {
 				return data;
 			});
+		},
+	
+		/**
+		 * Prepares a page of template packs to be used by a selection
+		 */
+		prepareForSelection : function(templatePacks) {
+			var retval = [];
+			for (var i in templatePacks.content) {
+				var p = templatePacks.content[i];
+				for (var q in templatePacks.content[i].templates) {
+					templatePacks.content[i].templates[q].pack = {
+							name : p.name,
+							id   : p.id
+					};
+					retval.push(templatePacks.content[i].templates[q]);
+				}
+			}
+			return retval;
+		},
+		
+		getTemplatePackByTemplateId : function(id, packs) {
+			for (var q in packs) {
+				for (var x in packs[q].templates) {
+					if (packs[q].templates[x].id == id)
+						return packs[q];
+				}
+			}
 		},
 		
 		getTemplatePackById : function(id) {
