@@ -164,15 +164,4 @@ BMApp.optin.controller('OptinMailEditController', ['$scope', '$routeParams', 'Ed
                                                    function($scope, $routeParams, EditorFactory, service, tService) {
 	
 	EditorFactory.prepareScope($scope, $routeParams, 'optinmail');
-	service.getOptinMailById($routeParams.id).success(function(optin) {
-		$scope.document = optin;
-		for (var i in optin.templatePack.templates) 
-			if (optin.templatePack.templates[i].id == optin.templateId) 
-				$scope.document.template = optin.templatePack.templates[i];
-
-		// load the content
-		service.getContentVersions(optin).success(function(page) {
-			$scope.contentVersions = page;
-		});
-	});
 }]);

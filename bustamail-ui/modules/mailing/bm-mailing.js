@@ -12,7 +12,7 @@ BMApp.Mailing.config(['$routeProvider', function($routeProvider) {
 			controller	:	"MailingCreateController"
 		})
 		.when("/mailings/:id/edit", {
-			templateUrl : 	"./modules/mailing/tmpl/mailing/edit.html",
+			templateUrl : 	"./modules/editor/tmpl/environment.html",
 			controller	:	"MailingEditController"
 		})
 		.when("/mailings/:id/envelope", {
@@ -205,100 +205,8 @@ BMApp.Mailing.controller("MailingCreateController", ['$scope', '$http', '$locati
 	};
 }]);
 
-BMApp.controller('MailingEditController', ['$scope', '$http', '$routeParams', '$sce', function($scope, $http, $routeParams, $sce) {
+BMApp.controller('MailingEditController', ['$scope', '$routeParams', 'EditorFactory', 
+                                           function($scope, $routeParams, EditorFactory) {
 
-    $scope.pageId = './frameedit.html?type=mailing&cid=' + $routeParams.id;
-    $scope.tlink  = $sce.trustAsUrl($scope.pageId);
-
-    $scope.asTemplate = {
-    	visible 	: false,
-    	name    	: '',
-    	editable	: false
-    };
-    
-    var dFrame = document.getElementById('documentFrame');
-    window.addEventListener('message', function(e) {
-
-        if (e.data.type == 'elementSelected') {
-            $scope.element = e.data.data;
-            $scope.$apply();
-        }
-
-        if (e.data.type == 'elementUnselected') {
-            $scope.element = undefined;
-            $scope.$apply();
-        }
-    });
-
-    $http.get('/api/mailings/' + $routeParams.id).success(function(data) {
-
-        $scope.document = data;
-        $http.get('/api/templatepacks/' + $scope.document.templatePack.id + '/templates/' + $scope.document.templateId).success(function(template) {
-
-            $scope.document.template = template;
-            
-            // check if template is editable and show widgets accordingly
-            if (template.editable) {
-	            $scope.widgets = template.widgets;
-	            for (var i in $scope.widgets)
-	                if ($scope.widgets[i].source.indexOf('bm-on-replace') > 0) {
-	                    $scope.widgets[i].nestable = true;
-	                }
-            } else $scope.widgets = [];
-        });
-
-        $http.get('/api/mailings/' + $scope.document.id + '/contents').success(function(data) {
-           $scope.contentVersions = data;
-        });
-    });
-
-    $scope.appendWidget = function(id) {
-        var w = BMApp.utils.find('id', id, $scope.widgets);
-        var m = { type : 'appendWidget', data : w };
-        dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
-    };
-
-    /**
-     * Posts a message to the iframe containing the widget to replace the current selected one
-     */
-    $scope.replaceElement = function(id) {
-        var w = BMApp.utils.find("id", id, $scope.widgets);
-        var m = { type : 'replaceWidget', data : w };
-        dFrame.contentWindow.postMessage(m , BMApp.uiConfig.uiURL);
-    };
-
-    /**
-     * Posts a message to the iframe in order to save the document
-     */
-    $scope.saveContents = function() {
-        var m = { type : 'saveDocument'};
-        dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
-    };
-    
-    /**
-     * Posts a message to the iframe in order to save the content as new template
-     */
-    $scope.saveAsTemplate = function() {
-    	var m = { 
-    			type : 'saveAsTemplate', 
-    			data : {
-    					editable : $scope.asTemplate.editable,
-    					name     : $scope.asTemplate.name
-    	}};
-    	dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
-    };
-
-    $scope.rollBackTo = function(id) {
-        var m = {type : 'rollBackTo', data : id};
-        dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
-    };
-
-    /**
-     * Creates a preview of the landing page
-     */
-    $scope.createPreview = function() {
-        $http.put("/api/mailings/" + $routeParams.id + "/preview").success(function() {
-            BMApp.alert('Das Preview wurde erfolgreich versendet');
-        });
-    };
+	EditorFactory.prepareScope($scope, $routeParams, 'mailing');
 }]);

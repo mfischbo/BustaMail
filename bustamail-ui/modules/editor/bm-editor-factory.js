@@ -26,7 +26,7 @@ BMApp.Editor.service('EditorFactory', ['$http', '$sce', function($http, $sce) {
 		        }
 			});
 			
-			var path = '/api/mailings';
+			var path = '/api/mailings/';
 			if (type == 'optinmail')
 				path = '/api/optin/';
 			
@@ -45,6 +45,10 @@ BMApp.Editor.service('EditorFactory', ['$http', '$sce', function($http, $sce) {
 						scope.widgets = [];
 					}
 				});
+			});
+			
+			$http.get(path + routeParams.id + '/contents').success(function(data) {
+				scope.contentVersions = data;
 			});
 			
 			scope.appendWidget = function(id) {
