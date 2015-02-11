@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.mailing.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -300,7 +301,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		recipients.add(u);
 		
 		try {
-			LiveMailing mailing = preProcessor.createLiveMailing(m, recipients, html, text);
+			LiveMailing mailing = preProcessor.createLiveMailing(m, recipients, html, text, new HashMap<String, Object>());
 			simpleMailer.sendPreviewMailing(mailing);
 		} catch (Exception ex) {
 			log.error("Unable to create preview mailing. Cause: {}", ex.getMessage());
@@ -326,7 +327,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		}
 		
 		try {
-			LiveMailing liveMailing = preProcessor.createLiveMailing(m, recipients, html, text);
+			LiveMailing liveMailing = preProcessor.createLiveMailing(m, recipients, html, text, new HashMap<String, Object>());
 			boolean success = simpleMailer.scheduleLiveMailing(liveMailing);
 			if (success) {
 				m.setPublished(true);

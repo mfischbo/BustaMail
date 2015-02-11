@@ -32,7 +32,7 @@ public class PersonalizerStep {
 			model.put("title", r.getTitle());
 			model.put("formal", r.hasFormalSalutation());
 			model.put("email", r.getEmail());
-			model.put("data", new HashMap<String, Object>()); // reserved for custom data
+			model.put("mailingData", m.getMailingData()); // reserved for custom data
 		
 			Configuration cfg = fmCfger.getConfiguration();
 			

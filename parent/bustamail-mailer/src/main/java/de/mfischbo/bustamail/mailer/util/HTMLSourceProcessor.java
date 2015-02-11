@@ -139,7 +139,7 @@ public class HTMLSourceProcessor {
 	
 	public static Document replaceOptinLink(Document doc, URL baseUrl, String disableLinkTrackClass) {
 		doc.select("a[rel=optin-link]").forEach( e-> {
-			String target = baseUrl.toString() + "/public/subscriptions/${" + MailingSerializer.KEY_SUBSCRIBER_ID + "}/activate";
+			String target = baseUrl.toString() + "/public/subscriptions/${" + MailingSerializer.KEY_SUBSCRIBER_ID + "}/activate?tx=${mailingData.transactionId}";
 			e.attr("href", target);
 			e.addClass(disableLinkTrackClass);
 		});

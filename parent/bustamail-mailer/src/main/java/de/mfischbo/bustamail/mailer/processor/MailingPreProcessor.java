@@ -66,7 +66,7 @@ public class MailingPreProcessor {
 	 * @throws MalformedURLException
 	 */
 	public LiveMailing createLiveMailing(IMailableMail m, Collection<PersonalizedEmailRecipient> recipients, String html, 
-			String text) throws Exception {
+			String text, Map<String, Object> mailingData) throws Exception {
 	
 		URL u = new URL(env.getProperty(WEBSERVER_KEY) + "/mailing_" + m.getId());
 		URL api = new URL(env.getProperty(BASE_API_KEY));
@@ -95,6 +95,9 @@ public class MailingPreProcessor {
 		
 		log.info("Setting sender name to : " + m.getSenderName());
 		lm.setSenderName(m.getSenderName());
+		
+		log.info("Setting custom mailing data on the mailing");
+		lm.setMailingData(mailingData);
 		
 		// gather resources from the mailing
 		log.info("Gathering resources to be used in the mailing");
