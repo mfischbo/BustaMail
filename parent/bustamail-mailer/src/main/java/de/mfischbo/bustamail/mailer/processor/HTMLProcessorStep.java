@@ -50,7 +50,9 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 		doc = HTMLSourceProcessor.replaceStaticLink(doc, m.getWebServerBaseURL(), m.getDisableLinkTrackClass());
 		
 		log.info("Replacing optin link if present");
-		doc = HTMLSourceProcessor.replaceOptinLink(doc, m.getApiURL(), m.getDisableLinkTrackClass());
+		String mode = (String) m.getMailingData().get("activationMode");
+		String target = (String) m.getMailingData().get("targetURL");
+		doc = HTMLSourceProcessor.replaceOptinLink(doc, mode, target, m.getApiURL(), m.getDisableLinkTrackClass());
 		
 		if (m.isEnableOpeningTracking()) {
 			log.info("Attaching opening tracking pixel...");

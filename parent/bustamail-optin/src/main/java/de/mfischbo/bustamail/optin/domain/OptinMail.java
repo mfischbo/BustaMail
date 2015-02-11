@@ -9,6 +9,8 @@ import org.joda.time.DateTime;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 import de.mfischbo.bustamail.mailer.dto.IMailableMail;
 import de.mfischbo.bustamail.security.domain.User;
@@ -19,6 +21,11 @@ public class OptinMail extends OwnedBaseDomain implements IMailableMail {
 
 	private static final long serialVersionUID = 6647303761639662254L;
 
+	public enum ActivationMode {
+		INTERNAL,		// link is pointing to API Endpoint, subscriber being forwarded
+		EXTERNAL		// link points to 3rd party site, activation via client
+	}
+	
 	@NotBlank
 	private String 		name;
 	
@@ -50,7 +57,11 @@ public class OptinMail extends OwnedBaseDomain implements IMailableMail {
 	
 	@DBRef
 	private User		userModified;
-
+	
+	private ActivationMode	activationMode;
+	
+	private String		targetURL;
+	
 	public String getName() {
 		return name;
 	}
@@ -147,7 +158,24 @@ public class OptinMail extends OwnedBaseDomain implements IMailableMail {
 		this.activated = activated;
 	}
 
+	public ActivationMode getActivationMode() {
+		return activationMode;
+	}
+
+	public void setActivationMode(ActivationMode activationMode) {
+		this.activationMode = activationMode;
+	}
+
+	public String getTargetURL() {
+		return targetURL;
+	}
+
+	public void setTargetURL(String targetURL) {
+		this.targetURL = targetURL;
+	}
+
 	@Override
+	@JsonIgnore
 	public InternetAddress getSender() {
 		try {
 			return new InternetAddress(senderAddress);
@@ -157,6 +185,7 @@ public class OptinMail extends OwnedBaseDomain implements IMailableMail {
 	}
 
 	@Override
+	@JsonIgnore
 	public InternetAddress getReplyTo() {
 		try {
 			return new InternetAddress(replyAddress);

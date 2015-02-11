@@ -152,10 +152,12 @@ public class User extends BaseDomain implements UserDetails, PersonalizedEmailRe
 		return "User [email=" + email + ", id=" + id + "]";
 	}
 	@Override
+	@JsonIgnore
 	public boolean hasFormalSalutation() {
 		return true;
 	}
 	@Override
+	@JsonIgnore
 	public String getTitle() {
 		return "";
 	}

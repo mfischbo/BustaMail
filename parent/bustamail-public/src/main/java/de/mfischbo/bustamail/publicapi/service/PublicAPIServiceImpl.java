@@ -3,9 +3,11 @@ package de.mfischbo.bustamail.publicapi.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -206,8 +208,14 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 		if (subscriber.getSubscriptions().size() > 0) {
 			VersionedContent html = vcRepo.findByForeignId(mail.getId(), oneByDateCreatedDesc()).getContent().get(0);
 			try {
+				Map<String, Object> data = new HashMap<String, Object>();
+				data.put("transactionId", transactionId);
+				data.put("activationMode", mail.getActivationMode().toString());
+				data.put("targetURL", mail.getTargetURL());
+				data.put("subscriberId", x.getId());
+				
 				LiveMailing m = preProcessor.createLiveMailing(
-						mail, Collections.singleton(c), html.getContent(), null, Collections.singletonMap("transactionId", transactionId));
+						mail, Collections.singleton(c), html.getContent(), null, data);
 				mailer.scheduleOptinMailing(m);
 			} catch (Exception ex) {
 				ex.printStackTrace();

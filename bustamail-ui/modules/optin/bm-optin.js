@@ -75,7 +75,8 @@ BMApp.optin.service("OptinService", ['$http', function($http) {
 				replyAddress  : '',
 				subject		  : '',
 				templatePack  : { id : '' },
-				templateId    : ''
+				templateId    : '',
+				activationMode: 'INTERNAL'
 			};
 		}
 	};

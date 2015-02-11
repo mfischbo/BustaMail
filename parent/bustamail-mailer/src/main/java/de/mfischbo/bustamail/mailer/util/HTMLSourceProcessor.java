@@ -137,10 +137,35 @@ public class HTMLSourceProcessor {
 	}
 	
 	
-	public static Document replaceOptinLink(Document doc, URL baseUrl, String disableLinkTrackClass) {
+	/**
+	 * Replaces all occurences of a[rel=optin-link] tags with the configured optin target urls.
+	 * @param doc The document to be processed
+	 * @param mode
+	 * @param target
+	 * @param baseUrl
+	 * @param disableLinkTrackClass
+	 * @return
+	 */
+	public static Document replaceOptinLink(Document doc, String mode, String target, URL baseUrl, String disableLinkTrackClass) {
 		doc.select("a[rel=optin-link]").forEach( e-> {
-			String target = baseUrl.toString() + "/public/subscriptions/${" + MailingSerializer.KEY_SUBSCRIBER_ID + "}/activate?tx=${mailingData.transactionId}";
-			e.attr("href", target);
+			
+			String dstURL = "";
+			try {
+				if (mode.equals("INTERNAL")) {
+					String fwdURL = URLEncoder.encode(target, "UTF-8");
+					dstURL = baseUrl.toString() + "/public/subscriptions/${" + MailingSerializer.KEY_SUBSCRIBER_ID + "}"
+							+ "/activate?tx=${mailingData.transactionId}&t=" + fwdURL;
+				} else if (mode.equals("EXTERNAL")) {
+					if (target.indexOf("?") > 0) {
+						dstURL = target + "&tx=${mailingData.transactionId}&s=${mailingData.subscriberId}";
+					} else {
+						dstURL = target + "?tx=${mailingData.transactionId}&s=${mailingData.subscriberId}";
+					}
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			e.attr("href", dstURL);
 			e.addClass(disableLinkTrackClass);
 		});
 		return doc;
