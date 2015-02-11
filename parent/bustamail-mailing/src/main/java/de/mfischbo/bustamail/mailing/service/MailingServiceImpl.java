@@ -288,14 +288,19 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	@Override
 	public void sendPreview(Mailing m) {
 		User u = (User) auth.getPrincipal();
-		VersionedContent html = getRecentContent(m, ContentType.HTML);
-		VersionedContent text = getRecentContent(m, ContentType.Text);
+		VersionedContent htmlVc = getRecentContent(m, ContentType.HTML);
+		VersionedContent textVc = getRecentContent(m, ContentType.Text);
+		
+		String html = "";
+		String text = "";
+		if (htmlVc != null) html = htmlVc.getContent();
+		if (textVc != null) text = textVc.getContent();
 
 		Set<PersonalizedEmailRecipient> recipients = new HashSet<>();
 		recipients.add(u);
 		
 		try {
-			LiveMailing mailing = preProcessor.createLiveMailing(m, recipients, html.getContent(), text.getContent());
+			LiveMailing mailing = preProcessor.createLiveMailing(m, recipients, html, text);
 			simpleMailer.sendPreviewMailing(mailing);
 		} catch (Exception ex) {
 			log.error("Unable to create preview mailing. Cause: {}", ex.getMessage());
@@ -305,9 +310,14 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	
 	@Override
 	public boolean publishMailing(Mailing m) throws ConfigurationException {
-		VersionedContent html = getRecentContent(m, ContentType.HTML);
-		VersionedContent text = getRecentContent(m, ContentType.Text);
-		
+		VersionedContent htmlVc = getRecentContent(m, ContentType.HTML);
+		VersionedContent textVc = getRecentContent(m, ContentType.Text);
+
+		String html = "";
+		String text = "";
+		if (htmlVc != null) html = htmlVc.getContent();
+		if (textVc != null) text = textVc.getContent();
+
 		// collect all subscribers
 		Set<PersonalizedEmailRecipient> recipients = new HashSet<>();
 		
@@ -316,7 +326,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		}
 		
 		try {
-			LiveMailing liveMailing = preProcessor.createLiveMailing(m, recipients, html.getContent(), text.getContent());
+			LiveMailing liveMailing = preProcessor.createLiveMailing(m, recipients, html, text);
 			boolean success = simpleMailer.scheduleLiveMailing(liveMailing);
 			if (success) {
 				m.setPublished(true);

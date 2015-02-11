@@ -52,6 +52,8 @@ public class MailingPreProcessor {
 	
 	@Inject Environment		env;
 	
+	private Logger log = LoggerFactory.getLogger(getClass());
+	
 	/**
 	 * Creates a {@link LiveMailing} from the given parameters. 
 	 * @param m The Mailing to be processed
@@ -66,10 +68,9 @@ public class MailingPreProcessor {
 	public LiveMailing createLiveMailing(IMailableMail m, Collection<PersonalizedEmailRecipient> recipients, String html, 
 			String text) throws Exception {
 	
-		Logger log = LoggerFactory.getLogger(MailingPreProcessor.class);
-		
-		URL u = new URL(env.getProperty(WEBSERVER_KEY));
+		URL u = new URL(env.getProperty(WEBSERVER_KEY) + "/mailing_" + m.getId());
 		URL api = new URL(env.getProperty(BASE_API_KEY));
+		log.debug("Setting HTTP resource root for this mailing to {}", u.toString());
 		
 		LiveMailing lm = null;
 		if (text != null)
