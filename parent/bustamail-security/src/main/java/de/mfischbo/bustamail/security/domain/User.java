@@ -155,4 +155,8 @@ public class User extends BaseDomain implements UserDetails, PersonalizedEmailRe
 	public boolean hasFormalSalutation() {
 		return true;
 	}
+	@Override
+	public String getTitle() {
+		return "";
+	}
 }

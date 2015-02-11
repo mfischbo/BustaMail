@@ -29,11 +29,6 @@ public class FilePublisherStep implements IMailingProcessorStep {
 	@Override
 	public LiveMailing process(LiveMailing mailing) throws BustaMailException {
 
-		if (mailing.getResources() == null) {
-			log.debug("No publishable resources found on this mailing. Returning without operation.");
-			return mailing;
-		}
-		
 		if (mailing.getMailingId() == null)
 			throw new IllegalArgumentException("The mailing id must not be null");
 		

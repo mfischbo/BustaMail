@@ -111,7 +111,8 @@ BMApp.Editor.controller("EditorIndexController",
 			forced_root_block	: 'div',
 			toolbar				: 'undo redo | bold italic underline | link',
 			plugins				: ['link'],
-			link_list			: $scope.getMCELinkList()
+			link_list			: $scope.getMCELinkList(),
+			rel_list			: $scope.getMCERelList()
 		});
 		console.log('Created instances : ' + tinyMCE.editors.length);
 	};
@@ -217,7 +218,6 @@ BMApp.Editor.controller("EditorIndexController",
 			}, 1000);
 		});
 	};
-	
 
 	$scope.handleResourceChanged = function(data) {
 		nodeEdit.reloadCSSFile(data);
@@ -270,6 +270,16 @@ BMApp.Editor.controller("EditorIndexController",
 		return retval;
 	};
 
+	$scope.getMCERelList = function() {
+		var retval = [];
+		
+		if (params.type == 'optinmail')
+			retval.push({ title : 'Optin Link', value : 'optin-link' } );
+		
+		return retval;
+	};
+	
+	
 	$(document).on("_bmNoTextSelection", function() {
 		$scope.textSelection = undefined;
 		$scope.link = undefined;

@@ -159,4 +159,11 @@ public class Subscription extends BaseDomain implements PersonalizedEmailRecipie
 	public String getEmail() {
 		return emailAddress.toString();
 	}
+
+	@Override
+	public String getTitle() {
+		if (contact == null)
+			return "";
+		return contact.getTitle();
+	}
 }

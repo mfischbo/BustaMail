@@ -12,7 +12,7 @@ import de.mfischbo.bustamail.mailer.util.HTMLSourceProcessor;
 public class HTMLProcessorStep implements IMailingProcessorStep {
 
 	Logger log = LoggerFactory.getLogger(getClass());
-	
+
 	@Override
 	public LiveMailing process(LiveMailing mailing) throws BustaMailException {
 	
@@ -48,6 +48,9 @@ public class HTMLProcessorStep implements IMailingProcessorStep {
 	
 		log.info("Replacing static link if present");
 		doc = HTMLSourceProcessor.replaceStaticLink(doc, m.getWebServerBaseURL(), m.getDisableLinkTrackClass());
+		
+		log.info("Replacing optin link if present");
+		doc = HTMLSourceProcessor.replaceOptinLink(doc, m.getApiURL(), m.getDisableLinkTrackClass());
 		
 		if (m.isEnableOpeningTracking()) {
 			log.info("Attaching opening tracking pixel...");

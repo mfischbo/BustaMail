@@ -24,6 +24,7 @@ import de.mfischbo.bustamail.mailer.processor.IMailingProcessorStep;
 import de.mfischbo.bustamail.mailer.processor.JobActivatorStep;
 import de.mfischbo.bustamail.mailer.processor.JobFolderProcessingStep;
 import de.mfischbo.bustamail.mailer.processor.MailingSerializerProcessorStep;
+import de.mfischbo.bustamail.mailer.processor.PersonalizerStep;
 import de.mfischbo.bustamail.mailer.processor.PreviewMailingProcessorStep;
 import de.mfischbo.bustamail.mailer.util.MailingSerializer;
 
@@ -38,6 +39,9 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 	
 	@Inject
 	private MailingSerializer	serializer;
+	
+	@Inject
+	private PersonalizerStep	personalizer;
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
@@ -125,7 +129,7 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 	
 		// create a serialized mailing for each recipient in the job folder
 		log.debug("Serializing actual e-mails");
-		MailingSerializerProcessorStep s4 = new MailingSerializerProcessorStep(env, serializer);
+		MailingSerializerProcessorStep s4 = new MailingSerializerProcessorStep(env, personalizer, serializer);
 		m = s4.process(m);
 	
 		// set the activation flag in the job folder to start the mailing
@@ -140,12 +144,15 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 		log.debug("Processing HTML / Text content preparations");
 		IMailingProcessorStep s1 = new HTMLProcessorStep();
 		m = s1.process(m);
+		
 		IMailingProcessorStep s2 = new FilePublisherStep(env);
 		m = s2.process(m);
+		
 		for (PersonalizedEmailRecipient r : m.getRecipients()) {
 			try {
+				String html = personalizer.processHTML(m, r);
 				InternetAddress rec = new InternetAddress(r.getEmail());
-				this.sendSimpleHtmlMail(m.getSenderAddress(), m.getSenderName(), "", rec, m.getSubject(), m.getHtmlContent());
+				this.sendSimpleHtmlMail(m.getSenderAddress(), m.getSenderName(), "", rec, m.getSubject(), html);
 			} catch (Exception ex) {
 				log.error("Unable to send optin mail. Cause: " + ex.getMessage());
 			}

@@ -1,6 +1,7 @@
 package de.mfischbo.bustamail.publicapi.web;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,12 @@ public class PublicRestSubscriberController {
 			@RequestParam(value = "email", required = true) String email) throws EntityNotFoundException {
 		PublicSubscriber sub = service.getSubscriberById(id, email);
 		service.deleteSubscriber(sub, email);
+	}
+	
+	@RequestMapping(value = "/{id}/activate", method = RequestMethod.GET)
+	public void activateSubscriber(@PathVariable("id") ObjectId id,
+			@RequestParam(value = "tx", required = true) UUID transactionId) {
+		
 	}
 
 	@RequestMapping(value = "/{id}/subscriptions", method = RequestMethod.PUT)

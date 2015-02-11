@@ -13,6 +13,7 @@ public class RecipientDTO extends BaseDTO implements PersonalizedEmailRecipient 
 	private String			lastName;
 	private Gender			gender;
 	private	String		 	email;
+	private String			title;
 	private boolean			formalSalutation;
 
 	@Override
@@ -56,5 +57,11 @@ public class RecipientDTO extends BaseDTO implements PersonalizedEmailRecipient 
 	}
 	public void setFormalSalutation(boolean formalSalutation) {
 		this.formalSalutation = formalSalutation;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

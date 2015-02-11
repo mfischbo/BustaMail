@@ -135,6 +135,17 @@ public class HTMLSourceProcessor {
 		});
 		return doc;
 	}
+	
+	
+	public static Document replaceOptinLink(Document doc, URL baseUrl, String disableLinkTrackClass) {
+		doc.select("a[rel=optin-link]").forEach( e-> {
+			String target = baseUrl.toString() + "/public/subscriptions/${" + MailingSerializer.KEY_SUBSCRIBER_ID + "}/activate";
+			e.attr("href", target);
+			e.addClass(disableLinkTrackClass);
+		});
+		return doc;
+	}
+	
 
 	private static String createTrackingUrl(URL base, String target) {
 		String retval = base.toString() + "/public/t/c.png?m=${"+ MailingSerializer.KEY_MAILING_ID +"}&s=${"+ MailingSerializer.KEY_SUBSCRIBER_ID+"}&t=";

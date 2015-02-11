@@ -207,7 +207,7 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 			VersionedContent html = vcRepo.findByForeignId(mail.getId(), oneByDateCreatedDesc()).getContent().get(0);
 			try {
 				LiveMailing m = preProcessor.createLiveMailing(mail, Collections.singleton(c), html.getContent(), null);
-				mailer.sendPreviewMailing(m);
+				mailer.scheduleOptinMailing(m);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

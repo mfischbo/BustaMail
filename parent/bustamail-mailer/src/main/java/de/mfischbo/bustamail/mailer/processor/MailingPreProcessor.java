@@ -67,8 +67,6 @@ public class MailingPreProcessor {
 			String text) throws Exception {
 	
 		Logger log = LoggerFactory.getLogger(MailingPreProcessor.class);
-
-		
 		
 		URL u = new URL(env.getProperty(WEBSERVER_KEY));
 		URL api = new URL(env.getProperty(BASE_API_KEY));

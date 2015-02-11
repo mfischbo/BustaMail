@@ -11,5 +11,4 @@ public interface IMailableMail {
 	public String getSenderName();
 	public InternetAddress getSender();
 	public InternetAddress getReplyTo();
-	
 }

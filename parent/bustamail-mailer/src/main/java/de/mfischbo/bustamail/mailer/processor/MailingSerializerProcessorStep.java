@@ -21,9 +21,12 @@ public class MailingSerializerProcessorStep implements IMailingProcessorStep {
 	
 	private MailingSerializer serializer;
 	
-	public MailingSerializerProcessorStep(Environment env, MailingSerializer serializer) {
+	private PersonalizerStep personalizer;
+	
+	public MailingSerializerProcessorStep(Environment env, PersonalizerStep personalizer, MailingSerializer serializer) {
 		this.env = env;
 		this.serializer = serializer;
+		this.personalizer = personalizer;
 	}
 	
 	@Override
@@ -50,8 +53,11 @@ public class MailingSerializerProcessorStep implements IMailingProcessorStep {
 		
 		try {
 			for (PersonalizedEmailRecipient r : mailing.getRecipients()) {
+				String html = personalizer.processHTML(mailing, r);
+				String text = personalizer.processText(mailing, r);
+				
 				boolean success = 
-						serializer.serializeMailing(jobFolder, mailing, r);
+						serializer.serializeMailing(jobFolder, mailing, html, text, r);
 				if (!success) {
 					log.warn("Failed to serialize mailing for recipient: " + r.getEmail());
 					if (failFast) {

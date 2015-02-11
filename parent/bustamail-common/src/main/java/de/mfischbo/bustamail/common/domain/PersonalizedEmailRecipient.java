@@ -12,6 +12,8 @@ public interface PersonalizedEmailRecipient {
 	
 	String	getLastName();
 	
+	String  getTitle();
+	
 	boolean	hasFormalSalutation();
 	
 	String	getEmail();
