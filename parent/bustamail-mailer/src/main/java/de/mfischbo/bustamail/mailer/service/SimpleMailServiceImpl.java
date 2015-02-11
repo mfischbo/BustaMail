@@ -142,6 +142,9 @@ public class SimpleMailServiceImpl implements SimpleMailService {
 	@Override
 	public void scheduleOptinMailing(LiveMailing m) throws Exception {
 		log.debug("Processing HTML / Text content preparations");
+		IMailingProcessorStep s0 = new PreviewMailingProcessorStep();
+		m = s0.process(m);
+		
 		IMailingProcessorStep s1 = new HTMLProcessorStep();
 		m = s1.process(m);
 		
