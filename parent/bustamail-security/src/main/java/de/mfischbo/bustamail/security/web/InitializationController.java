@@ -63,7 +63,7 @@ public class InitializationController {
 		root.setDateModified(DateTime.now());
 		root.setDeleted(false);
 		root.setDescription("Root organizational unit");
-		root.setName("ROOT OU");
+		root.setName("Basiseinheit");
 		root.setParent(null);
 		
 		Actor a = new Actor();

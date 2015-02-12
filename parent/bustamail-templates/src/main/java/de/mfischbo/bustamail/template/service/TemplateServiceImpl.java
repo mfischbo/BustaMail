@@ -249,6 +249,18 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 		n.setOwner(o.getOwner());
 		n.setTemplates(new LinkedList<Template>());
 		
+		// copy the theme image
+		if (o.getThemeImage() != null) {
+			Media nI = new Media();
+			Media oI = o.getThemeImage();
+			nI.setName(oI.getName());
+			nI.setColorspace(oI.getColorspace());
+			nI.setData(mediaService.getContent(oI));
+			nI.setDescription(oI.getDescription());
+			nI.setOwner(oI.getOwner());
+			n.setThemeImage(mediaService.createMedia(nI));
+		}
+		
 		for (Template to : o.getTemplates()) {
 			Template tn = new Template();
 			tn.setDescription(to.getDescription());
@@ -265,14 +277,25 @@ public class TemplateServiceImpl extends BaseService implements TemplateService 
 				tn.getWidgets().add(wn);
 			}
 			
-			tn.setImages(new LinkedList<Media>());
+			tn.setImages(new ArrayList<Media>(to.getImages().size()));
 			for (Media mo : to.getImages()) {
 				Media m = new Media();
 				m.setColorspace(mo.getColorspace());
 				m.setDescription(mo.getDescription());
 				m.setName(mo.getName());
 				m.setOwner(mo.getOwner());
+				m.setData(mediaService.getContent(mo));
 				tn.getImages().add(m);
+			}
+			
+			tn.setResources(new ArrayList<Media>(to.getResources().size()));
+			for (Media mo : to.getResources()) {
+				Media m = new Media();
+				m.setDescription(mo.getDescription());
+				m.setName(mo.getName());
+				m.setOwner(mo.getOwner());
+				m.setData(mediaService.getContent(mo));
+				tn.getResources().add(m);
 			}
 			
 			tn.setSettings(new LinkedHashMap<String, String>());
