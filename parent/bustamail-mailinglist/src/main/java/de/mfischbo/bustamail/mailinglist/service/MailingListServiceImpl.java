@@ -102,7 +102,7 @@ public class MailingListServiceImpl extends BaseService implements MailingListSe
 	 */
 	@Override
 	public Page<SubscriptionList> findSubscriptionLists(OrgUnit owner, String query, Pageable page) {
-		return sListRepo.findByOwnerAndNameLike(owner, query, page);
+		return sListRepo.findByOwnerAndNameLike(owner.getId(), query, page);
 	}
 
 	/*

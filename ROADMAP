@@ -48,6 +48,7 @@
 - bouncemail processing environment
 - bouncemail stats
 - reports as PDF / HTML stats
+- FTP Server integration to edit templates with native tools
 
 [v0.8]
 - partitioned batch mail worker

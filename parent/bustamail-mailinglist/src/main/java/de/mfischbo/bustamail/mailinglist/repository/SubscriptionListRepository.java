@@ -8,13 +8,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Query;
 
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
-import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.repository.OwnerMongoRepository;
 
 public interface SubscriptionListRepository extends
 		OwnerMongoRepository<SubscriptionList, ObjectId> {
 
-	Page<SubscriptionList> findByOwnerAndNameLike(OrgUnit owner, String query, Pageable page);
+	@Query(" { 'owner' : ?0, $or : [ {'name' : { $regex : ?1, $options: 'i'}}, {'description' : { $regex : ?1, $options : 'i'}} ] } ")
+	Page<SubscriptionList> findByOwnerAndNameLike(ObjectId ownerId, String query, Pageable page);
 	
 	@Query(" { 'owner' : ?0, 'publiclyAvailable' : true } ")
 	List<SubscriptionList> findAllPublicByOwner(ObjectId owner);

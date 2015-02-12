@@ -73,7 +73,7 @@ BMApp.MailingList.controller("MailingListIndexController",
 			}
 			
 			if ($scope.query.length > 2) {
-				$http.get('/api/subscription-lists?owner=' + $scope.owner + '&q=' + $scope.query).success(function(data) {
+				$http.get('/api/subscription-lists/search?owner=' + $scope.owner + '&q=' + $scope.query).success(function(data) {
 					$scope.subscriptionLists = data;
 				});
 			}
