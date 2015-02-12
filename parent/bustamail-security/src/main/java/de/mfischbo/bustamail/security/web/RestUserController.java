@@ -32,7 +32,7 @@ public class RestUserController extends BaseApiController {
 	
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public Page<UserDTO> findUsers(@RequestParam(value = "query", required=false) String searchTerm,
+	public Page<UserDTO> findUsers(@RequestParam(value = "q", required=false) String searchTerm,
 			@PageableDefault(page=0, size = 30) Pageable page) {
 		if (searchTerm == null || searchTerm.length() == 0)
 			return service.getAllUsers(page);

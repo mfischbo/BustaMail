@@ -17,4 +17,11 @@ public interface UserRepository extends MongoRepository<User, ObjectId> {
 	
 	@Query(" { 'email' : ?0 } ")
 	public User findByEmail(String email);
+	
+	@Query(" { 'deleted' : false, '_id' : {$in : ?0}, "
+			+ "$or : [ "
+			+ "{'firstName' : { $regex : ?1, $options : 'i'}},"
+			+ "{'lastName'  : { $regex : ?1, $options : 'i'}},"
+			+ "{'email'     : { $regex : ?1, $options : 'i'}}] }")
+	public Page<User> findUserBySearchTerm(Collection<ObjectId> ids, String query, Pageable page);
 }

@@ -65,18 +65,11 @@ BMApp.MailingList.controller("MailingListIndexController",
 		
 		if (tout)
 			window.clearTimeout(tout);
+		
 		tout = window.setTimeout(function() {
-			if ($scope.query.length == 0) {
-				$http.get('/api/subscription-lists?owner=' + $scope.owner).success(function(data) {
-					$scope.subscriptionLists = data;
-				});
-			}
-			
-			if ($scope.query.length > 2) {
-				$http.get('/api/subscription-lists/search?owner=' + $scope.owner + '&q=' + $scope.query).success(function(data) {
-					$scope.subscriptionLists = data;
-				});
-			}
+			$http.get('/api/subscription-lists?owner=' + $scope.owner + "&q=" + $scope.query).success(function(data) {
+				$scope.subscriptionLists = data;
+			});
 		}, BMApp.uiConfig.searchDelay);
 	};
 }]);

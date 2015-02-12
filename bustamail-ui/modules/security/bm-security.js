@@ -122,7 +122,7 @@ BMApp.Security.controller("SecurityUserIndexController", ['$http', '$scope', fun
 		if (searchInt)
 			window.clearTimeout(searchInt);
 		searchInt = window.setTimeout(function() {
-			$http.get("/api/security/users?query=" + $scope.searchTerm).success(function(data) {
+			$http.get("/api/security/users?q=" + $scope.searchTerm).success(function(data) {
 				$scope.users = data;
 				window.clearTimeout(searchInt);
 			});

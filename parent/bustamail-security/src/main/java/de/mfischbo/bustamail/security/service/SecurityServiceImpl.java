@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -312,6 +311,20 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		return asDTO(userRepo.findAllUsers(userIds, page), UserDTO.class, page);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.mfischbo.bustamail.security.service.SecurityService#findUsers(java.lang.String, org.springframework.data.domain.Pageable)
+	 */
+	@Override
+	public Page<UserDTO> findUsers(String searchTerm, Pageable page) {
+		User current = (User) currentUser.getPrincipal();
+		Set<OrgUnit> units = getOrgUnitsOfUser(current);
+		Set<ObjectId> userIds = new HashSet<>();
+		for (OrgUnit ou : units) {
+			ou.getActors().forEach( p -> userIds.add(p.getUser().getId()));
+		}
+		return asDTO(userRepo.findUserBySearchTerm(userIds, searchTerm, page), UserDTO.class, page);
+	}
 	
 	
 	private Set<OrgUnit> getOrgUnitsOfUser(User u) {
@@ -361,17 +374,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	}
 	
 	
-	/*
-	 * (non-Javadoc)
-	 * @see de.mfischbo.bustamail.security.service.SecurityService#findUsers(java.lang.String, org.springframework.data.domain.Pageable)
-	 */
-	@Override
-	public Page<UserDTO> findUsers(String searchTerm, Pageable page) {
 
-		// TODO: Elastic?
-		return new PageImpl<UserDTO>(new ArrayList<UserDTO>(0));
-	}
-	
 	
 	@Override
 	public UserDTO getUserById(ObjectId id) throws EntityNotFoundException {

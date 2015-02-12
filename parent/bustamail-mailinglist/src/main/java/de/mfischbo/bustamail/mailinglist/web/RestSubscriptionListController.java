@@ -50,18 +50,15 @@ public class RestSubscriptionListController extends BaseApiController {
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public Page<SubscriptionListDTO> getAllSubscriptionLists(
 			@RequestParam(value = "owner", required = true) ObjectId ownerId, 
+			@RequestParam(value = "q", required = false) String query,
 			@PageableDefault(page = 0, size = 30, sort = "name") Pageable page) throws Exception {
-		OrgUnit owner = secService.getOrgUnitById(ownerId);
-		return asDTO(service.getAllMailingLists(owner, page), SubscriptionListDTO.class, page);
-	}
 	
-	@RequestMapping(value = "/search", method = RequestMethod.GET)
-	public Page<SubscriptionListDTO> findSubscriptionLists(
-			@RequestParam(value = "owner", required = true) ObjectId ownerId,
-			@RequestParam(value = "q", required = true) String query,
-			@PageableDefault(page = 0, size = 30, sort = "name") Pageable page) throws Exception {
 		OrgUnit owner = secService.getOrgUnitById(ownerId);
-		return asDTO(service.findSubscriptionLists(owner, query, page), SubscriptionListDTO.class, page);
+		if (query == null || query.isEmpty()) {
+			return asDTO(service.getAllMailingLists(owner, page), SubscriptionListDTO.class, page);
+		} else {
+			return asDTO(service.findSubscriptionLists(owner, query, page), SubscriptionListDTO.class, page);
+		}
 	}
 	
 	
