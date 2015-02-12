@@ -26,6 +26,6 @@
 	
 	<div class="form-group">
 		<label>Vorlage</label>
-		<select data-ng-model="mailing.template" class="form-control" data-ng-options="p as p.name group by p.pack.name for p in templates"></select>
+		<select data-ng-model="mailing.templateId" class="form-control" data-ng-options="p.id as p.name group by p.pack.name for p in templates"></select>
 	</div>
 </form>

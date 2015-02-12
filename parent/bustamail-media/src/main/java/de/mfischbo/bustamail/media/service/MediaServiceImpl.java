@@ -37,6 +37,7 @@ import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.repository.DirectoryRepository;
+import de.mfischbo.bustamail.media.util.MediaUtils;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.event.OrgUnitCreatedEvent;
 import de.mfischbo.bustamail.security.service.SecurityService;
@@ -71,13 +72,13 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Override
 	public Media getMediaById(ObjectId id) throws EntityNotFoundException {
 		GridFSDBFile file = gridTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
-		return convertFile(file);
+		return MediaUtils.convertFile(file);
 	}
 	
 	@Override
 	public Media getMediaById(ObjectId id, int preferedSize) throws EntityNotFoundException {
 		
-		int s = getBestMatchingSize(preferedSize);
+		int s = MediaUtils.getBestMatchingSize(preferedSize);
 		GridFSDBFile f = gridTemplate.findOne(
 				Query.query(
 					Criteria.where("metadata.parent").is(id)	
@@ -87,7 +88,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 			// fallback to default
 			return getMediaById(id);
 		}
-		return convertFile(f);
+		return MediaUtils.convertFile(f);
 	}
 	
 	@Override
@@ -106,7 +107,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 			return;
 		}
 	
-		int s = getBestMatchingSize(preferedSize);
+		int s = MediaUtils.getBestMatchingSize(preferedSize);
 		GridFSDBFile f = gridTemplate.findOne(
 				Query.query(
 						Criteria.where("metadata.parent").is(m.getId())
@@ -120,16 +121,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		}
 	}
 	
-	private int getBestMatchingSize(int preferedSize) {
-		// find the upper and lower boundary sizes to be returned
-		int s = 1024;
-		if (preferedSize < 1024 && preferedSize > 512) s = 1024;
-		if (preferedSize <= 512 && preferedSize > 128) s = 512;
-		if (preferedSize <= 128 && preferedSize > 64 ) s = 128;
-		if (preferedSize <= 64  && preferedSize > 0  ) s = 64;
-		return s;
-	}
-	
+
 	@Override
 	public InputStream getContent(Media m) {
 		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(m.getId())));
@@ -140,11 +132,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	}
 	
 	
-	private Media convertFile(GridFSDBFile file) {
-		Media m = new Media((ObjectId) file.getId(), file.getFilename(), file.getMetaData());
-		return m;
-	}
-	
+
 	@Override
 	public List<Media> getFilesByDirectory(Directory dir) {
 		
@@ -155,7 +143,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		
 		List<Media>   retval = new ArrayList<>(files.size());
 		for (GridFSDBFile f : files) {
-			retval.add(convertFile(f));
+			retval.add(MediaUtils.convertFile(f));
 		}
 		return retval;
 	}

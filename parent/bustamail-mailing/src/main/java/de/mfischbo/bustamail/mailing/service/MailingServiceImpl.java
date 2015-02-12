@@ -2,6 +2,7 @@ package de.mfischbo.bustamail.mailing.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +13,6 @@ import javax.inject.Inject;
 
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,13 +26,13 @@ import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.ConfigurationException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.mailer.dto.LiveMailing;
+import de.mfischbo.bustamail.mailer.processor.MailingPreProcessor;
 import de.mfischbo.bustamail.mailer.service.SimpleMailService;
 import de.mfischbo.bustamail.mailing.domain.Mailing;
 import de.mfischbo.bustamail.mailing.dto.HyperlinkDTO;
 import de.mfischbo.bustamail.mailing.repository.MailingRepository;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.mailinglist.repository.SubscriptionRepository;
-import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.domain.Permission;
 import de.mfischbo.bustamail.security.domain.User;
@@ -52,14 +52,8 @@ import de.mfischbo.bustamail.vc.repo.VersionedContentRepository;
 @Service
 public class MailingServiceImpl extends BaseService implements MailingService {
 
-	private static final String 	BASE_API_KEY = "de.mfischbo.bustamail.mailing.baseUrl";
-	private static final String		WEBSERVER_KEY= "de.mfischbo.bustamail.env.liveUrl";
-	
 	@Inject
 	private		SecurityService			secService;
-	
-	@Inject
-	private 	MediaService			mediaService;
 	
 	@Inject
 	private		MailingRepository		mRepo;
@@ -77,8 +71,8 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	private		SimpleMailService			simpleMailer;
 	
 	@Inject
-	private		Environment				env;
-
+	private		MailingPreProcessor			preProcessor;
+	
 
 	/*
 	 * (non-Javadoc)
@@ -295,17 +289,19 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	@Override
 	public void sendPreview(Mailing m) {
 		User u = (User) auth.getPrincipal();
-		VersionedContent html = getRecentContent(m, ContentType.HTML);
-		VersionedContent text = getRecentContent(m, ContentType.Text);
-
-		String webServerURL = env.getProperty(WEBSERVER_KEY) + "/mailing_" + m.getId();
-		String apiURL		= env.getProperty(BASE_API_KEY);
+		VersionedContent htmlVc = getRecentContent(m, ContentType.HTML);
+		VersionedContent textVc = getRecentContent(m, ContentType.Text);
+		
+		String html = "";
+		String text = "";
+		if (htmlVc != null) html = htmlVc.getContent();
+		if (textVc != null) text = textVc.getContent();
 
 		Set<PersonalizedEmailRecipient> recipients = new HashSet<>();
 		recipients.add(u);
 		
 		try {
-			LiveMailing mailing = MailingPreProcessor.createLiveMailing(m, recipients, html, text, webServerURL, apiURL, mediaService);
+			LiveMailing mailing = preProcessor.createLiveMailing(m, recipients, html, text, new HashMap<String, Object>());
 			simpleMailer.sendPreviewMailing(mailing);
 		} catch (Exception ex) {
 			log.error("Unable to create preview mailing. Cause: {}", ex.getMessage());
@@ -315,12 +311,14 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 	
 	@Override
 	public boolean publishMailing(Mailing m) throws ConfigurationException {
-		VersionedContent html = getRecentContent(m, ContentType.HTML);
-		VersionedContent text = getRecentContent(m, ContentType.Text);
-		
-		String webServerURL = env.getProperty(WEBSERVER_KEY) + "/mailing_" + m.getId();
-		String apiURL       = env.getProperty(BASE_API_KEY);
-		
+		VersionedContent htmlVc = getRecentContent(m, ContentType.HTML);
+		VersionedContent textVc = getRecentContent(m, ContentType.Text);
+
+		String html = "";
+		String text = "";
+		if (htmlVc != null) html = htmlVc.getContent();
+		if (textVc != null) text = textVc.getContent();
+
 		// collect all subscribers
 		Set<PersonalizedEmailRecipient> recipients = new HashSet<>();
 		
@@ -329,7 +327,7 @@ public class MailingServiceImpl extends BaseService implements MailingService {
 		}
 		
 		try {
-			LiveMailing liveMailing = MailingPreProcessor.createLiveMailing(m, recipients, html, text, webServerURL, apiURL, mediaService);
+			LiveMailing liveMailing = preProcessor.createLiveMailing(m, recipients, html, text, new HashMap<String, Object>());
 			boolean success = simpleMailer.scheduleLiveMailing(liveMailing);
 			if (success) {
 				m.setPublished(true);

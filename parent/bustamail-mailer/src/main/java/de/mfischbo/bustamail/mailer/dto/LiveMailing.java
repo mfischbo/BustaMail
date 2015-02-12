@@ -77,6 +77,8 @@ public class LiveMailing {
 	/* Flag indicating if global link tracking is enabled for the mailing */
 	private boolean									enableLinkTracking = true;
 	
+	private Map<String, Object>						mailingData;
+	
 	public LiveMailing(ObjectId mailingId, String subject, String htmlContent, URL webServerBaseURL, URL apiURL) {
 		this.mailingId = mailingId;
 		this.subject = subject;
@@ -238,5 +240,13 @@ public class LiveMailing {
 
 	public void setResourceMap(Map<ObjectId, ObjectId> resourceMap) {
 		this.resourceMap = resourceMap;
+	}
+
+	public Map<String, Object> getMailingData() {
+		return mailingData;
+	}
+
+	public void setMailingData(Map<String, Object> mailingData) {
+		this.mailingData = mailingData;
 	}
 }

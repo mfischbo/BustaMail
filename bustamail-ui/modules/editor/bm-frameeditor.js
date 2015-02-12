@@ -27,11 +27,16 @@ BMApp.Editor.controller("EditorIndexController",
 	var id = params.id;
 	
 	var apiPath = '/api/landingpages/' + params.cid;
+	
 	if (params.type == 'static')
 		apiPath += '/staticpages/' + params.cid;
+	
 	if (params.type == 'mailing')
         apiPath = '/api/mailings/' + params.cid;
 
+	if (params.type == 'optinmail')
+		apiPath = '/api/optin/' + params.cid;
+	
 	$http.get(apiPath).success(function(data) {
 		$scope.initializeDocument(data);
 	});
@@ -46,7 +51,7 @@ BMApp.Editor.controller("EditorIndexController",
 		$http.get("/api/templatepacks/"+ $scope.document.templatePack.id +"/templates/" + $scope.document.templateId).success(function(template) {
 
 			// fetch the current content
-			$http.get(apiPath + '/content/current').success(function(data) {
+			$http.get(apiPath + '/contents/current').success(function(data) {
 				$scope.html = $sce.trustAsHtml(data.content);
 			
 				$scope.widgets = template.widgets;
@@ -86,6 +91,9 @@ BMApp.Editor.controller("EditorIndexController",
 					if (e.type == 'resourceChanged')
 						$scope.handleResourceChanged(e.data);
 					
+					if (e.type == 'saveAsTemplate')
+						$scope.saveAsTemplate(e.data);
+					
 				}, false);
 			});
 		});
@@ -103,7 +111,8 @@ BMApp.Editor.controller("EditorIndexController",
 			forced_root_block	: 'div',
 			toolbar				: 'undo redo | bold italic underline | link',
 			plugins				: ['link'],
-			link_list			: $scope.getMCELinkList()
+			link_list			: $scope.getMCELinkList(),
+			rel_list			: $scope.getMCERelList()
 		});
 		console.log('Created instances : ' + tinyMCE.editors.length);
 	};
@@ -137,19 +146,55 @@ BMApp.Editor.controller("EditorIndexController",
 		}
 		
 		var content = $("#editor-content").html();
-		content = content.replace(/bm-fragment-hovered/g, "");
-		content = content.replace(/bm-fragment-focused/g, "");
-		content = content.replace(/bm-element-hovered/g, "");
-		content = content.replace(/bm-element-focused/g, "");
-		content = content.replace(/bm-text-focused/g, "");
+		content = $scope.sanitizeContent(content);
 		var d = {
 			type : "HTML",
 			content : content 
 		};
 		
-		$http.post(apiPath + "/content", d).success(function(data) {
+		$http.post(apiPath + "/contents", d).success(function(data) {
 			$scope.initMCE();
 		});
+	};
+	
+	/**
+	 * Saves the current editor contents as new template
+	 */
+	$scope.saveAsTemplate = function(config) {
+		
+		// fetch the template pack
+		$http.get("/api/templatepacks/" + $scope.document.templatePack.id).success(function(pack) {
+			
+			var origin = BMApp.utils.find('id', $scope.document.templateId, pack.templates);
+			var template = {};
+			angular.copy(origin, template);
+			
+			$scope.destroyMCE();
+			var content = $('#editor-content').html();
+			content = $scope.sanitizeContent(content);
+			template.id = undefined;
+			template.source = content;
+			template.name   = config.name;
+			template.editable = config.editable;
+			pack.templates.push(template);
+			$http.patch('/api/templatepacks/' + $scope.document.templatePack.id, pack).success(function() {
+				BMApp.alert('Content saved as new template');
+				$scope.initMCE();
+			}).error(function() {
+				BMApp.alert('Failed saving content as new template')
+				$scope.initMCE();
+			});
+		});
+	};
+
+	
+	$scope.sanitizeContent = function(html) {
+		html = html.replace(/bm-fragment-hovered/g, "");
+		html = html.replace(/bm-fragment-focused/g, "");
+		html = html.replace(/bm-element-hovered/g, "");
+		html = html.replace(/bm-element-focused/g, "");
+		html = html.replace(/bm-text-focused/g, "");
+		return html;
 	};
 	
 	/**
@@ -173,7 +218,6 @@ BMApp.Editor.controller("EditorIndexController",
 			}, 1000);
 		});
 	};
-	
 
 	$scope.handleResourceChanged = function(data) {
 		nodeEdit.reloadCSSFile(data);
@@ -226,6 +270,16 @@ BMApp.Editor.controller("EditorIndexController",
 		return retval;
 	};
 
+	$scope.getMCERelList = function() {
+		var retval = [];
+		
+		if (params.type == 'optinmail')
+			retval.push({ title : 'Optin Link', value : 'optin-link' } );
+		
+		return retval;
+	};
+	
+	
 	$(document).on("_bmNoTextSelection", function() {
 		$scope.textSelection = undefined;
 		$scope.link = undefined;

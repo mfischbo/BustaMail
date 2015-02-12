@@ -8,6 +8,6 @@ import de.mfischbo.bustamail.subscriber.domain.Contact;
 
 public interface ContactRepository extends MongoRepository<Contact, ObjectId> {
 
-	@Query(" { 'contact.emailAddresses' : ?0 } ")
+	@Query(" { 'emailAddresses.address' : ?0 } ")
 	Contact findByEmailAddress(String address);
 }

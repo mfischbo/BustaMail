@@ -12,7 +12,7 @@ BMApp.Mailing.config(['$routeProvider', function($routeProvider) {
 			controller	:	"MailingCreateController"
 		})
 		.when("/mailings/:id/edit", {
-			templateUrl : 	"./modules/mailing/tmpl/mailing/edit.html",
+			templateUrl : 	"./modules/editor/tmpl/environment.html",
 			controller	:	"MailingEditController"
 		})
 		.when("/mailings/:id/envelope", {
@@ -164,7 +164,8 @@ BMApp.Mailing.controller('MailingReportController', [function() {
 
 
 BMApp.Mailing.controller("MailingCreateController", ['$scope', '$http', '$location', function($scope, $http, $location) {
-	
+
+	$scope.packs     = [];
 	$scope.templates = [];
 	$scope.selectedTemplate = {};
 	$scope.owner = undefined;
@@ -173,6 +174,7 @@ BMApp.Mailing.controller("MailingCreateController", ['$scope', '$http', '$locati
 	$scope.$watch('owner', function(val) {
 		if (!val) return;
 		$http.get("/api/templatepacks?owner=" + val).success(function(data) {
+			$scope.packs = data.content;
 			$scope.templates = [];
 			for (var i in data.content) {
 				var p = data.content[i];
@@ -185,12 +187,14 @@ BMApp.Mailing.controller("MailingCreateController", ['$scope', '$http', '$locati
 	});
 
 	$scope.createMailing = function() {
-
-        $scope.mailing.templatePack = $scope.mailing.template.pack;
-        $scope.mailing.template.pack   = undefined;
-        $scope.mailing.templateId   = $scope.mailing.template.id;
-        $scope.mailing.template = undefined;
-
+		for (var q in $scope.packs) {
+			for (var t in $scope.packs[q].templates)
+				if ($scope.packs[q].templates[t].id == $scope.mailing.templateId) {
+					$scope.mailing.templatePack = {};
+					$scope.mailing.templatePack.id = $scope.packs[q].id;
+				}
+		}
+		
 		$http.post("/api/mailings/unit/" + $scope.owner, $scope.mailing).success(function(data) {
 			$location.path("/mailings");
 		});
@@ -201,77 +205,8 @@ BMApp.Mailing.controller("MailingCreateController", ['$scope', '$http', '$locati
 	};
 }]);
 
-BMApp.controller('MailingEditController', ['$scope', '$http', '$routeParams', '$sce', function($scope, $http, $routeParams, $sce) {
+BMApp.controller('MailingEditController', ['$scope', '$routeParams', 'EditorFactory', 
+                                           function($scope, $routeParams, EditorFactory) {
 
-    $scope.pageId = './frameedit.html?type=mailing&cid=' + $routeParams.id;
-    $scope.tlink  = $sce.trustAsUrl($scope.pageId);
-
-    var dFrame = document.getElementById('documentFrame');
-    window.addEventListener('message', function(e) {
-
-        if (e.data.type == 'elementSelected') {
-            $scope.element = e.data.data;
-            $scope.$apply();
-        }
-
-        if (e.data.type == 'elementUnselected') {
-            $scope.element = undefined;
-            $scope.$apply();
-        }
-    });
-
-    $http.get('/api/mailings/' + $routeParams.id).success(function(data) {
-
-        $scope.document = data;
-        $http.get('/api/templatepacks/' + $scope.document.templatePack.id + '/templates/' + $scope.document.templateId).success(function(template) {
-
-            $scope.document.template = template;
-            $scope.widgets = template.widgets;
-            for (var i in $scope.widgets)
-                if ($scope.widgets[i].source.indexOf('bm-on-replace') > 0) {
-                    $scope.widgets[i].nestable = true;
-                }
-        });
-
-        $http.get('/api/mailings/' + $scope.document.id + '/content/current').success(function(data) {
-           $scope.contentVersions = data;
-        });
-    });
-
-    $scope.appendWidget = function(id) {
-        var w = BMApp.utils.find('id', id, $scope.widgets);
-        var m = { type : 'appendWidget', data : w };
-        dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
-    };
-
-    /**
-     * Posts a message to the iframe containing the widget to replace the current selected one
-     */
-    $scope.replaceElement = function(id) {
-        var w = BMApp.utils.find("id", id, $scope.widgets);
-        var m = { type : 'replaceWidget', data : w };
-        dFrame.contentWindow.postMessage(m , BMApp.uiConfig.uiURL);
-    };
-
-    /**
-     * Posts a message to the iframe in order to save the document
-     */
-    $scope.saveContents = function() {
-        var m = { type : 'saveDocument'};
-        dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
-    };
-
-    $scope.rollBackTo = function(id) {
-        var m = {type : 'rollBackTo', data : id};
-        dFrame.contentWindow.postMessage(m, BMApp.uiConfig.uiURL);
-    };
-
-    /**
-     * Creates a preview of the landing page
-     */
-    $scope.createPreview = function() {
-        $http.put("/api/mailings/" + $routeParams.id + "/preview").success(function() {
-            BMApp.alert('Das Preview wurde erfolgreich versendet');
-        });
-    };
+	EditorFactory.prepareScope($scope, $routeParams, 'mailing');
 }]);

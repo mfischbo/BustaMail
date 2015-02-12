@@ -1,4 +1,4 @@
-package de.mfischbo.bustamail.template.util;
+package de.mfischbo.bustamail.common.domain;
 
 import java.util.Arrays;
 import java.util.List;

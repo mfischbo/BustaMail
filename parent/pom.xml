@@ -148,5 +148,7 @@
 		<module>bustamail-versionedcontent</module>
 		<module>bustamail-stats</module>
 		<module>bustamail-landingpage</module>
+		<module>bustamail-public</module>
+		<module>bustamail-optin</module>
 	</modules>
 </project>

@@ -122,14 +122,14 @@ public class RestLandingPageController extends BaseApiController {
 	 * @return The list of versions available for this document
 	 * @throws EntityNotFoundException
 	 */
-	@RequestMapping(value = "/{id}/content", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/contents", method = RequestMethod.GET)
 	public List<VersionedContentIndexDTO> getRecentVersionedContent(@PathVariable("id") ObjectId lpId) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
 		return asDTO(service.getContentVersions(p), VersionedContentIndexDTO.class);
 	}
 	
 	
-	@RequestMapping(value = "/{id}/content/current", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/contents/current", method = RequestMethod.GET)
 	public VersionedContent getCurrentContent(@PathVariable("id") ObjectId page) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(page);
 		return service.getRecentContentVersionByPage(p);
@@ -156,7 +156,7 @@ public class RestLandingPageController extends BaseApiController {
 	 * @return
 	 * @throws EntityNotFoundException
 	 */
-	@RequestMapping(value = "/{id}/content", method = RequestMethod.POST)
+	@RequestMapping(value = "/{id}/contents", method = RequestMethod.POST)
 	public VersionedContentDTO saveContent(@PathVariable("id") ObjectId lpId, @RequestBody VersionedContentDTO dto) throws EntityNotFoundException {
 		LandingPage p = service.getLandingPageById(lpId);
 		checkOnNull(p);

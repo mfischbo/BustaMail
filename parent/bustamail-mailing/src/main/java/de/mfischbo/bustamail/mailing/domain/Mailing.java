@@ -2,6 +2,9 @@ package de.mfischbo.bustamail.mailing.domain;
 
 import java.util.List;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
@@ -10,12 +13,13 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
+import de.mfischbo.bustamail.mailer.dto.IMailableMail;
 import de.mfischbo.bustamail.mailinglist.domain.SubscriptionList;
 import de.mfischbo.bustamail.security.domain.User;
 import de.mfischbo.bustamail.template.domain.TemplatePack;
 
 @Document(collection = "Mailing_Mailing")
-public class Mailing extends OwnedBaseDomain {
+public class Mailing extends OwnedBaseDomain implements IMailableMail {
 
 	private static final long serialVersionUID = 4233998675412535889L;
 
@@ -242,4 +246,19 @@ public class Mailing extends OwnedBaseDomain {
 		this.recipientCount = recipientCount;
 	}
 	
+	public InternetAddress getSender() {
+		try {
+			return new InternetAddress(this.senderAddress);
+		} catch (AddressException e) {
+			throw new IllegalStateException(e.getMessage());
+		}
+	}
+	
+	public InternetAddress getReplyTo() {
+		try {
+			return new InternetAddress(this.replyAddress);
+		} catch (AddressException ex) {
+			throw new IllegalStateException(ex.getMessage());
+		}
+	}
 }

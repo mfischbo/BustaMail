@@ -1,0 +1,69 @@
+<div class="row">
+	<div class="col-md-12">
+		<h3>Optin Mails</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="pull-right">
+					<div data-ou-selector data-select-as="owner"></div>
+				</div>	
+				<div class="clearfix"></div>
+			</div>
+			
+			<div class="panel-body">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Betreff</th>
+							<th>Absender Name</th>
+							<th>Absender Adresse</th>
+							<th>Aktiviert</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr data-ng-if="optinmails.length == 0">
+							<td colspan="6" style="text-align:center;">Bisher wurden keine Optin Mails angelegt</td>
+						</tr>
+						<tr data-ng-repeat="m in optinmails">
+							<td>{{::m.name}}</td>
+							<td>{{::m.subject}}</td>
+							<td>{{::m.senderName}}</td>
+							<td>{{::m.senderAddress}}</td>
+							<td>
+								<span data-ng-if="m.activated" class="fa fa-toggle-on toggle greenToggle"></span>
+								
+								<a href="javascript:void('');" data-ng-click="activate(m)">
+									<span data-ng-if="!m.activated" class="fa fa-toggle-off toggle"></span>
+								</a>
+							</td>
+							
+							<td class="tools">
+								<a href="#/optin/{{::m.id}}/edit" title="Inhalt Bearbeiten"><span class="fa fa-pencil"></span></a>
+								<a href="#/optin/{{::m.id}}/envelope" title="Metadaten bearbeiten"><span class="fa fa-envelope-o"></span></a>
+								<a href="javascript:void('');" title="Entfernen" data-ng-click="deleteOptinMail(m)"><span class="fa fa-trash-o"></span></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>	
+			</div>
+		</div>
+	</div>
+	
+	<div class="col-md-2">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Aktionen</h3>
+			</div>	
+			
+			<div class="panel-body">
+				<a href="#/optin/create" title="Neue Optin Mail anlegen">Neue Optin Mail anlegen</a>
+			</div>
+		</div>
+	</div>
+</div>

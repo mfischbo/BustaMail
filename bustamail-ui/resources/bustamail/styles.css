@@ -74,3 +74,11 @@ td.tools span {
 	left:0;
 	background-color:#ddd;
 }
+
+.toggle { font-size: 20px; }
+.greenToggle {
+	color:green;
+}
+.redToggle {
+	color:red;
+}

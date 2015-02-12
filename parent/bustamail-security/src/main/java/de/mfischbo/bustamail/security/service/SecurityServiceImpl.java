@@ -22,6 +22,8 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 import de.mfischbo.bustamail.common.service.BaseService;
 import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
-import de.mfischbo.bustamail.mailer.service.SimpleMailService;
 import de.mfischbo.bustamail.security.domain.Actor;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.domain.Permission;
@@ -68,7 +69,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	private	PasswordEncoder			pwEncoder;
 	
 	@Autowired
-	private SimpleMailService		mailService;
+	private JavaMailSender			mailSender;
 	
 	@Autowired
 	private Authentication			currentUser;
@@ -124,7 +125,13 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		}
 		u.setPassword(pwEncoder.encode(passwd));
 		userRepo.save(u);
-		mailService.sendSimpleMail(from, toAddr, "Your password has been reset", passwd);
+	
+		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setFrom(from.getAddress());
+		msg.setTo(toAddr.getAddress());
+		msg.setSubject("Your password has been reset");
+		msg.setText(passwd);
+		mailSender.send(msg);
 	}
 	
 
@@ -414,7 +421,11 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 		
 		try {
 			InternetAddress from = new InternetAddress("noreply-bustamail@example.com");
-			mailService.sendSimpleMail(from, iadr, "Your password", passwd);
+			SimpleMailMessage msg = new SimpleMailMessage();
+			msg.setFrom(from.getAddress());
+			msg.setTo(iadr.getAddress());
+			msg.setSubject("Your bustamail password");
+			msg.setText(passwd);
 		} catch (Exception ex) {
 			log.error("Unable to send password mail to user : " + u.getEmail());
 		}

@@ -1,0 +1,65 @@
+<div class="row">
+	<div class="col-md-12">
+		<h3>{{::mail.name}} bearbeiten</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+			
+			</div>
+			<div class="panel-body">
+				<form name="optinMailForm">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Name</label>
+								<input type="text" data-ng-model="mail.name" class="form-control" placeholder="Name der Optin Mail" required>
+							</div>
+							<div class="form-group">	
+								<label>Betreff</label>
+								<input type="text" data-ng-model="mail.subject" class="form-control" placeholder="Ihre Anmeldung zum Newsletter" required">
+							</div>
+							<div class="form-group">
+								<label>Absender Name</label>
+								<input type="text" data-ng-model="mail.senderName" class="form-control" placeholder="Ihr Firmenname" required>
+							</div>
+							<div class="form-group">		
+								<label>Absender Adresse</label>
+								<input type="email" data-ng-model="mail.senderAddress" class="form-control" placeholder="max@example.com" required>
+							</div>
+							<div class="form-group">	
+								<label>Antwort Adresse</label>
+								<input type="email" data-ng-model="mail.replyAddress" class="form-control" placeholder="max@example.com" required>
+							</div>	
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Aktivierungsmodus</label>
+								<select data-ng-model="mail.activationMode" class="form-control">
+									<option value="INTERNAL">Intern</option>
+									<option value="EXTERNAL">Extern</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label data-ng-if="mail.activationMode == 'EXTERNAL'">URL f&uuml;r Anmeldelink</label>
+								<label data-ng-if="mail.activationMode == 'INTERNAL'">Weiterleitungsziel nach Aktivierung</label>
+								<input type="url" data-ng-model="mail.targetURL" class="form-control" placeholder="http://activation.yoursite.com" required>	
+							</div>	
+						</div>
+					</div>
+				</form>
+			</div>
+			
+			<div class="panel-footer">
+				<div class="pull-right">
+					<a href="#/optin" title="Abbrechen" class="btn btn-danger">Abbrechen</a>
+					<button class="btn btn-success" data-ng-click="submitAction()" data-ng-disabled="optinMailForm.$invalid">Speichern</button>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>

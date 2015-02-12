@@ -1,5 +1,7 @@
 package de.mfischbo.bustamail.mailinglist.domain;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -19,7 +21,8 @@ public class Subscription extends BaseDomain implements PersonalizedEmailRecipie
 	public enum SourceType {
 		UserAction,
 		ImportAction,
-		FormAction
+		FormAction,
+		PublicAPIAction
 	}
 	
 	public enum State {
@@ -28,6 +31,7 @@ public class Subscription extends BaseDomain implements PersonalizedEmailRecipie
 		INACTIVE
 	}
 	
+	private DateTime				dateModified;
 	private DateTime				dateCreated;
 
 	private SourceType				sourceType;
@@ -35,6 +39,8 @@ public class Subscription extends BaseDomain implements PersonalizedEmailRecipie
 	private State					state;
 	
 	private String					ipAddress;
+
+	private UUID					transactionId;
 	
 	@DBRef
 	private Contact					contact;
@@ -99,6 +105,22 @@ public class Subscription extends BaseDomain implements PersonalizedEmailRecipie
 	public void setSubscriptionList(SubscriptionList subscriptionList) {
 		this.subscriptionList = subscriptionList;
 	}
+	
+	public UUID getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public DateTime getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(DateTime dateModified) {
+		this.dateModified = dateModified;
+	}
 
 	@Override
 	@Transient
@@ -136,5 +158,12 @@ public class Subscription extends BaseDomain implements PersonalizedEmailRecipie
 	@Transient
 	public String getEmail() {
 		return emailAddress.toString();
+	}
+
+	@Override
+	public String getTitle() {
+		if (contact == null)
+			return "";
+		return contact.getTitle();
 	}
 }

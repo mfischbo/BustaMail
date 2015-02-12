@@ -11,10 +11,12 @@
 - partitioned batch mail worker (multiple mail workers sending the same job)
 
 [bustamail-mailinglist]
+- customized fields on contacts
 - recipient filter (join multiple lists and filter recipients by criteria)
 
 [public-api]
 - general implementation
+- add capability to send customized optin mails
 
 [bustamail-stats]
 - add bouncemail stats for each mailing (requires bouncemail implementation)
@@ -23,5 +25,50 @@
 [general environment]
 - system history (who does what) and general timeline on a dashboard
 - settings module to configure the application on multiple layers (admin, ou admin, user)
+
+
+=============================================================
+||		Priority Order (Roadmap)							\\	
+===============================================================
+
+[v0.5]
+- public API general implementation
+- PHP SDK for public API
+- add capability to send customized optin mails
+- save editor contents as widget in the given template pack (allowing larger template elements to be reused without rewriting)
+
+[v0.6]
+- add capability to send mailings with text content
+- settings store integration
+- customized contact fields
+- recipient filtering (joining lists and filter segments)
+- editor improvements (define select lists on template level)
+
+[v0.7]
+- bouncemail processing environment
+- bouncemail stats
+- reports as PDF / HTML stats
+
+[v0.8]
+- partitioned batch mail worker
+- controlling of jobs from the UI (pause / resume / abort)
+- scheduling of mail publishing (time based: e.g. publish on certain DateTime)
+
+[v0.9]
+- revisit landing page module: Create landing pages and forms
+
+[v1.0]
+- history integration (fire events on certain user actions and report as timeline)
+
+[v1.1]
+- twitter integration
+
+[v1.2]
+- facebook integration
+
+[v1.3]
+- campaigns
+- deep tracking of subscribers (using the localstorage). Track from link click throughout conversion
+and record that feedback
 
 

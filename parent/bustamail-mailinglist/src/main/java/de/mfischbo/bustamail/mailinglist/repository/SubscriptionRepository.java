@@ -1,6 +1,7 @@
 package de.mfischbo.bustamail.mailinglist.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -20,8 +21,14 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, Ob
 	@Query(" { 'subscriptionList.$id' : ?0 } ")
 	List<Subscription> findAllSubscriptions(ObjectId listId);
 	
-	@Query(" { 'subscriptionList' : ?0, 'contact' : ?1 } ")
+	//@Query(" { 'subscriptionList' : ?0, 'contact' : ?1 } ")
 	Subscription findBySubscriptionListAndContact(SubscriptionList list, Contact contact);
+	
+	@Query(" { 'contact.$id' : ?0, 'state' : 'ACTIVE' } ")
+	List<Subscription> findAllActiveByContact(ObjectId id);
+
+	@Query(" { 'transactionId' : ?0 }")
+	List<Subscription> findByTransactionId(UUID transactionId);
 	
 	//@Query(" { 'subscriptionList' : ?0, 'state' : ?1 } ")
 	long countBySubscriptionListAndState(SubscriptionList list, State state);

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
+import de.mfischbo.bustamail.exception.ApiException;
 import de.mfischbo.bustamail.exception.DataIntegrityException;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 
@@ -49,6 +50,12 @@ public class BaseApiController {
 		return violations;
 	}
 	
+	@ExceptionHandler(value = ApiException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	protected void handleApiException(ApiException e) {
+		
+	}
+	
 	@ExceptionHandler(value = DataIntegrityException.class)
 	@ResponseStatus(HttpStatus.CONFLICT)
 	protected void handleDataIntegrityException(DataIntegrityException e) {
@@ -56,7 +63,7 @@ public class BaseApiController {
 		log.debug("Error was : " + e.getMessage());
 	}
 	
-		protected void checkOnNull(BaseDomain object) throws EntityNotFoundException {
+	protected void checkOnNull(BaseDomain object) throws EntityNotFoundException {
 		if (object == null)
 			throw new EntityNotFoundException("Unable to find entity!");
 	}

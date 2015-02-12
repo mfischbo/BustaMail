@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import de.mfischbo.bustamail.common.domain.BaseDomain;
@@ -70,5 +72,9 @@ public class BaseService {
 	
 	protected void fromDTO(Object dto, Object target) {
 		mapper.map(dto, target);
+	}
+	
+	protected static Pageable oneByDateCreatedDesc() {
+		return new PageRequest(0, 1, Sort.Direction.DESC, "dateCreated");
 	}
 }
