@@ -72,15 +72,14 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	
 	@Autowired
 	private Authentication			currentUser;
-	
+
 	private ApplicationEventPublisher	publisher;
 
-	
 	/*
 	 * (non-Javadoc)
 	 * @see de.mfischbo.bustamail.security.service.SecurityService#signIn(de.mfischbo.bustamail.security.dto.AuthenticationDTO, javax.servlet.http.HttpServletRequest)
 	 */
-	public UserDTO signIn(AuthenticationDTO dto, HttpServletRequest req) {
+	public UserDTO signIn(AuthenticationDTO dto) {
 		try {
 			Authentication auth = 
 					authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
@@ -353,7 +352,7 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	 */
 	@Override
 	public Set<OrgUnit> getOrgUnitsByCurrentUser() {
-		User current = (User) currentUser.getPrincipal();
+		User current = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();//currentUser.getPrincipal();
 		List<OrgUnit> units = orgUnitRepo.findAllWithUserAsActor(current.getId());
 		Set<OrgUnit> retval = new HashSet<>();
 		retval.addAll(units);

@@ -22,8 +22,8 @@ public class RestAuthenticationController extends BaseApiController {
 	private SecurityService		service;
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public UserDTO signIn(@RequestBody AuthenticationDTO dto, HttpServletRequest req) {
-		return service.signIn(dto, req);
+	public UserDTO signIn(@RequestBody AuthenticationDTO dto) {
+		return service.signIn(dto);
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.DELETE)

@@ -150,5 +150,6 @@
 		<module>bustamail-landingpage</module>
 		<module>bustamail-public</module>
 		<module>bustamail-optin</module>
+		<module>bustamail-ftp</module>
 	</modules>
 </project>

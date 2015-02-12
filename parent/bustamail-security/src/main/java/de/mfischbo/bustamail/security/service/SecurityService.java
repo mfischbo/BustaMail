@@ -27,10 +27,9 @@ public interface SecurityService {
 	/**
 	 * Tries to log in the user
 	 * @param dto The DTO providing the credentials
-	 * @param req The HttpRequest
 	 * @return The UserDTO if login was successful
 	 */
-	public UserDTO signIn(AuthenticationDTO dto, HttpServletRequest req);
+	public UserDTO signIn(AuthenticationDTO dto);
 
 	/**
 	 * Logs out the user and destroys his current authentication
@@ -38,7 +37,6 @@ public interface SecurityService {
 	 * @param res The HttpResponse
 	 */
 	public void signOut(HttpServletRequest req, HttpServletResponse res);
-	
 	
 	/**
 	 * Sends a new password to the users email address
