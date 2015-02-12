@@ -153,7 +153,7 @@ public class HTMLSourceProcessor {
 			try {
 				if (mode.equals("INTERNAL")) {
 					String fwdURL = URLEncoder.encode(target, "UTF-8");
-					dstURL = baseUrl.toString() + "/public/subscriptions/${" + MailingSerializer.KEY_SUBSCRIBER_ID + "}"
+					dstURL = baseUrl.toString() + "/public/subscriber/${" + MailingSerializer.KEY_SUBSCRIBER_ID + "}"
 							+ "/activate?tx=${mailingData.transactionId}&t=" + fwdURL;
 				} else if (mode.equals("EXTERNAL")) {
 					if (target.indexOf("?") > 0) {

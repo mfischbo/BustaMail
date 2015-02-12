@@ -333,8 +333,10 @@ public class PublicAPIServiceImpl extends BaseService implements PublicAPIServic
 	public void activateSubscriptions(UUID transactionId) {
 		List<Subscription> subs = subRepo.findByTransactionId(transactionId);
 		subs.forEach(s -> {
-			s.setDateModified(DateTime.now());
-			s.setState(State.ACTIVE);
+			if (s.getState().equals(State.OPTIN)) {
+				s.setDateModified(DateTime.now());
+				s.setState(State.ACTIVE);
+			}
 		});
 		subRepo.save(subs);
 	}
