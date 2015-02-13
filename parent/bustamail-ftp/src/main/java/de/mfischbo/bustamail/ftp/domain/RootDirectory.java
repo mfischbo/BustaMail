@@ -142,8 +142,4 @@ public class RootDirectory implements BustaFtpFile {
 		return "RootFtpFile [getAbsolutePath()=" + getAbsolutePath()
 				+ ", getName()=" + getName() + "]";
 	}
-
-	@Override
-	public void addChild(BustaFtpFile file) {
-	}
 }

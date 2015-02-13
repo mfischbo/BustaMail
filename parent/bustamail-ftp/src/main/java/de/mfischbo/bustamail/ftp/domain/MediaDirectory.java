@@ -27,6 +27,10 @@ public class MediaDirectory implements BustaFtpFile {
 		this.fsView = fsView;
 	}
 	
+	public Directory getDirectory() {
+		return this.directory;
+	}
+	
 	@Override
 	public InputStream createInputStream(long arg0) throws IOException {
 		return null;
@@ -156,10 +160,5 @@ public class MediaDirectory implements BustaFtpFile {
 	public String toString() {
 		return "MediaDirectoryFtpFile [getAbsolutePath()=" + getAbsolutePath()
 				+ ", getName()=" + getName() + "]";
-	}
-
-	@Override
-	public void addChild(BustaFtpFile file) {
-		
 	}
 }

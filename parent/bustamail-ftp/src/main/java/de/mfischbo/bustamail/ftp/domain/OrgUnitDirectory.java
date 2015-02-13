@@ -23,6 +23,10 @@ public class OrgUnitDirectory implements BustaFtpFile {
 		this.fsView = fsView;
 	}
 	
+	public OrgUnit getOrgUnit() {
+		return this.unit;
+	}
+	
 	@Override
 	public InputStream createInputStream(long arg0) throws IOException {
 		return null;
@@ -140,10 +144,5 @@ public class OrgUnitDirectory implements BustaFtpFile {
 	public String toString() {
 		return "OrgUnitFtpDirectory [getAbsolutePath()=" + getAbsolutePath()
 				+ ", getName()=" + getName() + "]";
-	}
-
-	@Override
-	public void addChild(BustaFtpFile file) {
-		// TODO Auto-generated method stub
 	}
 }

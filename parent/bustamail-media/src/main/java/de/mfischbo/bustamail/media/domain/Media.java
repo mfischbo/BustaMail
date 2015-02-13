@@ -1,13 +1,15 @@
 package de.mfischbo.bustamail.media.domain;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBObject;
@@ -46,7 +48,10 @@ public class Media extends OwnedBaseDomain {
 	@Transient
 	@JsonIgnore
 	private byte[] 	data;
-
+	
+	@Transient
+	@JsonIgnore
+	private ByteArrayOutputStream _outStream;
 	
 	public Media() {
 		
@@ -62,7 +67,9 @@ public class Media extends OwnedBaseDomain {
 		this.owner		 = (ObjectId) md.get(Media.KEY_OWNER);
 		this.parent		 = (ObjectId) md.get(Media.KEY_PARENT);
 		this.dateCreated = new DateTime(file.getUploadDate());
-		this.dateModified= (DateTime) md.get(Media.KEY_DATE_MODIFIED);
+		
+		if (md.containsField(KEY_DATE_MODIFIED))
+			this.dateModified= new DateTime((Long) md.get(Media.KEY_DATE_MODIFIED));
 		this.size        = file.getLength();
 		
 		// image related data
@@ -174,16 +181,20 @@ public class Media extends OwnedBaseDomain {
 	}
 	
 	@Transient
-	public void setData(InputStream stream) {
-		try {
-			this.data = IOUtils.toByteArray(stream);
-		} catch (Exception ex) {
-			
-		}
+	public void setData(ByteArrayOutputStream stream) {
+		this._outStream = stream;
+	}
+	
+	@Transient
+	public void setData(InputStream inStream) throws IOException {
+		this.data = StreamUtils.copyToByteArray(inStream);
 	}
 	
 	@Transient
 	public InputStream asStream() {
+		if (this._outStream != null) {
+			return new ByteArrayInputStream(this._outStream.toByteArray());
+		}
 		return new ByteArrayInputStream(this.data);
 	}
 
@@ -207,7 +218,7 @@ public class Media extends OwnedBaseDomain {
 		r.put(KEY_COLORSPACE, this.colorspace);
 		r.put(KEY_OWNER, this.getOwner());
 		r.put(KEY_PARENT, this.parent);
-		r.put(KEY_DATE_MODIFIED, this.dateModified);
+		r.put(KEY_DATE_MODIFIED, this.dateModified.getMillis());
 		return r;
 	}
 	

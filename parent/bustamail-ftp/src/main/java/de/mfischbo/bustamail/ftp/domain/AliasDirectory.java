@@ -47,7 +47,7 @@ public class AliasDirectory implements BustaFtpFile {
 
 	@Override
 	public String getAbsolutePath() {
-		return parent.getAbsolutePath() + "/" + this.name;
+		return this.parent.getAbsolutePath() + "/" + this.getName();
 	}
 
 	@Override
@@ -117,10 +117,17 @@ public class AliasDirectory implements BustaFtpFile {
 		if (this.name.equals("media")) {
 			MediaService mediaService = fsView.getMediaService();
 			List<Directory> dirs = mediaService.getDirectoryRoots();
+
+			// given the fact that the root dir is named after the org units name,
+			// we filter out other units here and create directly a MediaDirectory
 			List<FtpFile> retval = new ArrayList<FtpFile>(dirs.size());
-			for (Directory d : dirs) {
+			dirs.forEach(d -> {
+				//if (d.getName().equals(this.parent.getName())) {
+				//	MediaDirectory intermediate = new MediaDirectory(d, this, this.fsView);
+				//	retval.addAll(intermediate.listFiles());
+				//}
 				retval.add(new MediaDirectory(d, this, this.fsView));
-			}
+			});
 			return retval;
 		}
 		return null;
@@ -150,9 +157,5 @@ public class AliasDirectory implements BustaFtpFile {
 	public String toString() {
 		return "DefaultFtpDirectory [getAbsolutePath()=" + getAbsolutePath()
 				+ ", getName()=" + getName() + "]";
-	}
-
-	@Override
-	public void addChild(BustaFtpFile file) {
 	}
 }

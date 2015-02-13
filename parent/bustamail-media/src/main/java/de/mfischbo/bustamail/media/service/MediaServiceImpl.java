@@ -153,11 +153,10 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	public Media createMedia(Media media) throws Exception {
 		return createMedia(media, null);
 	}
-	
+
 	@Override
 	public Media createMedia(Media media, Directory directory) throws Exception {
-		
-		String mimetype = tika.detect(media.getData()).toLowerCase();
+		String mimetype = tika.detect(media.asStream()).toLowerCase();
 		if (mimetype.equals("text/plain")) {
 			if (media.getName().endsWith("css"))
 				mimetype = "text/css";
@@ -173,7 +172,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		if (mimetype.startsWith("image")) {
 			return processImage(media);
 		} else {
-			GridFSFile file = gridTemplate.store(media.asStream(), media.getName(), media.getMetaData());
+			GridFSFile file = gridTemplate.store(media.asStream(), media.getName(), media.getMimetype(), media.getMetaData());
 			media.setId((ObjectId) file.getId());
 			return media;
 		}
@@ -219,7 +218,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		
 		// persist the parent
 		GridFSFile fsFile = gridTemplate.store(new ByteArrayInputStream(getImageData(bim, m.getMimetype())),
-				m.getName(), m.getMetaData());
+				m.getName(), m.getMimetype(), m.getMetaData());
 		m.setId((ObjectId) fsFile.getId());
 		
 		// persist all variants
@@ -231,7 +230,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 			v.setHeight(res.getHeight());
 			
 			byte[] thd = getImageData(res, v.getMimetype());
-			gridTemplate.store(new ByteArrayInputStream(thd), v.getName(), v.getMetaData());
+			gridTemplate.store(new ByteArrayInputStream(thd), v.getName(), v.getMimetype(), v.getMetaData());
 		}
 		return m;
 	}

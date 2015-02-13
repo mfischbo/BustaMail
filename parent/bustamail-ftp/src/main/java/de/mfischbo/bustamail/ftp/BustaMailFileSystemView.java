@@ -1,16 +1,21 @@
 package de.mfischbo.bustamail.ftp;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.joda.time.DateTime;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.mfischbo.bustamail.ftp.domain.BustaFtpFile;
 import de.mfischbo.bustamail.ftp.domain.MediaDirectory;
 import de.mfischbo.bustamail.ftp.domain.MediaFile;
+import de.mfischbo.bustamail.ftp.domain.OrgUnitDirectory;
 import de.mfischbo.bustamail.ftp.domain.RootDirectory;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
@@ -32,11 +37,16 @@ public class BustaMailFileSystemView implements FileSystemView {
 
 	private BustaFtpFile		cwd;
 	
+	private OrgUnit				currentOwner;
+	
+	private List<Media>			_pending;
+	
 	public BustaMailFileSystemView(TemplateService tService, SecurityService secService, MediaService mediaService, Authentication auth) {
 		this.tService = tService;
 		this.secService = secService;
 		this.mediaService = mediaService;
 		this.auth = auth;
+		this._pending = new LinkedList<>();
 		
 		Set<OrgUnit> units = secService.getOrgUnitsByCurrentUser();
 		this.root = new RootDirectory(units, this);
@@ -56,6 +66,12 @@ public class BustaMailFileSystemView implements FileSystemView {
 		for (FtpFile c : this.cwd.listFiles()) {
 			if (c.getName().equals(path)) {
 				this.cwd = (BustaFtpFile) c;
+				
+				// check if cwd is orgunit dir and set the current owner appropriately
+				if (this.cwd instanceof OrgUnitDirectory)
+					this.currentOwner = ((OrgUnitDirectory) this.cwd).getOrgUnit();
+				if (this.cwd instanceof RootDirectory)
+					this.currentOwner = null;
 				return;
 			}
 		}
@@ -68,12 +84,13 @@ public class BustaMailFileSystemView implements FileSystemView {
 		for (int i=0; i < parts.length; i++) {
 			navigateTo(parts[i]);
 		}
+		
 		return true;
 	}
 
 	@Override
 	public void dispose() {
-		
+		System.out.println("Called dispose");
 	}
 
 	@Override
@@ -92,14 +109,33 @@ public class BustaMailFileSystemView implements FileSystemView {
 				// create a new file
 				Media m = new Media();
 				m.setName(arg0);
+				m.setDateCreated(DateTime.now());
+				m.setDateModified(DateTime.now());
+				m.setDirectory(((MediaDirectory) this.cwd).getDirectory().getId());
+				m.setOwner(this.currentOwner.getId());
+				this._pending.add(m);
 				MediaFile f = new MediaFile(m, this.cwd, this);
-				this.cwd.addChild((BustaFtpFile) f);
 				return f;
-			// well... this could become an issue
 			}
 		}
 		return null;
 	}
+	
+	public boolean persistPendingMedia() {
+		Iterator<Media> mit = _pending.iterator();
+		while (mit.hasNext()) {
+			Media m = mit.next();
+			try {
+				mediaService.createMedia(m, mediaService.getDirectoryById(m.getDirectory()));
+				mit.remove();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				return false;
+			}
+		}
+		return true;
+	}
+	
 
 	@Override
 	public FtpFile getHomeDirectory() throws FtpException {

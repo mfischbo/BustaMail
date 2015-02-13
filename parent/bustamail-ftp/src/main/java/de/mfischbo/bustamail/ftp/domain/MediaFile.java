@@ -17,7 +17,6 @@ public class MediaFile implements FtpFile {
 	private Media media;
 	private BustaFtpFile	parent;
 	private MediaService service;
-	private ByteArrayOutputStream bout;
 	
 	public MediaFile(Media m, BustaFtpFile parent, BustaMailFileSystemView fsView) {
 		this.media = m;
@@ -36,12 +35,9 @@ public class MediaFile implements FtpFile {
 
 	@Override
 	public OutputStream createOutputStream(long arg0) throws IOException {
-		try {
-			bout = new ByteArrayOutputStream();
-			return bout;
-		} catch (Exception ex) {
-			return null;
-		}
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		media.setData(outStream);
+		return outStream;
 	}
 
 	@Override
