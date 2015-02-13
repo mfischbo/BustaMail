@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import org.apache.tika.Tika;
 import org.bson.types.ObjectId;
 import org.imgscalr.Scalr;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
@@ -121,7 +122,6 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		}
 	}
 	
-
 	@Override
 	public InputStream getContent(Media m) {
 		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(m.getId())));
@@ -165,6 +165,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 				mimetype = "text/javascript";
 		}
 		media.setMimetype(mimetype);
+		media.setDateModified(DateTime.now());
 		
 		if (directory != null)
 			media.setDirectory(directory.getId());
@@ -264,6 +265,7 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	
 	@Override
 	public Media updateMedia(Media media) throws EntityNotFoundException {
+		media.setDateModified(DateTime.now());
 		GridFSDBFile f = gridTemplate.findOne(Query.query(Criteria.where("_id").is(media.getId())));
 		f.setMetaData(media.getMetaData());
 		f.save();

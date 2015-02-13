@@ -5,4 +5,6 @@ import org.apache.ftpserver.ftplet.FtpFile;
 public interface BustaFtpFile extends FtpFile {
 
 	public BustaFtpFile getParent();
+	
+	public void addChild(BustaFtpFile file);
 }

@@ -352,7 +352,8 @@ public class SecurityServiceImpl extends BaseService implements SecurityService,
 	 */
 	@Override
 	public Set<OrgUnit> getOrgUnitsByCurrentUser() {
-		User current = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();//currentUser.getPrincipal();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User current = (User) auth.getPrincipal();//currentUser.getPrincipal();
 		List<OrgUnit> units = orgUnitRepo.findAllWithUserAsActor(current.getId());
 		Set<OrgUnit> retval = new HashSet<>();
 		retval.addAll(units);

@@ -39,7 +39,7 @@ public class BustaMailUserManager implements UserManager {
 				bmAuth.setPassword(auth.getPassword());
 				UserDTO r = secService.signIn(bmAuth);
 				if (r != null) {
-					BustaMailFtpUser bmFtpUser = new BustaMailFtpUser(retval);
+					BustaMailFtpUser bmFtpUser = new BustaMailFtpUser(retval, auth.getPassword());
 					this.authenticatedUsers.put(bmAuth.getEmail(), bmFtpUser);
 					return bmFtpUser;
 				}

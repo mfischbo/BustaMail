@@ -9,7 +9,7 @@ import de.mfischbo.bustamail.media.domain.Media;
 public class MediaUtils {
 
 	public static Media convertFile(GridFSDBFile file) {
-		Media m = new Media((ObjectId) file.getId(), file.getFilename(), file.getMetaData());
+		Media m = new Media((ObjectId) file.getId(), file.getFilename(), file);
 		return m;
 	}
 

@@ -7,18 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import de.mfischbo.bustamail.security.domain.OrgUnit;
+import de.mfischbo.bustamail.ftp.BustaMailFileSystemView;
+import de.mfischbo.bustamail.media.domain.Directory;
+import de.mfischbo.bustamail.media.service.MediaService;
 
-public class OrgUnitFtpDirectory implements BustaFtpFile {
+public class AliasDirectory implements BustaFtpFile {
 
-	private OrgUnit unit;
+	private String 			name;
+	private BustaFtpFile 	parent;
+	private BustaMailFileSystemView	fsView;
 	
-	private BustaFtpFile	parent;
-	
-	public OrgUnitFtpDirectory(OrgUnit unit, BustaFtpFile parent) {
-		this.unit = unit;
+	public AliasDirectory(String name, BustaFtpFile parent, BustaMailFileSystemView fsView) {
+		this.name = name;
 		this.parent = parent;
+		this.fsView = fsView;
 	}
 	
 	@Override
@@ -43,7 +47,7 @@ public class OrgUnitFtpDirectory implements BustaFtpFile {
 
 	@Override
 	public String getAbsolutePath() {
-		return "/" + this.unit.getName().replaceAll(" ", "_");
+		return parent.getAbsolutePath() + "/" + this.name;
 	}
 
 	@Override
@@ -53,7 +57,7 @@ public class OrgUnitFtpDirectory implements BustaFtpFile {
 
 	@Override
 	public long getLastModified() {
-		return this.unit.getDateModified().getMillis();
+		return 0;
 	}
 
 	@Override
@@ -63,7 +67,7 @@ public class OrgUnitFtpDirectory implements BustaFtpFile {
 
 	@Override
 	public String getName() {
-		return this.unit.getName().replaceAll(" ", "_");
+		return this.name;
 	}
 
 	@Override
@@ -93,7 +97,7 @@ public class OrgUnitFtpDirectory implements BustaFtpFile {
 
 	@Override
 	public boolean isReadable() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -108,10 +112,18 @@ public class OrgUnitFtpDirectory implements BustaFtpFile {
 
 	@Override
 	public List<FtpFile> listFiles() {
-		List<FtpFile> retval = new ArrayList<>(2);
-		retval.add(new DefaultFtpDirectory("templates", this));
-		retval.add(new DefaultFtpDirectory("media", this));
-		return retval;
+		SecurityContextHolder.getContext().setAuthentication(fsView.getAuthentication());
+		
+		if (this.name.equals("media")) {
+			MediaService mediaService = fsView.getMediaService();
+			List<Directory> dirs = mediaService.getDirectoryRoots();
+			List<FtpFile> retval = new ArrayList<FtpFile>(dirs.size());
+			for (Directory d : dirs) {
+				retval.add(new MediaDirectory(d, this, this.fsView));
+			}
+			return retval;
+		}
+		return null;
 	}
 
 	@Override
@@ -132,5 +144,15 @@ public class OrgUnitFtpDirectory implements BustaFtpFile {
 	@Override
 	public BustaFtpFile getParent() {
 		return this.parent;
+	}
+
+	@Override
+	public String toString() {
+		return "DefaultFtpDirectory [getAbsolutePath()=" + getAbsolutePath()
+				+ ", getName()=" + getName() + "]";
+	}
+
+	@Override
+	public void addChild(BustaFtpFile file) {
 	}
 }

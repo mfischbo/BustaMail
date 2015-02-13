@@ -9,9 +9,11 @@ import org.apache.ftpserver.ftplet.User;
 public class BustaMailFtpUser implements User {
 
 	private de.mfischbo.bustamail.security.domain.User user;
+	private String plainPass;
 	
-	public BustaMailFtpUser(de.mfischbo.bustamail.security.domain.User user) {
+	public BustaMailFtpUser(de.mfischbo.bustamail.security.domain.User user, String plainPass) {
 		this.user = user;
+		this.plainPass = plainPass;
 	}
 	
 	@Override
@@ -52,6 +54,10 @@ public class BustaMailFtpUser implements User {
 	@Override
 	public String getPassword() {
 		return this.user.getPassword();
+	}
+	
+	public String getPlainPass() {
+		return this.plainPass;
 	}
 
 }

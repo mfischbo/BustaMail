@@ -9,14 +9,18 @@ import java.util.Set;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
+import de.mfischbo.bustamail.ftp.BustaMailFileSystemView;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 
-public class RootFtpFile implements BustaFtpFile {
+public class RootDirectory implements BustaFtpFile {
 
 	private Set<OrgUnit> units;
 	
-	public RootFtpFile(Set<OrgUnit> units) {
+	private BustaMailFileSystemView 	fsView;
+	
+	public RootDirectory(Set<OrgUnit> units, BustaMailFileSystemView fsView) {
 		this.units = units;
+		this.fsView = fsView;
 	}
 	
 	@Override
@@ -108,7 +112,7 @@ public class RootFtpFile implements BustaFtpFile {
 	public List<FtpFile> listFiles() {
 		List<FtpFile> dirs = new ArrayList<>(this.units.size());
 		this.units.forEach(u -> {
-			dirs.add(new OrgUnitFtpDirectory(u, this));
+			dirs.add(new OrgUnitDirectory(u, this, this.fsView));
 		});
 		return dirs;
 	}
@@ -131,5 +135,15 @@ public class RootFtpFile implements BustaFtpFile {
 	@Override
 	public BustaFtpFile getParent() {
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return "RootFtpFile [getAbsolutePath()=" + getAbsolutePath()
+				+ ", getName()=" + getName() + "]";
+	}
+
+	@Override
+	public void addChild(BustaFtpFile file) {
 	}
 }

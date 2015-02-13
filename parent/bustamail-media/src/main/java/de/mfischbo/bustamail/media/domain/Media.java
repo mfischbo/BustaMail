@@ -5,12 +5,14 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
+import org.joda.time.DateTime;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.gridfs.GridFSDBFile;
 
 import de.mfischbo.bustamail.common.domain.OwnedBaseDomain;
 
@@ -31,6 +33,12 @@ public class Media extends OwnedBaseDomain {
 	
 	private int     colorspace;
 	
+	private long	size;
+	
+	private DateTime	dateCreated;
+	
+	private DateTime	dateModified;
+	
 	private ObjectId	parent;
 	
 	private	ObjectId	directory;
@@ -44,13 +52,18 @@ public class Media extends OwnedBaseDomain {
 		
 	}
 	
-	public Media(ObjectId id, String filename, DBObject md) {
+	public Media(ObjectId id, String filename, GridFSDBFile file) {
+		
+		DBObject md = file.getMetaData();
 		this.id 		 = id;
 		this.name		 = filename;
 		this.description = (String) md.get(Media.KEY_DESCRIPTION);
 		this.mimetype    = (String) md.get(Media.KEY_MIMETYPE);
 		this.owner		 = (ObjectId) md.get(Media.KEY_OWNER);
 		this.parent		 = (ObjectId) md.get(Media.KEY_PARENT);
+		this.dateCreated = new DateTime(file.getUploadDate());
+		this.dateModified= (DateTime) md.get(Media.KEY_DATE_MODIFIED);
+		this.size        = file.getLength();
 		
 		// image related data
 		if (this.mimetype.startsWith("image")) {
@@ -125,6 +138,30 @@ public class Media extends OwnedBaseDomain {
 		this.parent = parent;
 	}
 
+	public long getSize() {
+		return size;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
+	}
+
+	public DateTime getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(DateTime dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public DateTime getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(DateTime dateModified) {
+		this.dateModified = dateModified;
+	}
+
 	@Transient
 	@JsonIgnore
 	public byte[] getData() {
@@ -170,6 +207,7 @@ public class Media extends OwnedBaseDomain {
 		r.put(KEY_COLORSPACE, this.colorspace);
 		r.put(KEY_OWNER, this.getOwner());
 		r.put(KEY_PARENT, this.parent);
+		r.put(KEY_DATE_MODIFIED, this.dateModified);
 		return r;
 	}
 	
@@ -181,4 +219,5 @@ public class Media extends OwnedBaseDomain {
 	public static final String KEY_COLORSPACE	= "colorspace";
 	public static final String KEY_OWNER		= "owner";
 	public static final String KEY_PARENT		= "parent";
+	public static final String KEY_DATE_MODIFIED = "dateModified";
 }
