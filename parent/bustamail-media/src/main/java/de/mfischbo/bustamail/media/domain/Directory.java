@@ -1,6 +1,7 @@
 package de.mfischbo.bustamail.media.domain;
 
 import org.bson.types.ObjectId;
+import org.joda.time.DateTime;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,6 +16,10 @@ public class Directory extends OwnedBaseDomain {
 	private String			name;
 	
 	private String			description;
+	
+	private DateTime		dateCreated;
+	
+	private DateTime		dateModified;
 	
 	private ObjectId		parent;
 
@@ -35,5 +40,17 @@ public class Directory extends OwnedBaseDomain {
 	}
 	public void setParent(ObjectId parent) {
 		this.parent = parent;
+	}
+	public DateTime getDateCreated() {
+		return dateCreated;
+	}
+	public void setDateCreated(DateTime dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+	public DateTime getDateModified() {
+		return dateModified;
+	}
+	public void setDateModified(DateTime dateModified) {
+		this.dateModified = dateModified;
 	}
 }

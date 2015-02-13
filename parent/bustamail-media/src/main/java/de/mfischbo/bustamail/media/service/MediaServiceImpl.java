@@ -327,11 +327,14 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	public Directory createDirectory(ObjectId owner, Directory parent, Directory directory) {
 		directory.setOwner(owner);
 		directory.setParent(parent.getId());
+		directory.setDateCreated(DateTime.now());
+		directory.setDateModified(directory.getDateCreated());
 		return dRepo.save(directory);
 	}
 
 	@Override
 	public Directory updateDirectory(Directory directory) {
+		directory.setDateModified(DateTime.now());
 		return dRepo.save(directory);
 	}
 
