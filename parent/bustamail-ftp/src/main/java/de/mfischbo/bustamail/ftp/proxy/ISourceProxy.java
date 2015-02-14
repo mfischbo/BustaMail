@@ -10,4 +10,6 @@ public interface ISourceProxy {
 	public InputStream getInputStream(BaseFtpFile file);
 	
 	public OutputStream getOutputStream(BaseFtpFile file);
+	
+	public boolean persist(BaseFtpFile file);
 }

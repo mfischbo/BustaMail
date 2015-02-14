@@ -109,7 +109,7 @@ public class FtpFileFactory {
 		if (dir.isInitialized()) return dir;
 		try {
 			TemplatePack pack = service.getTemplatePackById(dir.getId());
-			final TemplatePackProxy proxy = new TemplatePackProxy(service, pack);
+			final TemplatePackProxy proxy = new TemplatePackProxy(service, pack, mService);
 			final MediaProxy		mProx = new MediaProxy(mService);
 			
 			// create subfolders for each template

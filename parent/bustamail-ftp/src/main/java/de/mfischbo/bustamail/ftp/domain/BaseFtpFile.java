@@ -40,6 +40,14 @@ public class BaseFtpFile implements FtpFile {
 	public void setId(ObjectId id) {
 		this.id = id;
 	}
+	
+	public BaseFtpDirectory getParent() {
+		return this.parent;
+	}
+	
+	public boolean persist() {
+		return this._proxy.persist(this);
+	}
 
 	public void setDateCreated(DateTime date) {
 		this.dateCreated = date;
@@ -53,7 +61,7 @@ public class BaseFtpFile implements FtpFile {
 		this._persistent = persistent;
 	}
 	
-	public boolean isPersistent(boolean persistent) {
+	public boolean isPersistent() {
 		return this._persistent;
 	}
 	

@@ -1,9 +1,5 @@
 package de.mfischbo.bustamail.ftp;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
@@ -12,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.mfischbo.bustamail.ftp.domain.BaseFtpDirectory;
 import de.mfischbo.bustamail.ftp.domain.BaseFtpFile;
-import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.service.SecurityService;
@@ -34,14 +29,12 @@ public class BustaFSView implements FileSystemView {
 	
 	private OrgUnit				currentOwner;
 	
-	private List<Media>			_pending;
 	
 	public BustaFSView(TemplateService tService, SecurityService secService, MediaService mediaService, Authentication auth) {
 		this.tService = tService;
 		this.secService = secService;
 		this.mediaService = mediaService;
 		this.auth = auth;
-		this._pending = new LinkedList<>();
 		
 		this.root = new BaseFtpDirectory("/", null, null);
 		this.cwd = root;
@@ -110,7 +103,7 @@ public class BustaFSView implements FileSystemView {
 		} else {
 			for (FtpFile f : cwd.listFiles()) {
 				if (f.getName().equals(arg0)) {
-					return initialize((BaseFtpFile) f);
+					return (BaseFtpFile) f;
 				}
 			}
 		}
@@ -142,26 +135,7 @@ public class BustaFSView implements FileSystemView {
 		
 		return null;
 	}
-	
-	private BaseFtpFile initialize(BaseFtpFile file) {
-		return file;
-	}
-	
-	public boolean persistPendingMedia() {
-		Iterator<Media> mit = _pending.iterator();
-		while (mit.hasNext()) {
-			Media m = mit.next();
-			try {
-				mediaService.createMedia(m, mediaService.getDirectoryById(m.getDirectory()));
-				mit.remove();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				return false;
-			}
-		}
-		return true;
-	}
-	
+
 
 	@Override
 	public FtpFile getHomeDirectory() throws FtpException {
@@ -180,21 +154,5 @@ public class BustaFSView implements FileSystemView {
 	
 	public OrgUnit getCurrentOwner() {
 		return this.currentOwner;
-	}
-	
-	public MediaService getMediaService() {
-		return this.mediaService;
-	}
-	
-	public TemplateService getTemplateService() {
-		return this.tService;
-	}
-	
-	public Authentication getAuthentication() {
-		return this.auth;
-	}
-	
-	public SecurityService getSecurityService() {
-		return this.secService;
 	}
 }
