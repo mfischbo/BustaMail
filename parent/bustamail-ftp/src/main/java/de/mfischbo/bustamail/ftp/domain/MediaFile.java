@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
-import de.mfischbo.bustamail.ftp.BustaMailFileSystemView;
+import de.mfischbo.bustamail.ftp.BustaFSView;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
 
@@ -18,7 +18,7 @@ public class MediaFile implements FtpFile {
 	private BustaFtpFile	parent;
 	private MediaService service;
 	
-	public MediaFile(Media m, BustaFtpFile parent, BustaMailFileSystemView fsView) {
+	public MediaFile(Media m, BustaFtpFile parent, BustaFSView fsView) {
 		this.media = m;
 		this.parent = parent;
 		this.service = fsView.getMediaService();

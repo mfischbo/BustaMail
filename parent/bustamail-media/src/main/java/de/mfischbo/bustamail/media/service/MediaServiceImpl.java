@@ -307,6 +307,11 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 		Set<ObjectId> ids = units.stream().map(OrgUnit::getId).collect(Collectors.toSet());
 		return dRepo.findByOwner(ids);
 	}
+	
+	@Override
+	public Directory getRootDirectoryByOrgUnit(OrgUnit unit) {
+		return dRepo.findRootByOwner(unit.getId());
+	}
 
 	@Override
 	public Directory getDirectoryById(ObjectId directory)

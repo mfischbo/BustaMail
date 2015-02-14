@@ -18,7 +18,9 @@ public class BustaMailFtpServer {
 
 	@Inject private BustaMailUserManager	ftpUserManager;
 	
-	@Inject private BustaMailFileSystemFactory ftpFileSystemFactory;
+	@Inject private BustaFtplet				ftpLet;
+	
+	@Inject private BustaFSFactory ftpFileSystemFactory;
 	
 	@PostConstruct
 	public void initialize() throws FtpException {
@@ -31,7 +33,7 @@ public class BustaMailFtpServer {
 		serverFactory.setUserManager(ftpUserManager);
 		serverFactory.setFileSystem(ftpFileSystemFactory);
 		
-		Map<String, Ftplet> ftpmap = Collections.singletonMap("default", new TemplatePackFtplet());
+		Map<String, Ftplet> ftpmap = Collections.singletonMap("default", ftpLet);
 		serverFactory.setFtplets(ftpmap);
 		
 		FtpServer server = serverFactory.createServer();

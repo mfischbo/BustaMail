@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.bson.types.ObjectId;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import de.mfischbo.bustamail.ftp.BustaMailFileSystemView;
+import de.mfischbo.bustamail.ftp.BustaFSView;
 import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.service.MediaService;
 
@@ -17,9 +18,9 @@ public class AliasDirectory implements BustaFtpFile {
 
 	private String 			name;
 	private BustaFtpFile 	parent;
-	private BustaMailFileSystemView	fsView;
+	private BustaFSView	fsView;
 	
-	public AliasDirectory(String name, BustaFtpFile parent, BustaMailFileSystemView fsView) {
+	public AliasDirectory(String name, BustaFtpFile parent, BustaFSView fsView) {
 		this.name = name;
 		this.parent = parent;
 		this.fsView = fsView;
@@ -126,7 +127,7 @@ public class AliasDirectory implements BustaFtpFile {
 				//	MediaDirectory intermediate = new MediaDirectory(d, this, this.fsView);
 				//	retval.addAll(intermediate.listFiles());
 				//}
-				retval.add(new MediaDirectory(d, this, this.fsView));
+				//retval.add(new MediaDirectory(d, this, this.fsView));
 			});
 			return retval;
 		}
@@ -157,5 +158,10 @@ public class AliasDirectory implements BustaFtpFile {
 	public String toString() {
 		return "DefaultFtpDirectory [getAbsolutePath()=" + getAbsolutePath()
 				+ ", getName()=" + getName() + "]";
+	}
+
+	@Override
+	public ObjectId getId() {
+		return null;
 	}
 }

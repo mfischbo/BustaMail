@@ -3,27 +3,22 @@ package de.mfischbo.bustamail.ftp;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
-import org.joda.time.DateTime;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import de.mfischbo.bustamail.ftp.domain.BustaFtpFile;
-import de.mfischbo.bustamail.ftp.domain.MediaDirectory;
-import de.mfischbo.bustamail.ftp.domain.MediaFile;
-import de.mfischbo.bustamail.ftp.domain.OrgUnitDirectory;
-import de.mfischbo.bustamail.ftp.domain.RootDirectory;
+import de.mfischbo.bustamail.ftp.domain.BaseFtpDirectory;
+import de.mfischbo.bustamail.ftp.domain.BaseFtpFile;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 import de.mfischbo.bustamail.security.service.SecurityService;
 import de.mfischbo.bustamail.template.service.TemplateService;
 
-public class BustaMailFileSystemView implements FileSystemView {
+public class BustaFSView implements FileSystemView {
 
 	private Authentication		auth;
 	
@@ -33,24 +28,23 @@ public class BustaMailFileSystemView implements FileSystemView {
 	
 	private MediaService		mediaService;
 	
-	private BustaFtpFile	    root;
+	private BaseFtpDirectory	root;
 
-	private BustaFtpFile		cwd;
+	private BaseFtpDirectory	cwd;
 	
 	private OrgUnit				currentOwner;
 	
 	private List<Media>			_pending;
 	
-	public BustaMailFileSystemView(TemplateService tService, SecurityService secService, MediaService mediaService, Authentication auth) {
+	public BustaFSView(TemplateService tService, SecurityService secService, MediaService mediaService, Authentication auth) {
 		this.tService = tService;
 		this.secService = secService;
 		this.mediaService = mediaService;
 		this.auth = auth;
 		this._pending = new LinkedList<>();
 		
-		Set<OrgUnit> units = secService.getOrgUnitsByCurrentUser();
-		this.root = new RootDirectory(units, this);
-		this.cwd  = this.root;
+		this.root = new BaseFtpDirectory("/", null, null);
+		this.cwd = root;
 	}
 	
 	private void navigateTo(String path) {
@@ -62,16 +56,14 @@ public class BustaMailFileSystemView implements FileSystemView {
 			this.cwd = this.cwd.getParent();
 			return;
 		}
-		
+	
+		if (!this.cwd.isInitialized())
+			this.cwd = initialize(this.cwd);
+			
 		for (FtpFile c : this.cwd.listFiles()) {
 			if (c.getName().equals(path)) {
-				this.cwd = (BustaFtpFile) c;
-				
-				// check if cwd is orgunit dir and set the current owner appropriately
-				if (this.cwd instanceof OrgUnitDirectory)
-					this.currentOwner = ((OrgUnitDirectory) this.cwd).getOrgUnit();
-				if (this.cwd instanceof RootDirectory)
-					this.currentOwner = null;
+				this.cwd = (BaseFtpDirectory) c;
+				this.currentOwner = this.cwd.getOwner();
 				return;
 			}
 		}
@@ -81,10 +73,12 @@ public class BustaMailFileSystemView implements FileSystemView {
 	public boolean changeWorkingDirectory(String arg0) throws FtpException {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		String[] parts = arg0.split("/");
+		if (parts.length == 0) 
+			this.cwd = this.root;
+		
 		for (int i=0; i < parts.length; i++) {
 			navigateTo(parts[i]);
 		}
-		
 		return true;
 	}
 
@@ -93,32 +87,58 @@ public class BustaMailFileSystemView implements FileSystemView {
 		System.out.println("Called dispose");
 	}
 
+	/**
+	 * Called when the client requests an action (e.g. LIST) on a certain file.
+	 * Requires the requested file to be fully initialized when returned
+	 */
 	@Override
 	public FtpFile getFile(String arg0) throws FtpException {
-		if (arg0.equals("/") || arg0.equals("./")) {
-			return this.cwd;
-		} else {
-			
-			// check if file is present
-			for (FtpFile f : this.cwd.listFiles()) {
-				if (f.getName().equals(arg0))
-					return f;
+		SecurityContextHolder.getContext().setAuthentication(this.auth);
+
+		if (arg0.equals("./") || arg0.equals("/")) {
+			if (!cwd.isInitialized()) {
+				return initialize(cwd);
+			} else {
+				return cwd;
 			}
-			
-			if (this.cwd instanceof MediaDirectory) {
-				// create a new file
-				Media m = new Media();
-				m.setName(arg0);
-				m.setDateCreated(DateTime.now());
-				m.setDateModified(DateTime.now());
-				m.setDirectory(((MediaDirectory) this.cwd).getDirectory().getId());
-				m.setOwner(this.currentOwner.getId());
-				this._pending.add(m);
-				MediaFile f = new MediaFile(m, this.cwd, this);
-				return f;
+		} else {
+			for (FtpFile f : cwd.listFiles()) {
+				if (f.getName().equals(arg0)) {
+					return initialize((BaseFtpFile) f);
+				}
 			}
 		}
 		return null;
+	}
+
+	
+	private BaseFtpDirectory initialize(BaseFtpDirectory dir) {
+		
+		// populate root
+		if (this.cwd.getAbsolutePath().equals("/")) 
+			return FtpFileFactory.populateRootDirectory(dir, secService.getOrgUnitsByCurrentUser());
+		
+		// populate intermediate directories
+		if (this.cwd.getAbsolutePath().equals("/" + currentOwner.getName()))
+			return FtpFileFactory.populateIntermediateDirs(dir);
+		
+		// populate subdirectories of media
+		if (this.cwd.getAbsolutePath().startsWith("/" + currentOwner.getName() + "/media"))
+			return FtpFileFactory.populateMediaDirectory(dir, currentOwner, mediaService);
+		
+		if (this.cwd.getAbsolutePath().startsWith("/" + currentOwner.getName() + "/templates")) {
+			if (this.cwd.getAbsolutePath().equals("/" + currentOwner.getName() + "/templates"))
+				return FtpFileFactory.populateTemplatesDirectory(dir, currentOwner, tService);
+			else {
+				return FtpFileFactory.populateTemplateDirectory(dir, currentOwner, tService, mediaService);
+			}
+		}
+		
+		return null;
+	}
+	
+	private BaseFtpFile initialize(BaseFtpFile file) {
+		return file;
 	}
 	
 	public boolean persistPendingMedia() {
@@ -150,6 +170,10 @@ public class BustaMailFileSystemView implements FileSystemView {
 	@Override
 	public boolean isRandomAccessible() throws FtpException {
 		return false;
+	}
+	
+	public OrgUnit getCurrentOwner() {
+		return this.currentOwner;
 	}
 	
 	public MediaService getMediaService() {

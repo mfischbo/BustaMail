@@ -3,28 +3,23 @@ package de.mfischbo.bustamail.ftp.domain;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.bson.types.ObjectId;
 
-import de.mfischbo.bustamail.ftp.BustaMailFileSystemView;
 import de.mfischbo.bustamail.media.domain.Directory;
-import de.mfischbo.bustamail.media.domain.Media;
-import de.mfischbo.bustamail.media.service.MediaService;
 
 public class MediaDirectory implements BustaFtpFile {
 
 	private Directory directory;
 	private BustaFtpFile parent;
-	private BustaMailFileSystemView fsView;
-	private MediaService	service;
+	//private BustaFSView fsView;
 	
-	public MediaDirectory(Directory d, BustaFtpFile parent, BustaMailFileSystemView fsView) {
+	public MediaDirectory(Directory d, BustaFtpFile parent/*, BustaFSView fsView*/) {
 		this.directory = d;
 		this.parent = parent;
-		this.fsView = fsView;
+		//this.fsView = fsView;
 	}
 	
 	public Directory getDirectory() {
@@ -48,7 +43,7 @@ public class MediaDirectory implements BustaFtpFile {
 
 	@Override
 	public boolean doesExist() {
-		return true;
+		return this.directory.getId() == null ? false : true;
 	}
 
 	@Override
@@ -118,6 +113,7 @@ public class MediaDirectory implements BustaFtpFile {
 
 	@Override
 	public List<FtpFile> listFiles() {
+		/*
 		SecurityContextHolder.getContext().setAuthentication(fsView.getAuthentication());
 		
 		MediaService mediaService = this.fsView.getMediaService();
@@ -134,11 +130,13 @@ public class MediaDirectory implements BustaFtpFile {
 		}
 		
 		return retval;
+		*/
+		return null;
 	}
 
 	@Override
 	public boolean mkdir() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -160,5 +158,10 @@ public class MediaDirectory implements BustaFtpFile {
 	public String toString() {
 		return "MediaDirectoryFtpFile [getAbsolutePath()=" + getAbsolutePath()
 				+ ", getName()=" + getName() + "]";
+	}
+
+	@Override
+	public ObjectId getId() {
+		return this.directory.getId();
 	}
 }

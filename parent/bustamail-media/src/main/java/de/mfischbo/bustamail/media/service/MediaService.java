@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
+import de.mfischbo.bustamail.security.domain.OrgUnit;
 
 public interface MediaService {
 
@@ -57,6 +58,9 @@ public interface MediaService {
 	// -----------------------//
 	
 	List<Directory> getDirectoryRoots();
+
+	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
+	Directory		getRootDirectoryByOrgUnit(OrgUnit unit);
 	
 	@PostAuthorize("hasPermission(returnObject.owner, 'Media.USE_MEDIA')")
 	Directory		getDirectoryById(ObjectId directory) throws EntityNotFoundException;

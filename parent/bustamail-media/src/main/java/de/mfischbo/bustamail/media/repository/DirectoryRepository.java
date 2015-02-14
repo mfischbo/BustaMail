@@ -15,6 +15,9 @@ public interface DirectoryRepository extends
 	@Query(" { 'owner' : { $in : ?0 }, 'parent' : null }")
 	List<Directory> findByOwner(Collection<ObjectId> owners);
 	
+	@Query(" { 'owner' : ?0, 'parent' : { $exists : false } }")
+	Directory findRootByOwner(ObjectId owner);
+	
 	@Query(" { 'owner' : ?1, 'parent' : ?0 } ")
 	List<Directory> findByParentAndOwner(ObjectId pid, ObjectId owner);
 }

@@ -16,7 +16,7 @@ import de.mfischbo.bustamail.security.service.SecurityService;
 import de.mfischbo.bustamail.template.service.TemplateService;
 
 @Component
-public class BustaMailFileSystemFactory implements FileSystemFactory {
+public class BustaFSFactory implements FileSystemFactory {
 
 	@Inject private TemplateService tService;
 	
@@ -36,6 +36,6 @@ public class BustaMailFileSystemFactory implements FileSystemFactory {
 		
 		Authentication ctxAuth = SecurityContextHolder.getContext().getAuthentication();
 		
-		return new BustaMailFileSystemView(tService, secService, mediaService, ctxAuth);
+		return new BustaFSView(tService, secService, mediaService, ctxAuth);
 	}
 }

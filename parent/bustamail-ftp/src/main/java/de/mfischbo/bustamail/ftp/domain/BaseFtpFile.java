@@ -3,64 +3,98 @@ package de.mfischbo.bustamail.ftp.domain;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.bson.types.ObjectId;
+import org.joda.time.DateTime;
 
-import de.mfischbo.bustamail.ftp.BustaFSView;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 
-public class OrgUnitDirectory implements BustaFtpFile {
-
-	private OrgUnit unit;
-	private BustaFtpFile	parent;
-	private BustaFSView fsView;
+public class BaseFtpFile implements FtpFile {
 	
-	public OrgUnitDirectory(OrgUnit unit, BustaFtpFile parent, BustaFSView fsView) {
-		this.unit = unit;
+	private ObjectId		id;
+	private String name;
+	private BaseFtpDirectory parent;
+	private OrgUnit owner;
+	private DateTime	dateCreated;
+	private DateTime	dateModified;
+	private boolean		_persistent;
+	private long		size;
+	
+	
+	public BaseFtpFile(String name, BaseFtpDirectory parent, OrgUnit owner) {
+		this.name = name;
 		this.parent = parent;
-		this.fsView = fsView;
+		this.owner = owner;
+	}
+
+	public ObjectId getId() {
+		return id;
+	}
+
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
+
+	public void setDateCreated(DateTime date) {
+		this.dateCreated = date;
 	}
 	
-	public OrgUnit getOrgUnit() {
-		return this.unit;
+	public void setDateModified(DateTime date) {
+		this.dateModified = date;
 	}
+	
+	public void setPersistent(boolean persistent) {
+		this._persistent = persistent;
+	}
+	
+	public boolean isPersistent(boolean persistent) {
+		return this._persistent;
+	}
+	
+	public void setSize(long size) {
+		this.size = size;
+	}
+	
 	
 	@Override
 	public InputStream createInputStream(long arg0) throws IOException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public OutputStream createOutputStream(long arg0) throws IOException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean delete() {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean doesExist() {
-		return true;
+		return this._persistent;
 	}
 
 	@Override
 	public String getAbsolutePath() {
-		return "/" + this.unit.getName();
+		return this.parent.getAbsolutePath() + "/" + this.name;
 	}
 
 	@Override
 	public String getGroupName() {
-		return "bustamail";
+		return this.owner.getName();
 	}
 
 	@Override
 	public long getLastModified() {
-		return this.unit.getDateModified().getMillis();
+		if (this.dateModified == null) return 0;
+		return this.dateModified.getMillis();
 	}
 
 	@Override
@@ -70,27 +104,27 @@ public class OrgUnitDirectory implements BustaFtpFile {
 
 	@Override
 	public String getName() {
-		return this.unit.getName();
+		return this.name;
 	}
 
 	@Override
 	public String getOwnerName() {
-		return "bustamail";
+		return this.owner.getName();
 	}
 
 	@Override
 	public long getSize() {
-		return 0;
+		return this.size;
 	}
 
 	@Override
 	public boolean isDirectory() {
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isFile() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -105,20 +139,17 @@ public class OrgUnitDirectory implements BustaFtpFile {
 
 	@Override
 	public boolean isRemovable() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isWritable() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public List<FtpFile> listFiles() {
-		List<FtpFile> retval = new ArrayList<>(2);
-		retval.add(new AliasDirectory("templates", this, this.fsView));
-		retval.add(new AliasDirectory("media", this, this.fsView));
-		return retval;
+		return null;
 	}
 
 	@Override
@@ -137,18 +168,7 @@ public class OrgUnitDirectory implements BustaFtpFile {
 	}
 
 	@Override
-	public BustaFtpFile getParent() {
-		return this.parent;
-	}
-
-	@Override
 	public String toString() {
-		return "OrgUnitFtpDirectory [getAbsolutePath()=" + getAbsolutePath()
-				+ ", getName()=" + getName() + "]";
-	}
-
-	@Override
-	public ObjectId getId() {
-		return this.unit.getId();
+		return "BaseFtpFile [getAbsolutePath()=" + getAbsolutePath() + "]";
 	}
 }
