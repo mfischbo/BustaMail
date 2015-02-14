@@ -73,6 +73,8 @@ public class MediaServiceImpl extends BaseService implements MediaService, Appli
 	@Override
 	public Media getMediaById(ObjectId id) throws EntityNotFoundException {
 		GridFSDBFile file = gridTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
+		if (file == null)
+			throw new EntityNotFoundException("Unable to open media file for id " + id);
 		return MediaUtils.convertFile(file);
 	}
 	

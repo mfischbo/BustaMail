@@ -9,24 +9,28 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 
+import de.mfischbo.bustamail.ftp.proxy.ISourceProxy;
 import de.mfischbo.bustamail.security.domain.OrgUnit;
 
 public class BaseFtpFile implements FtpFile {
 	
-	private ObjectId		id;
-	private String name;
-	private BaseFtpDirectory parent;
-	private OrgUnit owner;
-	private DateTime	dateCreated;
-	private DateTime	dateModified;
-	private boolean		_persistent;
-	private long		size;
+	private ObjectId			id;
+	private String 				name;
+	private BaseFtpDirectory 	parent;
+	private OrgUnit 			owner;
+	private DateTime			dateCreated;
+	private DateTime			dateModified;
+	private boolean				_persistent;
+	private ISourceProxy		_proxy;
+	private long				size;
 	
 	
-	public BaseFtpFile(String name, BaseFtpDirectory parent, OrgUnit owner) {
+	
+	public BaseFtpFile(String name, BaseFtpDirectory parent, OrgUnit owner, ISourceProxy proxy) {
 		this.name = name;
 		this.parent = parent;
 		this.owner = owner;
+		this._proxy = proxy;
 	}
 
 	public ObjectId getId() {
@@ -57,17 +61,14 @@ public class BaseFtpFile implements FtpFile {
 		this.size = size;
 	}
 	
-	
 	@Override
 	public InputStream createInputStream(long arg0) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return _proxy.getInputStream(this);
 	}
 
 	@Override
 	public OutputStream createOutputStream(long arg0) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return _proxy.getOutputStream(this);
 	}
 
 	@Override

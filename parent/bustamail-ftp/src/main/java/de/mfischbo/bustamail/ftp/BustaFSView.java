@@ -101,13 +101,12 @@ public class BustaFSView implements FileSystemView {
 	@Override
 	public FtpFile getFile(String arg0) throws FtpException {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
-
+		if (!cwd.isInitialized())
+			cwd = initialize(cwd);
+		
 		if (arg0.equals("./") || arg0.equals("/")) {
-			if (!cwd.isInitialized()) {
-				return initialize(cwd);
-			} else {
-				return cwd;
-			}
+			return cwd;
+			
 		} else {
 			for (FtpFile f : cwd.listFiles()) {
 				if (f.getName().equals(arg0)) {

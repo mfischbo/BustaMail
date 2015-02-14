@@ -19,25 +19,7 @@ public class BustaFtplet extends DefaultFtplet {
 
 	@Inject private MediaService		mService;
 
-	/*
-	@Override
-	public FtpletResult	beforeCommand(FtpSession session, FtpRequest request) throws FtpException, IOException {
-		return super.beforeCommand(session, request);
-	}
-	*/
-	
-	/*
-	public FtpletResult onListStart(FtpSession session, FtpRequest request) {
-		BustaFSView view = (BustaFSView) session.getFileSystemView();
-		try {
-			BustaFtpFile cwd = view.getWorkingDirectory();
-		} catch (Exception  ex) {
-			
-		}
-		return FtpletResult.DEFAULT;
-	}
-	*/
-	
+
 	@Override
 	public FtpletResult onMkdirStart(FtpSession session, FtpRequest request) {
 		BustaFSView view = (BustaFSView) session.getFileSystemView();

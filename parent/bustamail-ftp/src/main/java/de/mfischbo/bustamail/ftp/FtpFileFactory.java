@@ -10,6 +10,8 @@ import org.springframework.data.domain.Sort;
 import de.mfischbo.bustamail.exception.EntityNotFoundException;
 import de.mfischbo.bustamail.ftp.domain.BaseFtpDirectory;
 import de.mfischbo.bustamail.ftp.domain.BaseFtpFile;
+import de.mfischbo.bustamail.ftp.proxy.MediaProxy;
+import de.mfischbo.bustamail.ftp.proxy.TemplatePackProxy;
 import de.mfischbo.bustamail.media.domain.Directory;
 import de.mfischbo.bustamail.media.domain.Media;
 import de.mfischbo.bustamail.media.service.MediaService;
@@ -74,12 +76,14 @@ public class FtpFileFactory {
 			dir.getSubdirs().add(nd);
 		});
 		
+		final MediaProxy proxy = new MediaProxy(mService);
 		files.forEach(f -> {
-			BaseFtpFile nf = new BaseFtpFile(f.getName(), dir, currentUnit);
+			BaseFtpFile nf = new BaseFtpFile(f.getName(), dir, currentUnit, proxy);
+			nf.setId(f.getId());
 			nf.setDateCreated(f.getDateCreated());
 			nf.setDateModified(f.getDateModified());
 			nf.setPersistent(true);
-			nf.setSize(nf.getSize());
+			nf.setSize(f.getSize());
 			dir.getSubFiles().add(nf);
 		});
 		dir.setInitialized(true);
@@ -105,6 +109,8 @@ public class FtpFileFactory {
 		if (dir.isInitialized()) return dir;
 		try {
 			TemplatePack pack = service.getTemplatePackById(dir.getId());
+			final TemplatePackProxy proxy = new TemplatePackProxy(service, pack);
+			final MediaProxy		mProx = new MediaProxy(mService);
 			
 			// create subfolders for each template
 			pack.getTemplates().forEach( t -> {
@@ -113,14 +119,14 @@ public class FtpFileFactory {
 				d.setPersistend(true);
 			
 				// head html snippet
-				BaseFtpFile headHtml = new BaseFtpFile("head.html", d, currentUnit);
+				BaseFtpFile headHtml = new BaseFtpFile("head.html", d, currentUnit, proxy);
 				headHtml.setPersistent(true);
 				if (t.getHtmlHead() != null)
 					headHtml.setSize(t.getHtmlHead().getBytes().length);
 				d.getSubFiles().add(headHtml);
 				
 				// actual template file
-				BaseFtpFile indexHtml = new BaseFtpFile("index.html", d, currentUnit);
+				BaseFtpFile indexHtml = new BaseFtpFile("index.html", d, currentUnit, proxy);
 				indexHtml.setPersistent(true);
 				if (t.getSource() != null)
 					indexHtml.setSize(t.getSource().getBytes().length);
@@ -131,7 +137,7 @@ public class FtpFileFactory {
 				t.getImages().forEach(i -> {
 					try {
 						Media mImg = mService.getMediaById(i.getId());
-						BaseFtpFile img = new BaseFtpFile(mImg.getName(), imgDir, currentUnit);
+						BaseFtpFile img = new BaseFtpFile(mImg.getName(), imgDir, currentUnit, mProx);
 						img.setId(i.getId());
 						img.setDateCreated(mImg.getDateCreated());
 						img.setDateModified(mImg.getDateModified());
@@ -153,7 +159,7 @@ public class FtpFileFactory {
 				t.getResources().forEach(r -> {
 					try {
 						Media mRes = mService.getMediaById(r.getId());
-						BaseFtpFile res = new BaseFtpFile(r.getName(), resDir, currentUnit);
+						BaseFtpFile res = new BaseFtpFile(r.getName(), resDir, currentUnit, mProx);
 						res.setId(r.getId());
 						res.setDateCreated(mRes.getDateCreated());
 						res.setDateModified(mRes.getDateModified());
@@ -168,7 +174,7 @@ public class FtpFileFactory {
 				// widgets directory
 				BaseFtpDirectory widDir = new BaseFtpDirectory("widgets", d, currentUnit);
 				t.getWidgets().forEach( w -> {
-					BaseFtpFile wf = new BaseFtpFile(w.getName() + ".html", widDir, currentUnit);
+					BaseFtpFile wf = new BaseFtpFile(w.getName() + ".html", widDir, currentUnit, proxy);
 					wf.setPersistent(true);
 					wf.setId(w.getId());
 					if (w.getSource() != null)
