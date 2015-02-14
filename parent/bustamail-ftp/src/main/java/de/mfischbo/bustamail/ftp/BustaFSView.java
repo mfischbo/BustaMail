@@ -47,34 +47,41 @@ public class BustaFSView implements FileSystemView {
 		this.cwd = root;
 	}
 	
-	private void navigateTo(String path) {
-		if (path.equals("."))
-			return;
-		
-		if (path.equals("..")) {
+	private void navigateTo(String part) {
+		if (part.equals(".") || part.isEmpty()) return;
+			
+		if (part.equals("..")) {
 			if (this.cwd == this.root) return;
+				
 			this.cwd = this.cwd.getParent();
 			return;
 		}
-	
+			
 		if (!this.cwd.isInitialized())
 			this.cwd = initialize(this.cwd);
 			
 		for (FtpFile c : this.cwd.listFiles()) {
-			if (c.getName().equals(path)) {
+			if (c.getName().equals(part)) {
 				this.cwd = (BaseFtpDirectory) c;
 				this.currentOwner = this.cwd.getOwner();
 				return;
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean changeWorkingDirectory(String arg0) throws FtpException {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		String[] parts = arg0.split("/");
-		if (parts.length == 0) 
+
+		if (arg0.startsWith("/")) {
 			this.cwd = this.root;
+		}
+
+		if (parts.length == 0) {
+			this.cwd = this.root;
+			return true;
+		}
 		
 		for (int i=0; i < parts.length; i++) {
 			navigateTo(parts[i]);
